@@ -408,8 +408,23 @@ ol {
 }
 
 .header__logo {
-	padding: 30px 0;
+    position: absolute; /* Allows precise positioning */
+    top: 10px; /* Adjusts the vertical positioning slightly */
+    left: -220px; /* 10px from the left edge of the page */
+    padding: 0; /* Remove extra padding for precise alignment */
 }
+
+.logo-img {
+    width: 75px; /* Adjust as needed */
+    height: auto; /* Keeps aspect ratio */
+    border-radius: 50px;
+	width: 75px; /* Adjust as needed */
+        
+    margin-top: -7px;
+    margin-bottom: -25px;
+	
+}
+
 
 .header__logo a {
 	display: inline-block;

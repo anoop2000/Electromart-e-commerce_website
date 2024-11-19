@@ -1,0 +1,134 @@
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Include SweetAlert library -->
+
+<%- include("../../views/partials/admin/header") %>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 mt-60">
+            <form id="edit-category-form">
+                <div class="mb-4 mt-30">
+                    <label for="categoryName" class="form-label">Name</label>
+                    <input type="text" name="categoryName" id="categoryName" value="<%= category.name %>" class="form-control border" />
+                    <span id="name-error" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control border" id="description"><%= category.description %></textarea>
+                    <span id="description-error" class="text-danger"></span>
+                </div>
+
+                <div class="d-grid text-end mt-30 col-md-5">
+                    <button class="btn btn-primary" type="submit">Update Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<%- include("../../views/partials/admin/footer") %>
+
+
+
+
+
+
+<script>
+    const form = document.getElementById('edit-category-form');
+
+    form.addEventListener('submit', async function (event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        clearErrorMessages(); // Clear previous errors
+
+        const categoryName = document.getElementById('categoryName').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const nameError = document.getElementById('name-error');
+        const descriptionError = document.getElementById('description-error');
+        const categoryId = "<%= category._id %>"; 
+
+        let isValid = true;
+
+        // Basic validation for category name
+        if (categoryName === "") {
+            nameError.textContent = "Please enter a category name.";
+            isValid = false;
+        } else if (!/^[a-zA-Z\s]+$/.test(categoryName)) {
+            nameError.textContent = "Category name should contain only alphabetic characters.";
+            isValid = false;
+        }
+
+        // Basic validation for description
+        if (description === "") {
+            descriptionError.textContent = "Please enter a description.";
+            isValid = false;
+        } else if (description.length > 60) {
+            descriptionError.textContent = "Description should not exceed 60 characters.";
+            isValid = false;
+        }
+
+        // Stops further processing if basic validation fails
+        if (!isValid) {
+            return;
+        }
+
+        try {
+            // Check if the category already exists (case-insensitive)
+            const existsResponse = await fetch(`/admin/checkCategoryExists?name=${categoryName}`);
+            const existsResult = await existsResponse.json();
+
+            if (existsResult.exists) {
+                // If the category exists, show SweetAlert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Category already exists, please choose another name.',
+                });
+                return; // Stop further execution if category exists
+            }
+
+            // Send the data to the server for updating
+            const response = await fetch(`/admin/editCategory/${categoryId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    categoryName: categoryName,
+                    description: description,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                // If update is successful, show SweetAlert and redirect to category page
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: result.success,
+                }).then(() => {
+                    window.location.href = '/admin/category'; // Redirect after clicking OK
+                });
+            } else {
+                // If there is an error, show SweetAlert with the error message
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: result.error || 'Something went wrong, please try again later.',
+                });
+            }
+        } catch (error) {
+            // Handle any network or other errors
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Something went wrong. Please try again later.',
+            });
+        }
+    });
+
+    // Function to clear error messages
+    function clearErrorMessages() {
+        document.getElementById('name-error').textContent = "";
+        document.getElementById('description-error').textContent = "";
+    }
+</script>

@@ -3,6 +3,9 @@ const app = express()
 const path = require('path')
 const dotenv= require('dotenv')
 const session = require('express-session')
+
+const passport = require('./config/passport')
+
 dotenv.config()
 const db = require('./config/db')
 const userRouter = require('./routes/userRouter')
@@ -25,6 +28,20 @@ app.use(session({
     }
 }))
 
+app.use(passport.initialize())
+app.use(passport.session())
+
+app.use((req,res,next)=>{
+    if(req.session.user){
+        res.locals.user = req.session.user;
+
+    }else{
+        res.locals.user = null
+    }
+    next();
+})
+
+
 app.use((req,res,next)=>{
     res.set('cache-control','no-store')
     next()
@@ -41,11 +58,14 @@ app.use(express.static(path.join(__dirname,'public')))
 app.use('/',userRouter)
 app.use('/admin',adminRouter)
 
-const PORT =  process.env.PORT || 9002;
+const PORT =  process.env.PORT || 3000;
 app.listen(PORT,()=> console.log(`Server running on ${PORT}`)
 )
 
 module.exports = app
+
+
+
 
 
 
