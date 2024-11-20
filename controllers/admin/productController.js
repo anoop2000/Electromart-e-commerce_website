@@ -109,9 +109,11 @@ const getAllProducts = async(req,res)=>{
         })
         .limit(limit*1)
         .skip((page-1)*limit)
-        .populate('category')
+        .populate('category')//to access name/fields
         .exec();
 
+        console.log(productData);
+        
 
         const count = await Product.find({
             $or:[
@@ -142,6 +144,11 @@ const getAllProducts = async(req,res)=>{
     }
 }
 
+//--------------------------------
+
+
+
+
 
 const addProductOffer = async(req,res)=>{
     try {
@@ -150,6 +157,9 @@ const addProductOffer = async(req,res)=>{
         const findProduct = await Product.findOne({_id:productId})
         const findCategory = await Category.findOne({_id:findProduct.category})
 
+        
+        
+
         if(findCategory.categoryOffer > percentage){
             return res.json({status:false , message :"This products category already has a category offer"})
         }
@@ -157,13 +167,18 @@ const addProductOffer = async(req,res)=>{
         findProduct.salePrice = findProduct.salePrice - Math.floor(findProduct.regularPrice*(percentage/100))
         findProduct.productOffer = parseInt(percentage);
         await findProduct.save()
+
+        console.log("Updated Sale Price:", findProduct.salePrice);
+
+
+
         findCategory.categoryOffer = 0;
         await findCategory.save()
         res.json({status:true})
         
 
     } catch (error) {
-        res.redirect('/pageerror')
+        
         res.status(500).json({status:false,message:"Internal Server Error"});
         
     }
@@ -232,6 +247,80 @@ const getEditProduct = async(req,res)=>{
     }
 }
 
+const editProduct = async(req,res)=>{
+    try {
+        const id=  req.params.id;
+        const product = await Product.findOne({_id:id})
+        const data = req.body;
+        const existingProduct = await Product.findOne({
+            productName : data.productName,
+            _id :{$ne:id}//-----------------------------------------------------
+        })
+
+        if(existingProduct){
+            return res.status(400).json({error :"Product with this name already exists.Please try with another name"})
+        }
+
+        const images = [];
+        if(req.files && req.files.length>0){
+            for(let i=0;i<req.files.length;i++){
+                images.push(req.files[i].filename);
+            }
+        }
+
+        const updateFields = {
+            productName : data.productName,
+            description : data.description,
+            brand : data.brand,
+            category : data.category,
+            regularPrice : data.regularPrice,
+            salePrice : data.salePrice,
+            quantity : data.quantity,
+            color : data.color
+        }
+
+        if(req.files.length>0){
+            updateFields.$push = {productImage : {$each : images}}
+        }
+
+        await Product.findByIdAndUpdate(id,updateFields,{new : true})
+        res.redirect('/admin/products')
+
+
+    } catch (error) {
+        console.error(error);
+        res.redirect('/pageerror')
+        
+        
+    }
+}
+
+const deleteSingleImage = async(req,res)=>{
+    try {
+
+        const {imageNameToServer,productIdToServer} = req.body;
+
+        const product = await Product.findByIdAndUpdate(
+            productIdToServer,
+            {$pull:{productImage: imageNameToServer}}) 
+        const imagePath = path.join('public','uploads','re-image',imageNameToServer)
+        if(fs.existsSync(imagePath)){
+            await fs.unlinkSync(imagePath);//--------------------------------------------
+            console.log(`Image ${imageNameToServer} deleted Successfully`);
+            
+        }else{
+            console.log(`Image ${imageNameToServer} not found`);
+            
+        }
+        res.send({status : true});
+
+
+    } catch (error) {
+        res.redirect('/pageerror')
+        
+    }
+}
+
 
 
 
@@ -245,7 +334,9 @@ module.exports = {
     removeProductOffer,
     blockProduct,
     unblockProduct,
-    getEditProduct
+    getEditProduct,
+    editProduct,
+    deleteSingleImage
 }
 
 

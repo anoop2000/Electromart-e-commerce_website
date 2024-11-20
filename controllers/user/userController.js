@@ -1,5 +1,8 @@
 
 const User = require("../../models/userSchema");
+const Category  = require('../../models/categorySchema')
+const Product = require('../../models/productSchema')
+
 const nodemailer = require("nodemailer");
 const env = require("dotenv").config();
 const bcrypt = require('bcrypt');
@@ -18,19 +21,47 @@ const loadHomepage = async (req,res) => {
   try{
 
     const user = req.session.user
+    const categories = await Category.find({isListed:true})
+
+                                                         //console.log("Categories:", categories);
+
+    let productData = await Product.find({
+      isBlocked :false,
+                                                          // category : {$in : categories.map(category=> category._id)},
+      quantity : {$gt:0}
+    })
+                                                         //console.log("Products Before Slice:", productData);
+
+
+
+    productData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+
+
+
+    productData = productData.slice(0,4)
+
+                                                        //console.log("Products After Slice:", productData);
+    
+
     if(user){
 
       const userData = await  User.findOne({_id:user._id})
-      res.render('home',{user:userData})
+      res.render('home',{user:userData, products :productData})
     }else{
-      return res.render('home')
+      return res.render('home',{products :productData})
     }
     
+    
   }catch(error){
-    console.log("Home page not found");
+    console.log("Home page not found",error);
     res.status(500).send("Server error");
   }
 }
+
+
+
+
 
 const loadSignup = async (req,res) => {
   try{
@@ -290,15 +321,15 @@ const signup = async (req, res) => {
 
       const findUser = await User.findOne({isAdmin:0,email:email});
 
-      if(!findUser){// If user is not found
+      if(!findUser){
         return res.render('login',{message:"User not found"})
       }
-      if(findUser.isBlocked){ // Check if user is blocked
+      if(findUser.isBlocked){ //
         return res.render("login",{message :"User is blocked by Admin"})
       }
 
 
-      // Compare passwords (awaiting bcrypt compare)
+      // Compare passwords 
       const passwordMatch = await bcrypt.compare(password, findUser.password)
       
       // If password does not match

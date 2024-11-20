@@ -15,11 +15,17 @@ const productSchema = new Schema({
         type : String,
         required : true
     },
-    category : {
-        type : Schema.Types.ObjectId,
-        ref : "Category",
+    // category : {
+    //     type : Schema.Types.ObjectId,
+    //     ref : "Category",
+    //     required : true
+    // },
+
+    category :{
+        type : String,
         required : true
     },
+    
     regularPrice : {
         type: Number,
         required : true
@@ -48,6 +54,7 @@ const productSchema = new Schema({
         type  : Boolean,
         default : false
     },
+    
     status : {
         type : String,
         enum : ["Available","Out of stock","Discontinued"],
@@ -59,3 +66,12 @@ const productSchema = new Schema({
 const Product = mongoose.model("Product",productSchema)
 
 module.exports = Product
+
+
+
+// createdOn :{
+    //     type : Date,
+    //     default : Date.now
+
+    // }
+    //,

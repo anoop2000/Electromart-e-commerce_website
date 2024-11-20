@@ -2,7 +2,8 @@ const express = require('express')
 const router =  express.Router()
 const passport  = require('passport')
 const userController = require('../controllers/user/userController')
-
+const { userAuth } = require('../middlewares/auth')
+const productController = require('../controllers/user/productController')
 
 router.get('/pageNotFound',userController.pageNotFound)
 router.get('/',userController.loadHomepage)
@@ -19,10 +20,14 @@ router.get('/auth/google/callback',passport.authenticate('google',{failureRedire
     res.redirect('/')
 })
 
+//login management
 router.get('/login',userController.loadLogin)
 router.post('/login',userController.login)
-
 router.get('/logout',userController.logout);
+
+
+//product-details page
+router.get('/product-details',userAuth,productController.productDetails)
 
 
 
