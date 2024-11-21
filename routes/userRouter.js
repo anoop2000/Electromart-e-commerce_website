@@ -34,6 +34,7 @@ router.get('/product-details',userAuth,productController.productDetails)
 
 
 
+
 module.exports = router;
 
 

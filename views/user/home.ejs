@@ -26,29 +26,28 @@
       transform: translateY(1px);
   }
   .wishlist-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background-color: rgba(255, 255, 255, 0.8);
-      padding: 10px;
-      border-radius: 50%;
-      color: #ff6b6b;
-      font-size: 18px;
-      z-index: 10;
-      transition: background-color 0.3s, color 0.3s, transform 0.3s;
-  }
+    position: absolute;
+    top: 50%; /* Vertically center within the container */
+    right: -8px; /* Align to the right end */
+    transform: translateY(-50%); /* Center align vertically */
+    color: #17a2b8; /* Initial color (btn-info) */
+    font-size: 15px; /* Set a smaller font size */
+    z-index: 10;
+    transition: color 0.3s, transform 0.3s;
+    background: none; /* No background */
+    border: none; /* No border */
+    outline: none; /* Remove focus outline */
+}
 
+.wishlist-btn:hover {
+    color: #eb0d0d; /* Change to btn-success on hover */
+    transform: translateY(-50%) scale(1.1); /* Slight hover effect */
+}
 
-  .wishlist-btn:hover {
-      background-color: rgba(255, 255, 255, 1);
-      color: #ff4c4c;
-      transform: translateY(-2px);
-  }
+.wishlist-btn:active {
+    transform: translateY(-50%) scale(0.95); /* Pressed effect */
+}
 
-
-  .wishlist-btn:active {
-      transform: translateY(1px);
-  }
 
 
   .product-img-action-wrap {
@@ -205,15 +204,18 @@
                           </a> -->
                       </div>
 
-                      <div class="product-action-1" >
-                        <a aria-label="Add to Wishlist" class="action-btn " href="/addToWishlist?id=<%=products[i]._id%>"><i class="fas fa-heart"></i></a>
-
-                      </div>
+                      <div class="product-action-1" style="position: relative;">
+                        <a aria-label="Add to Wishlist" class="wishlist-btn" href="/addToWishlist?id=<%=products[i]._id%>">
+                            <i class="fas fa-heart"></i>
+                        </a>
+                    </div>
+                    
+                    
 
 
                       <div class="product-content-wrap">
                           <h6><%=products[i].productName%></h6>
-                          <h5><%=products[i].salePrice%><i class="fas fa-indian-rupee-sign"></i></h5>
+                          <h5><i class="fas fa-indian-rupee-sign"></i><%=products[i].salePrice%></h5>
                           <a href="/addToCart?id=<%=products[i]._id%>">Add to Cart</a>
                       </div>
                   </div>
