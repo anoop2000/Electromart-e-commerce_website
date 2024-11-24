@@ -17,6 +17,22 @@ const pageNotFound = async (req,res)=>{
 }
 
 
+const aboutUs = (req, res) => {
+  try {
+      res.render('aboutUs', {
+          title: 'About Us',
+          description: 'Learn more about our company, mission, and values.',
+      });
+  } catch (error) {
+      console.error("Error rendering about page:", error);
+      res.redirect('/pageerror'); // Redirect to an error page if needed
+  }
+};
+
+
+
+
+
 const loadHomepage = async (req,res) => {
   try{
 
@@ -39,7 +55,7 @@ const loadHomepage = async (req,res) => {
 
 
 
-    productData = productData.slice(0,4)
+    //productData = productData.slice(0,4)
 
                                                         //console.log("Products After Slice:", productData);
     
@@ -246,7 +262,7 @@ const signup = async (req, res) => {
 
           req.session.user= saveUserData._id;
 
-          res.json({success: true,redirectUrl :"/"})
+          res.json({success: true,redirectUrl :"/login"})
 
 
       }else{
@@ -375,5 +391,6 @@ module.exports = {
   resendOtp,
   loadLogin,
   login,
-  logout
+  logout,
+  aboutUs
 }

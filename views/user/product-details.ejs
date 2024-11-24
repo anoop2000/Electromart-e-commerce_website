@@ -148,116 +148,114 @@
 
 
     .breadcrumb-container {
-    background-color: #f8f9fa; /* Light gray background for contrast */
+    background-color: #f8f9fa; 
     padding: 10px 20px;
-    border-bottom: 1px solid #eaeaea; /* Optional border for separation */
-    margin-top: 70px; /* Adjust this to clear the navbar if it is fixed */
+    border-bottom: 1px solid #eaeaea; 
+    margin-top: 70px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .breadcrumb {
     font-size: 14px;
-    color: #6c757d; /* Neutral gray color */
+    color: #6c757d; 
     font-family: Arial, sans-serif;
 }
 
 .breadcrumb a {
     text-decoration: none;
-    color: #007bff; /* Blue links */
+    color: #007bff; 
     margin-right: 5px;
 }
 
 .breadcrumb a:hover {
-    text-decoration: underline; /* Highlight link on hover */
+    text-decoration: underline; 
 }
 
 .breadcrumb span {
-    color: #333; /* Dark color for the current page */
+    color: #333;
     font-weight: bold;
 }
 
  /* Styling for the rating stars */
  .rating-stars {
         display: inline-flex;
-        gap: 3px; /* Space between stars */
-        font-size: 16px; /* Adjust star size */
+        gap: 3px;
+        font-size: 16px; 
         vertical-align: middle;
     }
 
     .text-warning {
-        color: #ffc107; /* Bright yellow for filled stars */
+        color: #ffc107; 
     }
 
     .text-muted {
-        color: #e0e0e0; /* Light gray for empty stars */
+        color: #e0e0e0; 
     }
 
     .product-detail-rating {
         display: flex;
         align-items: center;
-        gap: 8px; /* Space between "Ratings:" and stars */
-        font-size: 14px; /* Adjust text size */
+        gap: 8px; 
+        font-size: 14px;
     }
 
     .font-small {
         font-size: 13px;
-        color: #6c757d; /* Muted text color */
+        color: #6c757d; 
     }
 
     .product-detail-rating span {
-        vertical-align: middle; /* Align stars and text */
+        vertical-align: middle; 
     }
 
 
     .product-detail-rating {
         display: flex;
         align-items: center;
-        gap: 10px; /* Space between "Ratings:", stars, and reviews */
-        font-size: 16px; /* Adjust font size for better visibility */
+        gap: 10px; 
+        font-size: 16px; 
         margin-top: 10px;
     }
 
     /* Styling for the star icons */
     .rating-stars {
         display: inline-flex;
-        gap: 5px; /* Space between stars */
+        gap: 5px; 
     }
 
     .rating-stars i {
-        font-size: 13px; /* Adjust size of the stars */
+        font-size: 13px; 
     }
 
     .text-warning {
-        color: #ffc107; /* Bright yellow for filled stars */
+        color: #ffc107; 
     }
 
     .text-muted {
-        color: #d6d6d6; /* Light gray for unfilled stars */
+        color: #d6d6d6; 
     }
 
     /* Styling the reviews text */
     .font-small {
         font-size: 14px;
-        color: #6c757d; /* Muted gray for text */
+        color: #6c757d;
     }
 
     .thin-line {
-        display: inline-block; /* Allows the span to have width and height */
-        width: 100%; /* Adjust width as needed */
-        height: 1px; /* Thin line height */
-        background-color: #ccc; /* Color of the line */
-        margin: 5px 0; /* Optional: Space above and below the line */
+        display: inline-block; 
+        width: 100%;
+        height: 1px; 
+        background-color: #ccc; 
+        margin: 5px 0; 
     }
 
 
     /* related product section */
 
-
+    .related-products-sectionP{
+        margin-left: 100px;
+    }
    
-
-
- /* related product section */
-
 
 
     /* Responsive Styles */
@@ -341,10 +339,10 @@
                 
             </div>
 
-            <% if (product.quantity > 0) { %>
-                <li>Availability:<span class="in-stock text-success ml-5"><%=quantity%>Items in Stock</span></li>
+            <% if (product.quantity > 1) { %>
+                <li>Availability:<span class="in-stock text-success ml-5"><%=quantity%> Items in Stock</span></li>
             <% } else { %>
-                <span class="out-of-stock text-danger">Out of Stock</span>
+                <span class="out-of-stock text-danger">  <span style="color:#555;">Availability</span>:                 Out of Stock</span>
             <% } %>
 
             <div class="short-desc">
@@ -365,7 +363,7 @@
             <!-- Add to Cart -->
             
             <button type="submit" class="button button-add-to-cart" 
-                 <% if (product.quantity = 0) { %> 
+                 <% if (product.quantity === 0 || product.quantity === 1) { %> 
                                     disabled 
                              style="cursor: not-allowed;" 
                 <% } else { %> 
@@ -393,7 +391,7 @@
                     <span style="font-size: 14px; text-decoration: line-through; color: #999;">$<%= product.regularPrice %></span>
                     <span style="font-size: 16px; font-weight: bold; color: darkgreen;">$<%= product.salePrice %></span>
                 </div>
-                <a href="/productDetails/<%= product._id %>" class="button view-details-button" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">View Details</a>
+                <a href="/product-details?id=<%= product._id %>" class="button view-details-button" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">View Details</a>
             </div>
         <% }) %>
 

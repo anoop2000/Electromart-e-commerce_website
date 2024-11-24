@@ -63,7 +63,7 @@ const productDetails = async (req, res) => {
 
         // Fetch related products based on the category
         const relatedProducts = await Product.find({
-            category: findCategory._id, // Match the same category
+            category: findCategory, // Match the same category
             _id: { $ne: productId }    // Exclude the current product
         }).limit(4); // Limit the number of related products
 

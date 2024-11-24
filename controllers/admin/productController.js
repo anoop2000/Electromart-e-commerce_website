@@ -109,10 +109,10 @@ const getAllProducts = async(req,res)=>{
         })
         .limit(limit*1)
         .skip((page-1)*limit)
-        .populate('category')//to access name/fields
+        .populate('category')
         .exec();
 
-        console.log(productData);
+        //console.log(productData);
         
 
         const count = await Product.find({

@@ -1,0 +1,116 @@
+<%- include("../../views/partials/user/header") %>
+<style>
+
+/* General Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    
+    background-color: #f5f5f5;
+    min-height: 100vh; 
+}
+
+
+header {
+    background-color: #444; 
+    padding: 20px 0;
+    color: #fff;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+main {
+    padding: 20px;
+    margin: 20px auto; 
+    max-width: 800px;
+    background: #fff;
+    border-radius: 8px;
+   
+}
+
+
+.about-section h3 {
+    text-align: center;
+    font-size: 28px;
+    color: #444; 
+    margin-bottom: 10px;
+}
+
+.about-section p {
+    font-size: 16px;
+    margin: 10px 0;
+    text-align: justify;
+}
+
+.about-section h4 {
+    font-size: 22px;
+    color: #666; 
+    margin-top: 20px;
+}
+
+.about-section ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.about-section ul li {
+    font-size: 16px;
+    margin: 5px 0;
+    color: #555;
+    list-style: disc;
+}
+
+
+footer {
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px 0;
+    background-color: #444; 
+    color: #fff;
+    font-size: 14px;
+}
+
+
+@media (max-width: 768px) {
+    main {
+        padding: 15px;
+    }
+
+    .about-section h3 {
+        font-size: 24px;
+    }
+
+    .about-section h4 {
+        font-size: 20px;
+    }
+}
+
+</style>
+
+<body>
+    <header>
+        
+    </header>
+    <main>
+        <section class="about-section">
+            <h3>About Us</h3>
+            <p>Welcome to our e-commerce store! We are dedicated to providing the best electronic gadgets to our customers. Our mission is to deliver quality products and exceptional customer service.</p>
+            <p>From smartphones to smartwatches, we have everything you need to stay connected and productive.</p>
+            <h4>Our Values</h4>
+            <ul>
+                <li>Quality</li>
+                <li>Innovation</li>
+                <li>Customer Satisfaction</li>
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Electromart. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+<%- include("../../views/partials/user/footer") %>
+
