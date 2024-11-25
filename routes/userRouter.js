@@ -7,12 +7,10 @@ const productController = require('../controllers/user/productController')
 const profileController = require('../controllers/user/profileController')
 
 router.get('/pageNotFound',userController.pageNotFound)
-router.get('/',userController.loadHomepage)
 router.get('/aboutUs',userController.aboutUs)
 
 router.get('/signup',userController.loadSignup)
 router.post('/signup',userController.signup)
-router.get('/shop',userController.loadShopping)
 router.post('/verify-otp',userController.verifyOtp)
 router.post('/resend-otp',userController.resendOtp)
 
@@ -30,6 +28,10 @@ router.get('/logout',userController.logout);
 
 //product-details page
 router.get('/product-details',userAuth,productController.productDetails)
+
+//home page & shopping page
+router.get('/',userController.loadHomepage)
+router.get('/shop',userAuth,userController.loadShoppingPage)
 
 
 //profile management
@@ -54,9 +56,9 @@ router.get('/userProfile',userAuth,profileController.userProfile)
 //Address management
 router.get('/addAddress',userAuth,profileController.addAddress)
 router.post('/addAddress',userAuth,profileController.postAddAddress)
-router.get('/edit-address',userAuth,profileController.editAddress)
-
-
+router.get('/editAddress',userAuth,profileController.editAddress)
+router.post('/editAddress',userAuth,profileController.postEditAddress)
+router.get('/deleteAddress',userAuth,profileController.deleteAddress)
 
 
 
