@@ -1,4 +1,5 @@
 const User  =  require('../../models/userSchema')
+const Address = require('../../models/addressSchema')
 const nodemailer = require('nodemailer')
 const bcrypt = require('bcrypt')
 const env = require('dotenv').config()
@@ -64,16 +65,18 @@ const securePassword = async(password)=>{
 
 
 
-const userProfile = async(req,res)=>{
+const userProfile = async(req,res)=>{   
     try {
         const userId=  req.session.user;
         const userData = await User.findById(userId)
+        const addressData = await Address.findOne({userId : userId})
 
         const emailUpdated = req.session.emailUpdated || false;
         req.session.emailUpdated = null;
        
         res.render('userProfile',{
             user :userData,
+            userAddress : addressData,
             emailUpdated 
         })
     } catch (error) {
@@ -365,6 +368,84 @@ const verifyChangePassOtp = async(req,res)=>{
     }
 }
 
+
+
+
+const addAddress = async(req,res)=>{
+    try {
+        const user = req.session.user;
+        
+        
+        res.render('add-address',{user : user})
+        
+    } catch (error) {
+        res.redirect('/pageNotFound')
+        
+    }
+
+}
+
+const postAddAddress = async(req,res)=>{
+    try {
+        const userId  = req.session.user;
+        const userData = await User.findOne({_id:userId})
+        const {addressType ,name,city,landMark,state,pincode,phone,altPhone} = req.body;
+
+        const userAddress = await Address.findOne({userId :userData._id})
+        if(!userAddress){
+            const newAddress = new Address({
+                userId : userData._id,
+                address : [{addressType,name,city,landMark,state,pincode,phone,altPhone}]
+            });
+            await newAddress.save()
+        }else{
+            userAddress.address.push({addressType,name,city,landMark,state,pincode,phone,altPhone})
+            await userAddress.save()
+        }
+        res.redirect('/userProfile')
+    } catch (error) {
+        console.error("Error adding address :",error);
+        res.reidrect('/pageNotFound')
+        
+    }
+}
+
+
+const editAddress = async(req,res)=>{
+    
+    try {
+        const addressId = req.query.id;
+        const user = req.session.user;
+        const currentAddress = await Address.findOne({
+            'address._id' : addressId
+        })
+
+        if(!currentAddress){
+            return res.redirect('/pageNotFound')
+        }
+        const addressData = currentAddress.address.find((item)=>{
+            return item._id.toString() === addressId.toString();
+        })
+        if(!addressData){
+            return res.redirect('/pageNotFound')
+        }
+
+        res.render('edit-address',{
+            address : addressData,
+            user : user
+        })
+        
+    } catch (error) {
+        console.error("Error in editing address",error);
+        res.redirect('/pageNotFound')
+        
+        
+        
+    }
+}
+
+
+
 module.exports = {
     userProfile,
     getForgotPassPage,
@@ -379,5 +460,8 @@ module.exports = {
     updateEmail,
     changePassword,
     changePasswordValid,
-    verifyChangePassOtp
+    verifyChangePassOtp,
+    addAddress,
+    postAddAddress,
+    editAddress
 }

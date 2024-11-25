@@ -51,7 +51,10 @@ router.post('/verify-changepassword-otp',userAuth,profileController.verifyChange
 
 router.get('/userProfile',userAuth,profileController.userProfile)
 
-
+//Address management
+router.get('/addAddress',userAuth,profileController.addAddress)
+router.post('/addAddress',userAuth,profileController.postAddAddress)
+router.get('/edit-address',userAuth,profileController.editAddress)
 
 
 
