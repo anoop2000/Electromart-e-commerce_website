@@ -32,7 +32,10 @@ router.get('/product-details',userAuth,productController.productDetails)
 //home page & shopping page
 router.get('/',userController.loadHomepage)
 router.get('/shop',userAuth,userController.loadShoppingPage)
-
+router.get('/filter',userAuth,userController.filterProduct)
+router.get('/filterPrice',userAuth,userController.filterByPrice)
+router.post('/search',userAuth,userController.searchProducts)
+router.get('/filterAlphabets',userAuth,userController.filterByAlphabets)
 
 //profile management
 router.get('/forgot-password',profileController.getForgotPassPage)

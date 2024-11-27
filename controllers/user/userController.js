@@ -99,10 +99,14 @@ const loadShoppingPage = async (req,res) => {
     const page  = parseInt(req.query.page) || 1;
     const limit  = 9;
     const skip = (page-1)*limit;
+
+    //console.log("category ids:",categoryIds);
+    
+
     const products = await Product.find({
       isBlocked : false,
       category : {$in :categoryIds},
-      qunatity :{$gt :0},
+      quantity :{$gt :0},
 
     }).sort({createdAt : -1}).skip(skip).limit(limit)
     
@@ -113,9 +117,11 @@ const loadShoppingPage = async (req,res) => {
     })
     const totalPages = Math.ceil(totalProducts/limit);
     const brands = await Brand.find({isBlocked : false})
-    const categoriesWithIds = categories.map[category =>({_id : category._id,name :category.name})]
+    const categoriesWithIds = categories.map(category =>({_id : category._id,name :category.name}))
 
-
+    //console.log("category with  ids :",categoriesWithIds);
+    
+    
 
      res.render('shop',{
       user : userData,
@@ -126,6 +132,10 @@ const loadShoppingPage = async (req,res) => {
       currentPage : page,
       totalPages : totalPages
      });
+
+     //console.log(products);
+     
+
   }catch (error) {
     res.redirect('/pageNotFound')
     
@@ -414,6 +424,236 @@ const signup = async (req, res) => {
     }
   }
 
+
+
+  const filterProduct  = async(req,res)=>{
+    try {
+      const user = req.session.user;
+      const category = req.query.category;
+      const brand = req.query.brand;
+
+      const findCategory = category ? await Category.findOne({_id : category}) : null;
+      const findBrand= brand ? await Brand.findOne({_id : brand}) : null;
+      const brands = await Brand.find({}).lean();
+
+      const query = {
+        isBlocked : false,
+        quantity : {$gt :0},
+
+      }
+        if(findCategory){
+          query.category = findCategory._id;
+
+        }
+
+        if(findBrand){
+          query.brand = findBrand.brandName;
+        }
+      
+        let findProducts = await Product.find(query).lean();//retrive as objects from mongoDB
+        findProducts.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
+
+        const categories = await Category.find({isListed :true});
+
+        let itemsPerPage = 6;
+        let currentPage = parseInt(req.query.page) || 1
+        let startIndex = (currentPage-1) * itemsPerPage
+        let endIndex = (startIndex+itemsPerPage)
+        let totalPages = Math.ceil(findProducts.length/itemsPerPage)
+        let currentProduct = findProducts.slice(startIndex,endIndex);
+        let userData = null;
+        if(user){
+          userData = await User.findOne({_id : user});
+          if(userData){
+            const searchEntry = {
+              category : findCategory ? findCategory._id : null,
+              brand : findBrand ? findBrand.brandName : null,
+              searchedOn : new Date()
+          }
+          userData.searchHistory.push(searchEntry)
+          await userData.save()
+        }
+      }
+
+      req.session.filteredProducts =  currentProduct;
+
+      return res.render('shop',{
+        user : userData,
+        products : currentProduct,
+        category: categories,
+        brand : brands,
+        totalPages,
+        currentPage,
+        selectedCategory : category || null,
+        selectedBrand : brand || null
+      })
+      
+      
+
+    } catch (error) {
+      console.error("Error in filterProduct:", error);
+      res.redirect('/pageNotFound')
+      
+    }
+  }
+
+
+
+  const filterByPrice = async(req,res)=>{
+    try {
+
+      const user = req.session.user;
+      const userData = await User.findOne({_id: user})
+      const brands = await Brand.find({}).lean()
+      const categories = await Category.find({isListed : true}).lean();
+      
+      let findProducts = await Product.find({
+        salePrice : {$gt: req.query.gt,$lt : req.query.lt},
+        isBlocked : false,
+        quantity : {$gt :0}
+      }).lean()
+
+      findProducts.sort((a,b)=>new Date(b.createdAt) - new Date(a.createdAt))
+
+      let itemsPerPage = 6;
+      let currentPage = parseInt(req.query.page) || 1;
+      let startIndex = (currentPage-1) * itemsPerPage
+      let endIndex = startIndex+itemsPerPage;
+      let totalPages = Math.ceil(findProducts.length/itemsPerPage)
+      const currentProduct = findProducts.slice(startIndex,endIndex)
+
+      req.session.filteredProducts = findProducts;
+      return res.render('shop',{
+        user : userData,
+        products :  currentProduct,
+        category : categories,
+        brand : brands,
+        totalPages,
+        currentPage,
+
+
+
+      })
+
+
+      
+    } catch (error) {
+      console.error("Error in filtering products",error);
+      res.redirect('/pageNotFound')
+      
+    }
+  }
+
+
+  
+
+
+  const searchProducts = async (req, res) => {
+    try {
+      const user = req.session.user;
+      const userData = user ? await User.findOne({ _id: user }) : null;
+      const search = req.body.query?.trim(); 
+      if (!search) {
+        return res.render('shop', {
+          user: userData,
+          products: [],
+          category: [],
+          brand: [],
+          totalPages: 0,
+          currentPage: 1,
+          count: 0,
+        });
+      }
+  
+      const brands = await Brand.find({}).lean();
+      const categories = await Category.find({ isListed: true }).lean(); 
+      const categoryIds = categories.map((category) => category._id.toString());
+      let searchResult = [];
+  
+      if (req.session.filteredProducts && req.session.filteredProducts.length > 0) {
+        // Filter from session-stored products
+        searchResult = req.session.filteredProducts.filter((product) =>
+          product.productName.toLowerCase().includes(search.toLowerCase())
+        );
+      } else {
+        // Query database for products matching the search
+        searchResult = await Product.find({
+          productName: { $regex: ".*" + search + ".*", $options: "i" },
+          isBlocked: false,
+          quantity: { $gt: 0 },
+          category: { $in: categoryIds },
+        }).lean(); // Use .lean() for plain JavaScript objects
+      }
+  
+      
+      searchResult.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+
+    
+  
+      
+      const itemsPerPage = 6;
+      const currentPage = parseInt(req.query.page) || 1;
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const totalPages = Math.ceil(searchResult.length / itemsPerPage);
+      const currentProduct = searchResult.slice(startIndex, endIndex);
+  
+      
+      return res.render('shop', {
+        user: userData,
+        products: currentProduct,
+        category: categories,
+        brand: brands,
+        totalPages,
+        currentPage,
+        count: searchResult.length,
+        //sortOption,
+      });
+    } catch (error) {
+      console.error("Error in searchProducts:", error);
+      if (!res.headersSent) {
+        return res.redirect("/pageNotFound");
+      }
+    }
+  };
+
+
+
+  
+    const filterByAlphabets = async (req, res) => {
+      try {
+        const user = req.session.user;
+        const userData = user ? await User.findOne({ _id: user }) : null;
+        const category = await Category.find({ isListed: true }).lean()
+        const brand =  await Brand.find({}).lean();
+    
+        const sortOption = req.query.sort || "asc"; // Default to ascending order
+        const products = await Product.find({ isBlocked: false, quantity: { $gt: 0 } }).lean();
+    
+        // Apply sorting based on sortOption
+        if (sortOption === "asc") {
+          products.sort((a, b) => a.productName.localeCompare(b.productName, "en", { sensitivity: "base" }));
+        } else if (sortOption === "desc") {
+          products.sort((a, b) => b.productName.localeCompare(a.productName, "en", { sensitivity: "base" }));
+        }
+    
+        return res.render("shop", {
+          user: userData,
+          products,
+          category, 
+          brand,
+          sortOption, // Pass sortOption to identify active filter
+        });
+      } catch (error) {
+        console.error("Error in filterByAlphabets:", error);
+        res.redirect("/pageNotFound");
+      }
+    };
+    
+  
+  
+
 module.exports = {
   loadHomepage, 
   pageNotFound, 
@@ -425,5 +665,9 @@ module.exports = {
   loadLogin,
   login,
   logout,
-  aboutUs
+  aboutUs,
+  filterProduct,
+  filterByPrice,
+  searchProducts,
+  filterByAlphabets
 }

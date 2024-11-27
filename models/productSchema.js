@@ -15,16 +15,16 @@ const productSchema = new Schema({
         type : String,
         required : true
     },
-    // category : {
-    //     type : Schema.Types.ObjectId,
-    //     ref : "Category",
-    //     required : true
-    // },
-
-    category :{
-        type : String,
+    category : {
+        type : Schema.Types.ObjectId,
+        ref : "Category",
         required : true
     },
+
+    // category :{
+    //     type : String,
+    //     required : true
+    // },
     
     regularPrice : {
         type: Number,

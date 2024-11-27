@@ -55,6 +55,8 @@ app.set('views',[path.join(__dirname,'views/user'),path.join(__dirname,'views/ad
 
 app.use(express.static(path.join(__dirname,'public')))
 
+
+
 app.use('/',userRouter)
 app.use('/admin',adminRouter)
 

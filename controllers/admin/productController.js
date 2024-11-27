@@ -125,18 +125,26 @@ const getAllProducts = async(req,res)=>{
         const category = await Category.find({isListed:true});
         const brand = await Brand.find({isBlocked:false});
 
+       
+        
+
         if(category &&brand){
             res.render('products',{
                 data :productData,
                 currentPage : page,
                 totalPages : Math.ceil(count/limit),
-                cat : category,
+                category : category,
                 brand : brand
+
+                
 
             })
         }else{
             res.render('page-404');
         }
+
+        
+        
         
     } catch (error) {
         res.redirect('/pageerror')

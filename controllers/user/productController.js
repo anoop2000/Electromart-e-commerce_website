@@ -54,7 +54,7 @@ const productDetails = async (req, res) => {
         const userData = await User.findById(userId);
 
         const productId = req.query.id;
-        const product = await Product.findById(productId).populate('category');
+        const product = await Product.findById(productId).populate('category');//populate the category
         const findCategory = product.category;
 
         const categoryOffer = findCategory?.categoryOffer || 0;
