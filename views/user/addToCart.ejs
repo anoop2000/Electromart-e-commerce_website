@@ -1,0 +1,496 @@
+
+
+<%- include("../../views/partials/user/header") %>
+<style>
+  /* Global settings */
+  body {
+    padding: 20px;
+    font-family: 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    font-size: 16px;
+  }
+  
+  h1 {
+    font-weight: 100;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  label {
+    color: #aaa;
+  }
+  
+  .shopping-cart {
+    max-width: 100%;
+    margin: 0 auto;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 500px;
+  }
+  
+  /* Column labels */
+  .column-labels {
+    display: grid;
+    grid-template-columns: 20% 37% 12% 10% 9% 12%;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: left;
+  }
+  
+  .column-labels label {
+    text-transform: uppercase;
+  }
+  
+  /* Product entries */
+  .product {
+    display: grid;
+    grid-template-columns: 20% 37% 12% 10% 9% 12%;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+    
+  }
+  
+  .product:last-child {
+    border-bottom: none;
+  }
+  
+  .product-image {
+    text-align: center;
+  }
+  
+  .product-image img {
+    width: 80px;
+    height: auto;
+    object-fit: contain;
+  }
+  
+  .product-details {
+    font-size: 14px;
+    width : 250px;
+  }
+  
+  .product-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 17px;
+  }
+  
+  .product-description {
+    color: #666;
+    font-size: 14px;
+  }
+  
+  .product-price,
+  .product-line-price {
+    text-align: center;
+    font-size: 14px;
+    width : 200px;
+  }
+
+  .product-quantity{
+    width : 300px;
+  }
+  
+  .product-quantity input {
+    width: 50px;
+    padding: 5px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+  }
+  
+  .product-removal button {
+    background-color: #c66;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  
+  .product-removal button:hover {
+    background-color: #a44;
+  }
+  
+  
+
+
+
+/*totals container*/
+.totals-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-top: 20px;
+}
+
+
+.totals-table-container {
+  margin-bottom: 20px;
+}
+
+.totals-table {
+  width: 300px; 
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+}
+
+.totals-table td {
+  padding: 10px 15px;
+  text-align: left;
+}
+
+.totals-label {
+  color: #6c757d;
+}
+
+.totals-value {
+  color: black;
+  text-align: right;
+}
+
+.totals-item-total .totals-label {
+  font-weight: bold;
+  color: #6c757d;
+}
+
+.totals-item-total .totals-value {
+  font-weight: bold;
+  color: black;
+}
+
+/* Buttons Styling */
+.totals-buttons {
+  display: flex;
+  gap: 10px; 
+}
+
+.checkout,
+.continue-shopping {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.checkout {
+  background-color: #6b6;
+  color: white;
+}
+
+.checkout:hover {
+  background-color: #494;
+}
+
+.continue-shopping {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.continue-shopping:hover {
+  background-color: #084298;
+}
+
+
+
+
+  /* Breadcrumb Styling */
+.breadcrumb {
+  font-size: 16px;
+  margin-bottom: 20px;
+  font-family: 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.breadcrumb-item {
+  text-decoration: none;
+  color: #17a2b8; 
+  transition: color 0.3s ease;
+}
+
+.breadcrumb-item:hover {
+  color: red; 
+}
+
+.breadcrumb-divider {
+  margin: 0 5px;
+  color: #6c757d;
+}
+
+.breadcrumb-item.current {
+  color: #6c757d;
+  font-weight: bold;
+}
+
+
+.button-container {
+  display: flex;
+  gap: 10px; 
+}
+
+.button-container .checkout {
+  margin: 0; 
+}
+
+#shop{
+  color : #fff;
+
+}
+#shop:hover{
+  color: red;
+}
+
+/* Container styling for the quantity section */
+.quantity-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px; /* Space between buttons and quantity display */
+}
+
+/* Styling for the buttons */
+.quantity-btn {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 30px;
+  height: 30px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.quantity-btn:hover {
+  background-color: #e0e0e0;
+  border-color: #888;
+}
+
+/* Styling for the quantity display box */
+.quantity-display {
+  font-size: 16px;
+  font-weight: bold;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  text-align: center;
+  width: 40px;
+  background-color: #fff;
+}
+
+
+
+
+  
+  @media screen and (max-width: 650px) {
+    .column-labels {
+      display: none;
+    }
+  
+    .product {
+      grid-template-columns: 25% auto;
+      grid-row-gap: 10px;
+      border-bottom: 1px solid #eee;
+    }
+  
+    .product-image {
+      grid-column: 1 / span 2;
+      text-align: center;
+    }
+  
+    .product-details,
+    .product-price,
+    .product-quantity,
+    .product-removal,
+    .product-line-price {
+      grid-column: 1 / span 2;
+      text-align: center;
+    }
+  
+    .totals .totals-item {
+      flex-direction: column;
+      align-items: flex-end;
+    }
+  
+    .totals .totals-item label {
+      width: auto;
+      text-align: left;
+      margin-bottom: 5px;
+    }
+  }
+  
+  @media screen and (max-width: 350px) {
+    .checkout {
+      width: 100%;
+      font-size: 16px;
+    }
+  }
+  </style>
+  
+  
+  <div class="breadcrumb">
+    <a href="/" class="breadcrumb-item">Home</a>
+    <span class="breadcrumb-divider">></span>
+    <a href="/shop" class="breadcrumb-item">Shop</a>
+    <span class="breadcrumb-divider">></span>
+    <span class="breadcrumb-item current">Cart</span>
+  </div>
+  
+  
+  <div class="shopping-cart">
+  
+    <div class="column-labels">
+      <label class="product-image">Image</label>
+      <label class="product-details">Product</label>
+      <label class="product-price">Price</label>
+      <label class="product-quantity">Quantity</label>
+      <label class="product-removal">Remove</label>
+      <label class="product-line-price">Total</label>
+    </div>
+  
+    <!-- ------------------------------------------------------------------------------- -->
+
+
+
+    <div class="product">
+      <% cartData.forEach((item)=> {%>
+          <div class="product-image">
+              
+              <a href="/product-details?id=<%=item.productId._id%>">
+                <img src="/uploads/re-image/<%= item.productId.productImage[0] %>" alt="<%= item.productId.productName %>">
+              </a>
+          </div>
+          <div class="product-details">
+              <div class="product-title"><%= item.productId.productName %></div>
+              <h5 class="product-description"><%= item.productId.description %></h5>
+          </div>
+          <div class="product-price">₹<%= item.price %></div>
+          
+          <div class="quantity-container" class="product-quantity">
+            <button class="quantity-btn decrement">-</button>
+            <span class="quantity-display"><%= item.quantity %></span>
+            <button class="quantity-btn increment">+</button>
+          </div>
+          
+          <div class="product-removal">
+              <button>Remove</button>
+          </div>
+          <div class="product-line-price">₹ <%=item.totalPrice%></div>
+          <%}) %>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- ------------------------------------------------------------------------------- -->
+
+
+
+
+
+    <div class="totals-container">
+      <div class="totals-table-container">
+        <table class="totals-table">
+          <tbody>
+            <tr>
+              <td class="totals-label">Subtotal : </td>
+              <td class="totals-value">₹ </td>
+            </tr>
+            
+          </tbody>
+        </table>
+      </div>
+      <div class="totals-buttons">
+        <button class="checkout">Checkout</button>
+        <button class="continue-shopping" id="shop">Continue Shopping</button>
+
+      </div>
+    </div>
+    
+    
+  
+  </div>
+
+
+
+  <%- include("../../views/partials/user/footer") %>
+
+
+  <script>
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const quantityContainers = document.querySelectorAll(".quantity-container");
+
+  quantityContainers.forEach((container) => {
+    const decrementButton = container.querySelector(".decrement");
+    const incrementButton = container.querySelector(".increment");
+    const quantityDisplay = container.querySelector(".quantity-display");
+
+    
+    const updateQuantity = (increment) => {
+      let currentQuantity = parseInt(quantityDisplay.textContent, 10);
+      if (increment) {
+        currentQuantity += 1;
+      } else if (currentQuantity > 1) { // Ensure quantity doesn't drop below 1
+        currentQuantity -= 1;
+      }
+      quantityDisplay.textContent = currentQuantity;
+    };
+
+   
+    incrementButton.addEventListener("click", () => {
+      updateQuantity(true);
+    });
+
+  
+    decrementButton.addEventListener("click", () => {
+      updateQuantity(false);
+    });
+  });
+});
+
+
+
+
+
+
+
+
+
+document.getElementById('shop').addEventListener('click', function () {
+  window.location.href = '/shop'; 
+});
+
+
+
+  </script>
+  

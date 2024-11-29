@@ -5,7 +5,7 @@ const userController = require('../controllers/user/userController')
 const { userAuth } = require('../middlewares/auth')
 const productController = require('../controllers/user/productController')
 const profileController = require('../controllers/user/profileController')
-
+const cartController = require('../controllers/user/cartController')
 router.get('/pageNotFound',userController.pageNotFound)
 router.get('/aboutUs',userController.aboutUs)
 
@@ -35,7 +35,8 @@ router.get('/shop',userAuth,userController.loadShoppingPage)
 router.get('/filter',userAuth,userController.filterProduct)
 router.get('/filterPrice',userAuth,userController.filterByPrice)
 router.post('/search',userAuth,userController.searchProducts)
-router.get('/filterAlphabets',userAuth,userController.filterByAlphabets)
+router.get('/sortByPrice', userAuth,userController.sortPrice);
+router.get('/sortByAlpha',userAuth,userController.sortByAlpha)
 
 //profile management
 router.get('/forgot-password',profileController.getForgotPassPage)
@@ -59,9 +60,17 @@ router.get('/userProfile',userAuth,profileController.userProfile)
 //Address management
 router.get('/addAddress',userAuth,profileController.addAddress)
 router.post('/addAddress',userAuth,profileController.postAddAddress)
-router.get('/editAddress',userAuth,profileController.editAddress)
-router.post('/editAddress',userAuth,profileController.postEditAddress)
+router.get('/edit-address',userAuth,profileController.editAddress)
+router.post('/edit-address',userAuth,profileController.postEditAddress)
 router.get('/deleteAddress',userAuth,profileController.deleteAddress)
+
+
+//cart management
+
+router.get('/addToCart',userAuth,cartController.getCartPage)
+//router.get('/addItemToCart',userAuth,cartController. addToCart)
+
+
 
 
 

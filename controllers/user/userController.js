@@ -588,10 +588,6 @@ const signup = async (req, res) => {
       
       searchResult.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-
-    
-  
-      
       const itemsPerPage = 6;
       const currentPage = parseInt(req.query.page) || 1;
       const startIndex = (currentPage - 1) * itemsPerPage;
@@ -608,7 +604,7 @@ const signup = async (req, res) => {
         totalPages,
         currentPage,
         count: searchResult.length,
-        //sortOption,
+       
       });
     } catch (error) {
       console.error("Error in searchProducts:", error);
@@ -619,37 +615,105 @@ const signup = async (req, res) => {
   };
 
 
+  //---------------------------------------------------------------------
+
+
+  const sortPrice = async (req, res) => {
+    try {
+      const user = req.session.user;
+      const userData = user ? await User.findOne({ _id: user }) : null;
+      const category = await Category.find({}).lean();
+      const brand = await Brand.find({}).lean();
+
+      const sort = req.query.sort || 'desc'; 
+    
+      let products = await Product.find({ isBlocked: false, quantity: { $gt: 0 } }).lean();
+  
+      if (sort === 'asc') {
+        products.sort((a, b) => a.salePrice - b.salePrice); 
+      } else if (sort === 'desc') {
+        products.sort((a, b) => b.salePrice - a.salePrice); 
+      }
+
+      let itemsPerPage = 6;
+      let currentPage = parseInt(req.query.page) || 1;
+      let startIndex = (currentPage-1) * itemsPerPage
+      let endIndex = startIndex+itemsPerPage;
+      let totalPages = Math.ceil(products.length/itemsPerPage)
+      const currentProduct = products.slice(startIndex,endIndex)
+    
+      
+      res.render('shop', {
+        user: userData,
+        products: currentProduct,
+        category: category,
+        brand: brand,
+        sort, 
+        totalPages,
+        currentPage,
+      });
+    } catch (error) {
+      console.error('Error in sortPrice:', error);
+      res.redirect('/pageNotFound');
+    }
+  };
+  
+
+
+  const sortByAlpha  = async (req, res) => {
+    try {
+      const user = req.session.user;
+      const userData = user ? await User.findOne({ _id: user }) : null;
+      const category = await Category.find({}).lean();
+      const brand = await Brand.find({}).lean();
+  
+      
+      const sort = req.query.sort || 'desc'; 
+  
+     
+      let products = await Product.find({ isBlocked: false, quantity: { $gt: 0 } }).lean();
+  
+      if (sort === 'az') {
+        
+        products.sort((a, b) => a.productName.localeCompare(b.productName));
+      } else if (sort === 'za') {
+       
+        products.sort((a, b) => b.productName.localeCompare(a.productName));
+      }
+  
+      // Pagination
+      let itemsPerPage = 6;
+      let currentPage = parseInt(req.query.page) || 1;
+      let startIndex = (currentPage - 1) * itemsPerPage;
+      let endIndex = startIndex + itemsPerPage;
+      let totalPages = Math.ceil(products.length / itemsPerPage);
+      const currentProduct = products.slice(startIndex, endIndex);
+  
+      // Render the shop page
+      res.render('shop', {
+        user: userData,
+        products: currentProduct,
+        category: category,
+        brand: brand,
+        sort, 
+        totalPages,
+        currentPage,
+      });
+    } catch (error) {
+      console.error('Error in sortPrice:', error);
+      res.redirect('/pageNotFound');
+    }
+  };
+  
+  
+
 
   
-    const filterByAlphabets = async (req, res) => {
-      try {
-        const user = req.session.user;
-        const userData = user ? await User.findOne({ _id: user }) : null;
-        const category = await Category.find({ isListed: true }).lean()
-        const brand =  await Brand.find({}).lean();
-    
-        const sortOption = req.query.sort || "asc"; // Default to ascending order
-        const products = await Product.find({ isBlocked: false, quantity: { $gt: 0 } }).lean();
-    
-        // Apply sorting based on sortOption
-        if (sortOption === "asc") {
-          products.sort((a, b) => a.productName.localeCompare(b.productName, "en", { sensitivity: "base" }));
-        } else if (sortOption === "desc") {
-          products.sort((a, b) => b.productName.localeCompare(a.productName, "en", { sensitivity: "base" }));
-        }
-    
-        return res.render("shop", {
-          user: userData,
-          products,
-          category, 
-          brand,
-          sortOption, // Pass sortOption to identify active filter
-        });
-      } catch (error) {
-        console.error("Error in filterByAlphabets:", error);
-        res.redirect("/pageNotFound");
-      }
-    };
+
+
+
+  
+  
     
   
   
@@ -669,5 +733,8 @@ module.exports = {
   filterProduct,
   filterByPrice,
   searchProducts,
-  filterByAlphabets
+  sortPrice,
+  sortByAlpha
+  
+  
 }
