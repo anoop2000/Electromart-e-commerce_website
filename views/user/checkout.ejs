@@ -1,0 +1,277 @@
+
+<%- include("../../views/partials/user/header") %>
+
+<style>
+    .page-header {
+  padding: 30px 0;
+  color: white;
+  text-align: center;
+  background-size: cover;
+  background-position: center;
+}
+
+.breadcrumb-nav {
+  margin: 20px 0;
+}
+
+.checkout {
+  margin: 20px 0;
+}
+
+.checkout-discount {
+  margin-bottom: 20px;
+}
+
+.square-btn {
+  width: 150px;
+  height: 40px;
+  border-radius: 10px;
+  padding: 0;
+}
+
+.panel-group {
+  margin-top: 20px;
+}
+
+.panel-heading button {
+  background-color: #041d39;
+  color: white;
+  border-radius: 5px;
+  padding: 8px 16px;
+  border: none;
+  border: 1px solid #041d39;
+}
+
+.panel-heading button:hover {
+  background-color: white;
+  color: #041d39;
+}
+
+.summary {
+  background-color: #f7f7f7;
+  padding: 20px;
+  border: 1px solid #ddd;
+  margin-bottom: 280px;
+}
+
+.summary-title {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.table-summary {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.btn-outline-primary-2 {
+  
+
+  background-color: #041d39;
+  color: white;
+}
+
+.btn-outline-primary-2:hover {
+  
+
+  background-color: transparent;
+  border: 1px solid #041d39;
+  color: #041d39;
+
+}
+
+/*-----------------------Breadcrimb section-------------------------------*/
+.breadcrumb {
+  font-size: 16px;
+  margin-bottom: 20px;
+  font-family: 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.breadcrumb-item {
+  text-decoration: none;
+  color: #17a2b8; 
+  transition: color 0.3s ease;
+}
+
+.breadcrumb-item:hover {
+  color: red; 
+}
+
+.breadcrumb-divider {
+  margin: 0 5px;
+  color: #6c757d;
+}
+
+.breadcrumb-item.current {
+  color: #6c757d;
+  font-weight: bold;
+}
+
+
+.button-container {
+  display: flex;
+  gap: 10px; 
+}
+
+.button-container .checkout {
+  margin: 0; 
+}
+
+#shop{
+  color : #fff;
+
+}
+#shop:hover{
+  color: red;
+}
+
+
+</style>
+
+
+<main class="main">
+    <div class="container">
+      <div class="page-header text-center text-truncate">
+        <h1 class="page-title">Checkout</h1>
+      </div>
+      <!-- End .page-header -->
+  
+      <div class="breadcrumb">
+        <a href="/" class="breadcrumb-item">Home</a>
+        <span class="breadcrumb-divider">> </span>
+        <a href="/shop" class="breadcrumb-item">Shop</a>
+        <span class="breadcrumb-divider">> </span>
+        <a href="/addToCart" class="breadcrumb-item">Cart</a>
+        <span class="breadcrumb-divider">> </span>
+        <span class="breadcrumb-item current">Checkout</span>
+
+
+      </div>
+      <!-- End .breadcrumb-nav -->
+  
+      <div class="row">
+        <div class="col-lg-9">
+          <div class="checkout">
+            <!-- Coupon Section -->
+            <div class="checkout-discount">
+              <form action="#" id="couponApplyForm" class="d-flex">
+                <input type="text" class="form-control flex-grow-1 mr-2" name="couponCode" required id="appendedInputButton">
+                <button class="btn btn-primary square-btn" type="submit">Apply Coupon</button>
+              </form>
+              <label for="checkout-discount-input" class="text-truncate mt-2">
+                Have a coupon?<span>Click the button</span>
+              </label>
+            </div>
+            <hr>
+  
+            <!-- Address Section -->
+            <!--body-->
+
+            <div class="onepage-checkout">
+                <div class="panel-group">
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <p class="panel-title">
+                        <button type="button" class="btn btn-primary">Choose Address</button>
+                      </p>
+                    </div>
+                    <div class="panel-collapse">
+                      <div class="panel-body">
+                        <div class="form-group required">
+                          <label for="SelectAddress">Select Address <sup>*</sup></label>
+                          <select class="form-control" required id="SelectAddress" name="chosenAddress">
+                            <% addressData.forEach(function(address) { %>
+                              <option value="<%= address._id %>">
+                                <%= address.addressType %>, <%= address.name %>, <%= address.city %>, <%= address.state %>, 
+                                <%= address.pincode %>, Phone: <%= address.phone %>
+                              </option>
+                            <% }); %>
+                          </select>
+                          <a class="btn" id="editAddressButton" role="button" href="#">Edit Address</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Order Summary Section -->
+              <aside class="col-lg-8">
+                <div class="summary">
+                  <h3 class="summary-title">Your Order</h3>
+                  <table class="table table-summary">
+                    <thead>
+                      <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% cartData.items.forEach(function(item, index) { %>
+                        <tr>
+                          <td>
+                            <a href="/product-details/<%= item.productId._id %>">
+                              <%= item.productId.productName %>
+                            </a>
+                          </td>
+                          <td><%= item.quantity %></td>
+                          <td id="productPrice<%= index %>" class="price-col">₹<%= item.totalPrice %></td>
+                        </tr>
+                      <% }); %>
+              
+                      <tr class="summary-subtotal">
+                        <td colspan="2">Subtotal:</td>
+                        <td>₹<span id="subtotal"><%= grandTotal %></span></td>
+                      </tr>
+              
+                      <tr>
+                        <td colspan="2">Shipping:</td>
+                        <td>Free shipping</td>
+                      </tr>
+              
+                      <tr class="summary-total">
+                        <td colspan="2">Total:</td>
+                        <td>₹<span id="grandTotal"><%= grandTotal %></span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </aside>
+              
+
+
+            <!--body end -->
+  
+            <!-- Payment Section -->
+            <div class="panel-heading">
+              <h6 class="panel-title">
+                <button class="btn btn-primary collapsed" type="button" data-toggle="collapse" data-parent="#accordion">
+                  Payment Method:
+                </button>
+              </h6>
+            </div>
+            <div class="panel-collapse">
+              <div class="panel-body">
+                <div class="payment-method">
+                  <label>
+                    <input type="radio" name="payment" value="cod"> Cash On Delivery
+                  </label>
+                </div>
+                <div id="codMessage" style="display: none;">Above ₹70,000/- , no COD we provide</div>
+                <button type="submit" id="orderBtn" class="btn btn-outline-primary-2 btn-order btn-block">
+                  <span class="btn-text">Place Order</span>
+                  
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- End Summary -->
+        </aside>
+      </div>
+    </div>
+  </main>
+  
+
+
+  <%- include("../../views/partials/user/footer") %>

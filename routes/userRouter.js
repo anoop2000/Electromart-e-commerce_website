@@ -66,10 +66,14 @@ router.get('/deleteAddress',userAuth,profileController.deleteAddress)
 
 
 //cart management
+router.get('/getCart',userAuth,cartController.renderCartPage)
+router.get('/addToCart',userAuth,cartController.addToCart)
+router.get('/removeFromCart',userAuth,cartController.deleteFromCart)
+router.put('/getCart/decQty/:id',userAuth,cartController.decQty)
+router.put('/getCart/incQty/:id',userAuth,cartController.incQty)
 
-router.get('/addToCart',userAuth,cartController.getCartPage)
-//router.get('/addItemToCart',userAuth,cartController. addToCart)
-
+//checkout management
+router.get('/checkout',userAuth,cartController.checkOutPage)
 
 
 

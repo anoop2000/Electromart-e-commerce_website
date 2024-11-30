@@ -21,10 +21,7 @@ const productSchema = new Schema({
         required : true
     },
 
-    // category :{
-    //     type : String,
-    //     required : true
-    // },
+    
     
     regularPrice : {
         type: Number,

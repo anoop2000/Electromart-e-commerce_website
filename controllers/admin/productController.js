@@ -58,17 +58,17 @@ const addProducts = async (req, res) => {
                 }
             }
 
-            const categoryId = await Category.findOne({ name: products.category.name });//////////////////////////////////////////////////////
-
+            const categoryId = await Category.findOne({ name: products.category }); // no need to access `.name`
+         
             if (!categoryId) {
-                return res.status(400).json("Invalid category name");
-            }
+                       return res.status(400).json("Invalid category name");
+             }
 
             const newProduct = new Product({
                 productName: products.productName,
                 description: products.description,
                 brand: products.brand,
-                category: categoryId._id,
+                category: categoryId,
                 regularPrice: products.regularPrice,
                 salePrice: products.salePrice,
                 createdOn: new Date(),
@@ -276,11 +276,16 @@ const editProduct = async(req,res)=>{
             }
         }
 
+        const categoryId = await Category.findOne({ name: data.category });
+        //updateFields.category = categoryId._id;
+        
+
+
         const updateFields = {
             productName : data.productName,
             description : data.description,
             brand : data.brand,
-            category : data.category,
+            category : categoryId._id,
             regularPrice : data.regularPrice,
             salePrice : data.salePrice,
             quantity : data.quantity,

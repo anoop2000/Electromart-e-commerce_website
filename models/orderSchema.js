@@ -6,7 +6,7 @@ const {v4:uuidv4} = require('uuid')
 const orderSchema = new Schema({
     orderid : {
         type : String,
-        default : ()=> uuidv4(),
+        default : ()=> uuidv4(), // Automatically generates a unique ID
         unique : true
     },
     orderedItems : [{
@@ -40,8 +40,21 @@ const orderSchema = new Schema({
     },
     address : {
         type : Schema.Types.ObjectId,
-        ref : "User",
+        ref : "Address",
         required : true
+
+
+        // type: {
+        //     addressType: { type: String, required: true },
+        //     name: { type: String, required: true },
+        //     city: { type: String, required: true },
+        //     landMark: { type: String, required: true },
+        //     state: { type: String, required: true },
+        //     pincode: { type: Number, required: true },
+        //     phone: { type: String, required: true },
+        //     altPhone: { type: String, required: true }
+        // },
+        // required: true
     },
     invoiceDate : {
         type : Date

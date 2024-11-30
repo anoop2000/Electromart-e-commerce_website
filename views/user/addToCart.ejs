@@ -1,3 +1,4 @@
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 <%- include("../../views/partials/user/header") %>
@@ -34,7 +35,7 @@
   /* Column labels */
   .column-labels {
     display: grid;
-    grid-template-columns: 20% 37% 12% 10% 9% 12%;
+    grid-template-columns: 7% 15% 25% 12% 15% 14% 12% ;
     padding-bottom: 10px;
     border-bottom: 1px solid #eee;
     font-weight: bold;
@@ -46,14 +47,16 @@
     text-transform: uppercase;
   }
   
+
+
   /* Product entries */
   .product {
     display: grid;
-    grid-template-columns: 20% 37% 12% 10% 9% 12%;
+    grid-template-columns: 7% 15% 25% 12% 15% 14% 12%;
     align-items: center;
     padding: 15px 0;
     border-bottom: 1px solid #eee;
-    
+    row-gap: 10px;
   }
   
   .product:last-child {
@@ -117,10 +120,25 @@
   }
   
   .product-removal button:hover {
-    background-color: #a44;
+    background-color: rgb(54, 45, 45);
   }
   
-  
+  .remove-btn {
+    background-color: #d67172;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.remove-btn:hover {
+    background-color: #c82039;
+}
+
 
 
 
@@ -291,6 +309,15 @@
   background-color: #fff;
 }
 
+.cartProduct{
+  display: flex;
+}
+
+.empty-cart{
+  width : 500px;
+}
+
+
 
 
 
@@ -353,12 +380,13 @@
   <div class="shopping-cart">
   
     <div class="column-labels">
+      <label>Order No.</label>
       <label class="product-image">Image</label>
       <label class="product-details">Product</label>
       <label class="product-price">Price</label>
       <label class="product-quantity">Quantity</label>
-      <label class="product-removal">Remove</label>
       <label class="product-line-price">Total</label>
+      <label class="product-removal">Remove</label>
     </div>
   
     <!-- ------------------------------------------------------------------------------- -->
@@ -366,7 +394,12 @@
 
 
     <div class="product">
-      <% cartData.forEach((item)=> {%>
+      
+      <% if (cartData.length > 0) { %>
+      <% cartData.forEach((item,index)=> {%>
+          
+        
+        <div><%=index+1%></div>
           <div class="product-image">
               
               <a href="/product-details?id=<%=item.productId._id%>">
@@ -377,43 +410,54 @@
               <div class="product-title"><%= item.productId.productName %></div>
               <h5 class="product-description"><%= item.productId.description %></h5>
           </div>
-          <div class="product-price">₹<%= item.price %></div>
+          <div class="product-price" id="price<%=index %>">₹<%= item.price %></div>
           
           <div class="quantity-container" class="product-quantity">
-            <button class="quantity-btn decrement">-</button>
-            <span class="quantity-display"><%= item.quantity %></span>
-            <button class="quantity-btn increment">+</button>
+            <button class="quantity-btn decrement"
+            onclick="cartDec('<%=item.productId._id%>','<%=index%>')">-</button>
+
+            <span class="quantity-display" id="quantity<%= index %>"><%= item.quantity %></span>
+
+            <button class="quantity-btn increment"
+            onclick="cartInc('<%=item.productId._id%>','<%=index%>')">+</button>
           </div>
+
+          <div class="product-line-price" id="totalPrice<%= index %>">₹ <%=item.totalPrice%></div>
+
           
-          <div class="product-removal">
-              <button>Remove</button>
-          </div>
-          <div class="product-line-price">₹ <%=item.totalPrice%></div>
+          
+        
+
+      <div class="action" data-title="Remove">
+        <button class="btn btn-danger ">
+            <a href="javascript:void(0);" 
+               onclick="confirmRemoveProduct('<%= item.productId._id %>', '<%= item.productId.productName %>')" >
+                Remove
+            </a>
+        </button>
+    </div>
+
+      
+    
+    
+          
           <%}) %>
+
+          <% } else { %>
+            <div class="empty-cart">
+              <h2>Your cart is empty!!!</h2>
+                <button class="btn btn-success">
+                  <a href="/shop" style="color: white; text-decoration: none;">Start shopping</a>
+                </button>
+              
+            </div>
+        
+        <% } %>
+     
     </div>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <!-- ------------------------------------------------------------------------------- -->
-
-
-
 
 
     <div class="totals-container">
@@ -422,14 +466,14 @@
           <tbody>
             <tr>
               <td class="totals-label">Subtotal : </td>
-              <td class="totals-value">₹ </td>
+              <td class="totals-value" id="sub-total-price">₹ <%= grandTotal %></td>
             </tr>
             
           </tbody>
         </table>
       </div>
       <div class="totals-buttons">
-        <button class="checkout">Checkout</button>
+        <button class="checkout" id="checkout">checkout</button>
         <button class="continue-shopping" id="shop">Continue Shopping</button>
 
       </div>
@@ -447,49 +491,182 @@
   <script>
 
 
-document.addEventListener("DOMContentLoaded", () => {
-  const quantityContainers = document.querySelectorAll(".quantity-container");
-
-  quantityContainers.forEach((container) => {
-    const decrementButton = container.querySelector(".decrement");
-    const incrementButton = container.querySelector(".increment");
-    const quantityDisplay = container.querySelector(".quantity-display");
-
-    
-    const updateQuantity = (increment) => {
-      let currentQuantity = parseInt(quantityDisplay.textContent, 10);
-      if (increment) {
-        currentQuantity += 1;
-      } else if (currentQuantity > 1) { // Ensure quantity doesn't drop below 1
-        currentQuantity -= 1;
-      }
-      quantityDisplay.textContent = currentQuantity;
-    };
-
-   
-    incrementButton.addEventListener("click", () => {
-      updateQuantity(true);
-    });
-
-  
-    decrementButton.addEventListener("click", () => {
-      updateQuantity(false);
-    });
-  });
-});
-
-
-
-
-
-
-
-
-
 document.getElementById('shop').addEventListener('click', function () {
   window.location.href = '/shop'; 
 });
 
+document.getElementById('checkout').addEventListener('click', function () {
+  window.location.href = '/checkout'; 
+});
+
+
+
+
+
+
+// -----------------------delete cart--------
+
+  
+
+function confirmRemoveProduct(productId, productName) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to remove this product from your cart?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, remove it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Send delete request via fetch to remove the product
+            fetch(`/removeFromCart?id=${productId}`)
+                .then((response) => {
+                    if (response.ok) {
+                        // Display success message after deletion
+                        Swal.fire({
+                            title: 'Removed!',
+                            text: `${productName} has been removed from your cart.`,
+                            icon: 'success',
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+
+                        // Reload the page after a short delay to update the cart view
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        // Handle failure response
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Failed to remove the product from your cart.',
+                            icon: 'error'
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error removing product:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An unexpected error occurred.',
+                        icon: 'error'
+                    });
+                });
+        }
+    });
+}
+
+
+
+//---------------------dec qty----------------------------------------
+
+
+
+async function cartDec(id, index) {
+  try {
+    // Select the required elements from the DOM
+    let quantity = document.getElementById('quantity' + index);
+    let price = document.getElementById('price' + index);
+    let totalPrice = document.getElementById('totalPrice'+index);
+    let subTotal = document.getElementById('sub-total-price');
+
+    // Check if the current quantity is 1, alert the user
+    if (Number(quantity.innerText) === 1) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Minimum One Quantity",
+        text: "Please select at least one quantity",
+      });
+    }
+
+    // Send a PUT request to the backend for decrementing the quantity
+    let response = await fetch(`/getCart/decQty/${id}`, { method: 'PUT' });
+    let data = await response.json();
+
+    if (data.success) {
+      // Update the quantity in the UI
+      quantity.innerText = data.updatedItem.quantity;
+
+      // Update total price for the product and grand total
+      totalPrice.innerText = '₹' + data.updatedItem.totalPrice;
+      subTotal.innerText = '₹' + data.grandTotal;
+
+      // Show success notification
+      Swal.fire({
+        icon: "success",
+        title: "Quantity Updated",
+        text: `Quantity for ${data.updatedItem.productName} has been decreased.`,
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+  } catch (error) {
+    console.error("Error in cartDec:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "An error occurred while updating the quantity.",
+    });
+  }
+}
+
+
+//-------------------------------------------------incQty---------------
+
+async function cartInc(id, index) {
+  try {
+    // Select the required elements from the DOM
+    let quantity = document.getElementById('quantity' + index);
+    let price = document.getElementById('price' + index);
+    let totalPrice = document.getElementById('totalPrice' + index);
+    let subTotal = document.getElementById('sub-total-price');
+
+    // Check if the quantity has reached the maximum allowed limit (8)
+    if (Number(quantity.innerText) >= 8) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Max Quantity Reached",
+        text: "You cannot purchase more than 8 items of this product.",
+      });
+    }
+
+    // Send a PUT request to the backend for incrementing the quantity
+    let response = await fetch(`/getCart/incQty/${id}`, { method: 'PUT' });
+    let data = await response.json();
+
+    if (data.success) {
+      // Update the quantity in the UI
+      quantity.innerText = data.updatedItem.quantity;
+
+      // Update total price for the product and grand total
+      totalPrice.innerText = '₹' + data.updatedItem.totalPrice;
+      subTotal.innerText = '₹' + data.grandTotal;
+
+      // Show success notification
+      Swal.fire({
+        icon: "success",
+        title: "Quantity Updated",
+        text: `Quantity for ${data.updatedItem.productName} has been increased.`,
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+  } catch (error) {
+    console.error("Error in cartInc:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "An error occurred while updating the quantity.",
+    });
+  }
+}
+
+
+
+
+  
 
 
   </script>
