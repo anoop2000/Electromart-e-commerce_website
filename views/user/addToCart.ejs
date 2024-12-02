@@ -148,6 +148,7 @@
   flex-direction: column;
   align-items: flex-end;
   margin-top: 20px;
+  margin-bottom: 350px;
 }
 
 
@@ -318,6 +319,77 @@
 }
 
 
+/* .shopping-cart {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+} */
+
+.shopping-cart{
+  margin-bottom: 40px;;
+}
+
+
+
+
+
+
+
+.column-labels {
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr 1fr;
+    gap: 10px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.cart-item-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr 1fr;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+}
+
+.cart-item-row img {
+    max-width: 100px;
+    max-height: 100px;
+}
+
+.quantity-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.quantity-btn {
+    background-color: #ccc;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.quantity-btn:hover {
+    background-color: #aaa;
+}
+
+.product-removal a {
+    color: white;
+    text-decoration: none;
+}
+
+.empty-cart {
+    text-align: center;
+    padding: 50px;
+}
+
+
+
 
 
 
@@ -377,84 +449,67 @@
   </div>
   
   
-  <div class="shopping-cart">
-  
-    <div class="column-labels">
-      <label>Order No.</label>
-      <label class="product-image">Image</label>
-      <label class="product-details">Product</label>
-      <label class="product-price">Price</label>
-      <label class="product-quantity">Quantity</label>
-      <label class="product-line-price">Total</label>
-      <label class="product-removal">Remove</label>
-    </div>
   
     <!-- ------------------------------------------------------------------------------- -->
 
+    <div class="shopping-cart">
 
-
-    <div class="product">
-      
       <% if (cartData.length > 0) { %>
-      <% cartData.forEach((item,index)=> {%>
-          
-        
-        <div><%=index+1%></div>
-          <div class="product-image">
-              
-              <a href="/product-details?id=<%=item.productId._id%>">
-                <img src="/uploads/re-image/<%= item.productId.productImage[0] %>" alt="<%= item.productId.productName %>">
-              </a>
+          <div class="column-labels">
+              <label>Order No.</label>
+              <label class="product-image">Image</label>
+              <label class="product-details">Product</label>
+              <label class="product-price">Price</label>
+              <label class="product-quantity">Quantity</label>
+              <label class="product-line-price">Total</label>
+              <label class="product-removal">Remove</label>
           </div>
-          <div class="product-details">
-              <div class="product-title"><%= item.productId.productName %></div>
-              <h5 class="product-description"><%= item.productId.description %></h5>
-          </div>
-          <div class="product-price" id="price<%=index %>">₹<%= item.price %></div>
-          
-          <div class="quantity-container" class="product-quantity">
-            <button class="quantity-btn decrement"
-            onclick="cartDec('<%=item.productId._id%>','<%=index%>')">-</button>
-
-            <span class="quantity-display" id="quantity<%= index %>"><%= item.quantity %></span>
-
-            <button class="quantity-btn increment"
-            onclick="cartInc('<%=item.productId._id%>','<%=index%>')">+</button>
-          </div>
-
-          <div class="product-line-price" id="totalPrice<%= index %>">₹ <%=item.totalPrice%></div>
-
-          
-          
-        
-
-      <div class="action" data-title="Remove">
-        <button class="btn btn-danger ">
-            <a href="javascript:void(0);" 
-               onclick="confirmRemoveProduct('<%= item.productId._id %>', '<%= item.productId.productName %>')" >
-                Remove
-            </a>
-        </button>
-    </div>
-
-      
-    
-    
-          
-          <%}) %>
-
-          <% } else { %>
-            <div class="empty-cart">
+  
+          <% cartData.forEach((item, index) => { %>
+              <div class="cart-item-row">
+                  <div class="order-number"><%= index + 1 %></div>
+  
+                  <div class="product-image">
+                      <a href="/product-details?id=<%= item.productId._id %>">
+                          <img src="/uploads/re-image/<%= item.productId.productImage[0] %>" alt="<%= item.productId.productName %>">
+                      </a>
+                  </div>
+  
+                  <div class="product-details">
+                      <div class="product-title"><%= item.productId.productName %></div>
+                      <h5 class="product-description"><%= item.productId.description %></h5>
+                  </div>
+  
+                  <div class="product-price" id="price<%= index %>">₹<%= item.price %></div>
+  
+                  <div class="product-quantity">
+                      <div class="quantity-container">
+                          <button class="quantity-btn decrement" onclick="cartDec('<%= item.productId._id %>', '<%= index %>')">-</button>
+                          <span class="quantity-display" id="quantity<%= index %>"><%= item.quantity %></span>
+                          <button class="quantity-btn increment" onclick="cartInc('<%= item.productId._id %>', '<%= index %>')">+</button>
+                      </div>
+                  </div>
+  
+                  <div class="product-line-price" id="totalPrice<%= index %>">₹<%= item.totalPrice %></div>
+  
+                  <div class="product-removal">
+                      <button class="btn btn-danger">
+                          <a href="javascript:void(0);" onclick="confirmRemoveProduct('<%= item.productId._id %>', '<%= item.productId.productName %>')">Remove</a>
+                      </button>
+                  </div>
+              </div>
+          <% }) %>
+      <% } else { %>
+          <div class="empty-cart">
               <h2>Your cart is empty!!!</h2>
-                <button class="btn btn-success">
+              <button class="btn btn-success">
                   <a href="/shop" style="color: white; text-decoration: none;">Start shopping</a>
-                </button>
-              
-            </div>
-        
-        <% } %>
-     
-    </div>
+              </button>
+          </div>
+      <% } %>
+  
+  </div>
+  
 
 
     <!-- ------------------------------------------------------------------------------- -->
@@ -473,7 +528,7 @@
         </table>
       </div>
       <div class="totals-buttons">
-        <button class="checkout" id="checkout">checkout</button>
+        <button class="checkout" id="checkout">Proceed to Checkout</button>
         <button class="continue-shopping" id="shop">Continue Shopping</button>
 
       </div>

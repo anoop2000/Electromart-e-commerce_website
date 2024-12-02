@@ -40,8 +40,12 @@ async function grandTotal(req) {
             grandTotal += item.totalPrice;
         }
 
+        
+
         // Save the updated cart with recalculated totalPrice values
         await cartData.save();
+
+
 
         // Store the grand total in the session
         req.session.grandTotal = grandTotal;
@@ -310,205 +314,120 @@ const decQty = async (req, res) => {
 
 
 
-//   const checkOutPage = async(req,res)=>{
-    
-//         try {
-//             console.log("Fetching user ID...");
-//             const userId = req.session.user;
-//             console.log(userId);
-            
-
-//             if (!userId) {
-//                 throw new Error("User ID is missing from session.");
-//               }
-      
-              
-//               console.log("Fetching cart data...");
-
-//           const cartData= await Cart.find({ userId: userId}).populate('productId')
-
-//           console.log("Cart data fetched:", cartData);
-      
-//           let addressData = await Address.find({
-//             userId: userId
-//           });
-
-//           console.log("Creating order...");
-
-//           req.session.currentOrder = await Order.create({
-//             userId: userId,
-//             orderNumber: (await Order.countDocuments()) + 1,
-//             orderDate: new Date(),
-//             addressChosen: JSON.parse(JSON.stringify(addressData[0])),
-//             cartData: await grandTotal(req),
-//             grandTotal: req.session.grandTotal,
-//           });
-
-//           console.log("Order created. Calculating grand total...");
-
-//           let userCartData = await grandTotal(req);
-
-//           console.log("Address data :",addressData);
-
-//           console.log("Rendering checkout page...");
-//           res.render("checkout", {
-//             user: req.body.user,
-//             currentUser: req.session.currentUser,
-//             grandTotal: req.session.grandTotal,
-//             userCartData,
-//             cartData,
-//             addressData
-            
-//           });
-//         } catch (error) {
-//             console.error("Error in rendering to Checkout page",error.message, error.stack);
-            
-//             res.redirect("/pageNotFound");
-//         }
-    
-      
-//   }
-  
-
-
-// const checkOutPage = async (req, res) => {
-//     try {
-      
-//       const userid = req.session.user;
-
-//       console.log("Session user ID:", userid);
-  
-//       if (!userid) {
-//         throw new Error("User ID is missing from session.");
-//       }
-  
-//       console.log("Fetching cart data...");
-//       const cartData = await Cart.find({ userid: userid }).populate('items.productId');
-
-//       console.log("Cart query result:", cartData);
-
-//       const userIdInDb = await Cart.findOne().select('userid');
-// console.log("Sample userId in Cart collection:", userIdInDb);
-  
-//       if (!cartData || cartData.length === 0) {
-//         console.error('Cart is empty. Redirecting to shop...');
-//         res.redirect('/shop');
-//         return;
-//       }
-//       console.log("Cart data fetched:", cartData);
-  
-//       console.log("Fetching address data...");
-//       const addressData = await Address.find({ userId: userid });
-  
-//       if (!addressData || addressData.length === 0) {
-//         console.error('No address found. Redirecting to manage address page...');
-//         res.redirect('/pageNotFound');
-//         return;
-//       }
-//       console.log("Address data fetched:", addressData);
-  
-//       console.log("Creating order...");
-//       req.session.currentOrder = await Order.create({
-//         userId: userid,
-//         orderNumber: (await Order.countDocuments()) + 1,
-//         orderDate: new Date(),
-//         status: 'Pending',
-//         address: addressData[0], // Ensure addressData[0] is defined
-//         cartData: cartData, // Pass actual cart data
-//         finalAmount: req.session.grandTotal, // Ensure this is calculated correctly
-//         totalPrice: await grandTotal(req), // Total cart price before discounts
-//       });
-  
-//       console.log("Order created. Calculating grand total...");
-//       const userCartData = await grandTotal(req);
-  
-//       console.log("Rendering checkout page...");
-//       res.render("checkout", {
-//         user: req.body.user,
-//         currentUser: req.session.currentUser,
-//         grandTotal: req.session.grandTotal,
-//         userCartData,
-//         cartData,
-//         addressData,
-//       });
-//     } catch (error) {
-//       console.error("Error in rendering to Checkout page:", error.message, error.stack);
-//       res.redirect("/pageNotFound");
-//     }
-//   };
-  
 
 
 const checkOutPage = async (req, res) => {
     try {
-        const userid = req.session.user;
+      const userId = req.session.user; // Retrieve user ID from session
+  
+      if (!userId) {
+        return res.redirect("/login"); // Redirect if user is not logged in
+      }
+  
+      // Fetch the user's cart data
+      const cartData = await Cart.findOne({ userid : userId })
+        .populate({
+          path: "items.productId",
+          model: "Product",
+          select: "productName price productImage salePrice",
+        })
+        .lean();
+  
+      if (!cartData || !cartData.items.length) {
+        return res.redirect("/shop"); // Redirect to shop if cart is empty
+      }
 
-        console.log("Session user ID:", userid);
 
-        if (!userid) {
-            throw new Error("User ID is missing from session.");
-        }
+       // Recalculate the grand total
+       let grandTotal = 0;
+       cartData.items.forEach(item => {
+           const product = item.productId;
+           if (product) {
+               const itemTotal = item.quantity * product.salePrice;
+               grandTotal += itemTotal;
+           }
+       });
 
-        console.log("Fetching cart data...");
-        const cartData = await Cart.find({ userid: userid }).populate('items.productId');
-        console.log("Cart query result:", cartData);
 
-        if (!cartData || cartData.length === 0) {
-            console.error("Cart is empty. Redirecting to shop...");
-            res.redirect('/shop');
-            return;
-        }
-
-        // Calculate the total price from cart items
-        const totalPrice = cartData.reduce((sum, cart) => {
-            return sum + cart.items.reduce((itemSum, item) => itemSum + item.totalPrice, 0);
-        }, 0);
-
-        console.log("Total price calculated:", totalPrice);
-
-        console.log("Fetching address data...");
-        const addressData = await Address.find({ userId: userid });
-
-        if (!addressData) {
-            console.error("No address found. Redirecting to manage address page...");
-            res.redirect('/pageNotFound');
-            return;
-        }
-
-        console.log("Address data fetched:", addressData);
-
-        console.log("Creating order...");
-        req.session.currentOrder = await Order.create({
-            userId: userid,
-            orderNumber: (await Order.countDocuments()) + 1,
-            orderDate: new Date(),
-            status: 'Pending',
-            address: addressData._id, // Save the address reference
-            orderedItems: cartData[0].items.map(item => ({
-                product: item.productId._id,
-                quantity: item.quantity,
-                price: item.price,
-            })),
-            totalPrice: totalPrice,
-            finalAmount: totalPrice , // Subtract any discounts if applicable
-            discount:  0,
+  
+      // Fetch user's saved addresses
+      const addressData = await Address.findOne({ userId }).lean();
+  
+      if (!addressData || !addressData.address.length) {
+        return res.status(404).render("error", {
+          message: "No saved addresses found. Please add an address first.",
         });
+      }
+  
 
-        console.log("Order created. Rendering checkout page...");
 
-        res.render("checkout", {
-            user: req.body.user,
-            currentUser: req.session.currentUser,
-            grandTotal: req.session.grandTotal,
-            cartData,
-            addressData,
-        });
+
+
+
+    // Get the grand total from the session
+    //const grandTotal = req.session.grandTotal || 0;  // Default to 0 if not found in session
+
+    // Calculate the final amount (Grand total + shipping cost)
+    const shippingCost = 0;  // Free shipping as per your logic
+    const finalAmount = grandTotal + shippingCost;
+
+
+    res.render("checkout", {
+        userId,
+        addressData: addressData.address,
+        cartData,
+        grandTotal,  // Subtotal
+        finalAmount,  // Total price including shipping
+        shippingCost: 0  // Free shipping (as per your logic)
+    });
+
+
+
     } catch (error) {
-        console.error("Error in rendering to Checkout page:", error.message, error.stack);
-        res.redirect("/pageNotFound");
+      console.error("Error in rendering checkout page:", error.message,error.stack);
+      res.redirect('/pageNotFound')
     }
-};
+  };
 
+
+
+
+  const updateAddress = async(req,res)=>{
+    try {
+
+        const addressId = req.query.id; // Get the address ID from the query parameters
+    const updatedData = {
+      addressType: req.body.addressType,
+      name: req.body.name,
+      city: req.body.city,
+      landMark: req.body.landMark,
+      state: req.body.state,
+      pincode: req.body.pinCode,
+      phone: req.body.phoneNumber,
+      altPhone: req.body.altPhone,
+    };
+
+    // Find the address by ID and update it with the new data
+    const updatedAddress = await Address.findByIdAndUpdate(addressId, updatedData, {
+      new: true, // Return the updated document
+      runValidators: true, // Validate the input data
+    });
+
+    if (!updatedAddress) {
+      return res.status(404).send('Address not found.');
+    }
+
+    // Redirect or respond after a successful update
+    res.redirect('/checkout'); 
+
+        
+    } catch (error) {
+
+        console.error('Error updating address:', error.message,error.stack);
+    res.redirect('/pageNotFound')
+        
+    }
+  }
   
 
 
@@ -527,7 +446,8 @@ module.exports ={
     deleteFromCart,
     decQty,
     incQty,
-    checkOutPage
+    checkOutPage,
+    updateAddress
     
 }
 

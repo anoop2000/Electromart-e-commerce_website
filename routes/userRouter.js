@@ -74,6 +74,7 @@ router.put('/getCart/incQty/:id',userAuth,cartController.incQty)
 
 //checkout management
 router.get('/checkout',userAuth,cartController.checkOutPage)
+router.post('/checkout/editAddress',userAuth,cartController,updateAddress)
 
 
 

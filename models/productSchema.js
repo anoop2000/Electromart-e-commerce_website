@@ -66,9 +66,3 @@ module.exports = Product
 
 
 
-// createdOn :{
-    //     type : Date,
-    //     default : Date.now
-
-    // }
-    //,
