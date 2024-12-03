@@ -41,6 +41,7 @@
    border-radius: 10px;
    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
    margin-bottom: 20px;
+   width : 900px;
  }
 
 
@@ -314,28 +315,38 @@
                      <h5 class="mb-0">Your Orders</h5>
                    </div>
                    <div class="card-body">
+                    <% if (orders && orders.length > 0) { %>
                      <div class="table-responsive">
                        <table class="table">
                          <thead>
                            <tr>
-                             <th>Order</th>
-                             <th>Status</th>
-                             <th>Total</th>
-                             <th>Actions</th>
+                            <th>Order ID</th>
+                            <th>No. of Items</th>
+                            <th>Payment Method</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Action</th>
                            </tr>
                          </thead>
                          <tbody>
-                           <tr>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                             <td>
-                               <a href="" class="btn-small d-block">View</a>
-                             </td>
-                           </tr>
+                          <% orders.forEach(order => { %>
+                            <tr>
+                              <td><%= order.orderid %></td>
+                              <td><%= order.orderedItems.length %></td>
+                              <td><%= order.paymentType %></td>
+                              <td>₹<%= order.finalAmount.toFixed(2) %></td>
+                              <td><%= order.status %></td>
+                              <td>
+                                <a href="/orders/<%= order._id %>" class="btn btn-sm btn-primary">View Details</a>
+                              </td>
+                            </tr>
+                          <% }); %>
                          </tbody>
                        </table>
                      </div>
+                     <% } else { %>
+                      <p>No orders found. Start shopping to place your first order!</p>
+                    <% } %>
                    </div>
                  </div>
                </div>

@@ -9,6 +9,11 @@ const orderSchema = new Schema({
         default : ()=> uuidv4(), // Automatically generates a unique ID
         unique : true
     },
+    userId: { 
+        type: mongoose.Types.ObjectId, 
+        ref: 'User',
+        required: true 
+    },
     orderedItems : [{
 
         product : {
@@ -53,7 +58,7 @@ const orderSchema = new Schema({
     status : {
         type : String,
         required : true,
-        enum : ["Pending","Processing","Shipped","Delivered","Cancelled","Return Request","Returned"]
+        enum : ["Pending","Shipped","Delivered","Cancelled","Returned"]
 
     },
     createdOn : {
@@ -64,6 +69,10 @@ const orderSchema = new Schema({
     couponApplied : {
         type : Boolean,
         default : false
+    },paymentType: {
+        type: String, 
+        // enum: ["COD","Wallet","Razorpay"]
+        default : 'toBeChosen'
     }
 
     

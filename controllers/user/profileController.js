@@ -4,6 +4,8 @@ const nodemailer = require('nodemailer')
 const bcrypt = require('bcrypt')
 const env = require('dotenv').config()
 const session = require('express-session')
+const Order = require('../../models/orderSchema')
+const Cart = require('../../models/cartSchema')
 
 
 function generateOtp(){
@@ -514,6 +516,33 @@ const deleteAddress = async(req,res)=>{
     }
 }
 
+const ordersList = async(req,res)=>{
+    try {
+
+        try {
+            const userId = req.session.user; // Retrieve the logged-in user's ID
+        
+            if (!userId) {
+              return res.redirect('/login'); // Redirect to login if the user is not authenticated
+            }
+        
+            // Fetch orders for the logged-in user
+            const orders = await Order.find({ userId })
+              .populate('orderedItems.product', 'productName') // Populate product name
+              .lean(); // Convert to plain JavaScript objects for rendering
+        
+            // Render the orders page with the fetched data
+            res.render('userProfile', { orders });
+          } catch (error) {
+            console.error('Error fetching orders:', error);
+            res.status(500).send('An error occurred while fetching your orders.');
+          }
+        
+    } catch (error) {
+        
+    }
+}
+
 
 module.exports = {
     userProfile,
@@ -534,5 +563,6 @@ module.exports = {
     postAddAddress,
     editAddress,
     postEditAddress,
-    deleteAddress
+    deleteAddress,
+    ordersList
 }

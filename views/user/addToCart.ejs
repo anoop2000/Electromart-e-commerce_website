@@ -319,12 +319,7 @@
 }
 
 
-/* .shopping-cart {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-} */
+
 
 .shopping-cart{
   margin-bottom: 40px;;
@@ -467,7 +462,7 @@
   
           <% cartData.forEach((item, index) => { %>
               <div class="cart-item-row">
-                  <div class="order-number"><%= index + 1 %></div>
+                  <div class="order-number">#<%= index + 1 %></div>
   
                   <div class="product-image">
                       <a href="/product-details?id=<%= item.productId._id %>">

@@ -54,8 +54,12 @@ router.post('/change-password',userAuth,profileController.changePasswordValid)
 router.post('/verify-changepassword-otp',userAuth,profileController.verifyChangePassOtp)
 
 
-
 router.get('/userProfile',userAuth,profileController.userProfile)
+router.get('/ordersList',userAuth,profileController.ordersList)
+
+
+
+
 
 //Address management
 router.get('/addAddress',userAuth,profileController.addAddress)
@@ -74,7 +78,13 @@ router.put('/getCart/incQty/:id',userAuth,cartController.incQty)
 
 //checkout management
 router.get('/checkout',userAuth,cartController.checkOutPage)
-router.post('/checkout/editAddress',userAuth,cartController,updateAddress)
+router.post('/checkout/editAddress',userAuth,cartController.updateAddress)
+router.post('/checkout/deleteAddress',userAuth,cartController.deleteAddress)
+router.post('/confirm-address',userAuth,cartController.confirmAddress)
+router.post('/select-payment',userAuth,cartController.selectPaymentType)
+router.get('/orderSuccess',userAuth,cartController.orderPlaced)
+
+
 
 
 

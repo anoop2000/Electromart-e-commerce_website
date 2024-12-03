@@ -354,18 +354,12 @@ const checkOutPage = async (req, res) => {
       const addressData = await Address.findOne({ userId }).lean();
   
       if (!addressData || !addressData.address.length) {
-        return res.status(404).render("error", {
+        return res.status(404).render("add-address", {
           message: "No saved addresses found. Please add an address first.",
         });
       }
   
 
-
-
-
-
-    // Get the grand total from the session
-    //const grandTotal = req.session.grandTotal || 0;  // Default to 0 if not found in session
 
     // Calculate the final amount (Grand total + shipping cost)
     const shippingCost = 0;  // Free shipping as per your logic
@@ -392,43 +386,282 @@ const checkOutPage = async (req, res) => {
 
 
 
-  const updateAddress = async(req,res)=>{
+  
+
+
+const updateAddress = async (req, res) => {
     try {
+      const userId = req.session.user; // Assuming user ID is available from authentication middleware
+      const addressId = req.query.id; // Get the address ID from the query parameters
+  
+      const updatedData = {
+        "address.$.addressType": req.body.addressType,
+        "address.$.name": req.body.name,
+        "address.$.city": req.body.city,
+        "address.$.landMark": req.body.landMark,
+        "address.$.state": req.body.state,
+        "address.$.pincode": req.body.pinCode,
+        "address.$.phone": req.body.phoneNumber,
+        "address.$.altPhone": req.body.altPhone,
+      };
+  
+      // Update the specific address in the user's address array
+      const updatedUser = await Address.findOneAndUpdate(
+        { userId, "address._id": addressId }, // Match user ID and address ID
+        { $set: updatedData }, // Update the specific address in the array
+        { new: true, runValidators: true } // Return the updated document and validate input
+      );
+  
+      if (!updatedUser) {
+        return res.status(404).send("Address not found.");
+      }
+  
 
-        const addressId = req.query.id; // Get the address ID from the query parameters
-    const updatedData = {
-      addressType: req.body.addressType,
-      name: req.body.name,
-      city: req.body.city,
-      landMark: req.body.landMark,
-      state: req.body.state,
-      pincode: req.body.pinCode,
-      phone: req.body.phoneNumber,
-      altPhone: req.body.altPhone,
-    };
-
-    // Find the address by ID and update it with the new data
-    const updatedAddress = await Address.findByIdAndUpdate(addressId, updatedData, {
-      new: true, // Return the updated document
-      runValidators: true, // Validate the input data
-    });
-
-    if (!updatedAddress) {
-      return res.status(404).send('Address not found.');
+      res.redirect("/checkout?success=true");
+    } catch (error) {
+      console.error("Error updating address:", error.message, error.stack);
+      res.redirect("/pageNotFound");
     }
+  };
 
-    // Redirect or respond after a successful update
-    res.redirect('/checkout'); 
+  
 
+  const deleteAddress = async(req,res)=>{
+    try {
+        const addressId = req.query.id;
+        const findAddress = await Address.findOne({'address._id' : addressId}) 
+        if(!findAddress){
+            return res.status(404).send("Address not found")
+        }
+        await Address.updateOne({
+            "address._id" : addressId
+        },
+        {
+            $pull:{
+                address : {
+                    _id : addressId,
+                }
+            }
+        }
+    
+    )
+
+    res.redirect('/checkout?isDeleted=true');
         
     } catch (error) {
-
-        console.error('Error updating address:', error.message,error.stack);
-    res.redirect('/pageNotFound')
+        console.error("Error in delete address",error);
+        res.redirect('/pageNotFound')
         
     }
-  }
+}
+
+
+
+
+
+
+
+const confirmAddress = async (req, res) => {
+    try {
+      const { selectedAddress } = req.body;
+      const userId = req.session.user;
   
+      if (!userId) {
+        return res.status(401).json({ message: 'Please log in to continue.' });
+      }
+  
+      if (!selectedAddress) {
+        return res.status(400).json({ message: 'Please select an address for your order.' });
+      }
+  
+      const addressData = await Address.findOne({
+        userId,
+        'address._id': selectedAddress,
+      });
+  
+      if (!addressData) {
+        return res.status(404).json({ message: 'Invalid address. Please select a valid address.' });
+      }
+  
+      const selectedAddressDetails = addressData.address.find(
+        (address) => address._id.toString() === selectedAddress
+      );
+  
+      req.session.selectedAddress = selectedAddressDetails;
+  
+      res.status(200).json({ message: 'Address selected successfully!' });
+    } catch (error) {
+      console.error('Error confirming address:', error);
+      res.status(500).json({ message: 'An error occurred while selecting the address.' });
+    }
+  };
+
+  
+
+
+  
+
+
+// const selectPaymentType = async (req, res) => {
+//     try {
+//       const { paymentType } = req.body; // Extract the payment type from the request body
+//       const userId = req.session.user; // Get the logged-in user's ID
+      
+//       // Validate the user is logged in
+//       if (!userId) {
+//         return res.redirect('/login');
+//       }
+  
+//       // Validate the selected payment type
+//       if (!['COD', 'Wallet', 'Razorpay'].includes(paymentType)) {
+//         return res.status(400).json({ message: 'Invalid payment type selected.' });
+//       }
+  
+//       // Save the payment type in the session
+//       req.session.paymentType = paymentType;
+  
+    
+  
+//       res.status(200).json({ message: 'Payment type selected successfully!'});
+//     } catch (error) {
+//       console.error('Error selecting payment type:', error);
+//       res.status(500).json({ message: 'An error occurred while selecting payment type.' });
+//     }
+//   };
+
+
+
+
+const selectPaymentType = async (req, res) => {
+    try {
+      const { paymentType } = req.body; // Extract the payment type from the request body
+      const userId = req.session.user; // Get the logged-in user's ID
+  
+      // Validate the user is logged in
+      if (!userId) {
+        return res.status(401).json({ message: 'Please log in to continue.' });
+      }
+  
+      // Validate the selected payment type
+      if (!['COD', 'Wallet', 'Razorpay'].includes(paymentType)) {
+        return res.status(400).json({ message: 'Please select a valid payment type.' });
+      }
+  
+      // Save the payment type in the session
+      req.session.paymentType = paymentType;
+  
+      // Respond with a success message
+      res.status(200).json({ message: 'Payment type selected successfully!' });
+    } catch (error) {
+      console.error('Error selecting payment type:', error);
+      res.status(500).json({ message: 'An error occurred while selecting the payment type.' });
+    }
+  };
+  
+  
+  
+
+
+
+  const orderPlaced = async (req, res) => {
+    try {
+        console.log("Starting orderPlaced controller...");
+      
+  
+      // Validate user session
+      const userId = req.session.user; // Adjust to the actual session field
+      if (!userId) {
+        console.log("User is not logged in. Redirecting to login...");
+        return res.redirect('/login');
+      }
+      
+  
+      // Fetch cart data and populate product details
+      const cartData = await Cart.findOne({ userid: userId }).populate('items.productId');
+      
+      if (!cartData || cartData.items.length === 0) {
+        console.log("Cart is empty. Redirecting to shop...");
+        return res.redirect('/shop');
+      }
+  
+      // Fetch user's address
+      const addressData = await Address.findOne({ userId });
+      
+  
+      if (!addressData || addressData.address.length === 0) {
+        console.log("No addresses found. Redirecting to add-address...");
+        return res.redirect('/add-address');
+      }
+  
+      // Use the first address as the default address
+
+      const selectedAddress = req.session.selectedAddress
+
+      const paymentType = req.session.paymentType;
+      
+      
+  
+      // Prepare ordered items
+      const orderedItems = cartData.items.map((item) => ({
+        product: item.productId._id,
+        quantity: item.quantity,
+        price: item.productId.salePrice || item.price, // Ensure fallback to cart item price
+      }));
+      
+  
+      // Calculate total price and final amount
+      const totalPrice = orderedItems.reduce(
+        (total, item) => total + item.price * item.quantity,
+        0
+      );
+      const discount = req.session.couponDiscount || 0;
+      const finalAmount = totalPrice - discount;
+      
+  
+      // Create the order
+      const order = await Order.create({
+        userId,
+        orderedItems,
+        totalPrice,
+        discount,
+        finalAmount,
+        address: selectedAddress, // Reference to the selected address
+        status: 'Pending',
+        invoiceDate: new Date(),
+        createdOn: new Date(),
+        couponApplied: !!req.session.couponApplied,
+        paymentType : paymentType
+      });
+
+      delete req.session.selectedAddress;
+      
+  
+      // Clear the cart
+      await Cart.deleteOne({ userid: userId });
+      
+  
+      // Render the order success page
+      res.render('orderSuccess', {
+        user: req.session.currentUser, // Ensure correct user data is passed
+        order,
+        cartData: cartData.items, // Pass only the items
+        addressData: selectedAddress, // Pass the selected address
+      });
+      console.log("Order success page rendered.");
+    } catch (error) {
+      console.error("Error in orderPlaced controller:", error);
+      res.redirect('/pageNotFound'); // Redirect to an error page on failure
+    }
+  };
+
+
+
+  
+
+
+  
+
+
 
 
 
@@ -447,7 +680,11 @@ module.exports ={
     decQty,
     incQty,
     checkOutPage,
-    updateAddress
+    updateAddress,
+    deleteAddress,
+    confirmAddress,
+    orderPlaced,
+    selectPaymentType
     
 }
 
