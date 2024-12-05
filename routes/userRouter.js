@@ -63,7 +63,7 @@ router.get('/userProfile',userAuth,profileController.userProfile)
 //order management
 
 router.get('/orderList',userAuth,orderController.ordersList)
-router.delete('/deleteOrder/:orderId', userAuth, orderController.deleteOrder);
+router.put('/cancelOrder/:id', userAuth, orderController.cancelOrder);
 
 
 

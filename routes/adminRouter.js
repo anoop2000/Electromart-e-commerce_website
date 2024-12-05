@@ -59,14 +59,15 @@ router.get('/editProduct',adminAuth,productController.getEditProduct)
 router.post('/editProduct/:id',adminAuth,uploads.array('images',4),productController.editProduct);
 router.post('/deleteImage',adminAuth,productController.deleteSingleImage)
 
+
 //order management
 router.get('/orderList',adminAuth,orderDetailsController.orderList)
-// router.get('/orderList/orderStatus/:id',adminAuth,orderDetailsController.orderStatus)
-// router.get('/orderList/pending/:id',adminAuth,orderDetailsController.changeStatusPending)
-// router.get('/orderList/shipped/:id',adminAuth,orderDetailsController.changeStatusShipped)
-// router.get('/orderList/delivered/:id',adminAuth,orderDetailsController.changeStatusShipped)
-// router.get('/orderList/return/:id',adminAuth,orderDetailsController.changeStatusReturn)
-// router.get('/orderList/cancelled/:id',adminAuth,orderDetailsController.changeStatusCancelle)
+router.get('/orderList/orderStatus/:id',orderDetailsController.orderStatus)
+router.get('/orderList/pending/:id',adminAuth,orderDetailsController.changeStatusPending)
+router.get('/orderList/shipped/:id',adminAuth,orderDetailsController.changeStatusShipped)
+router.get('/orderList/delivered/:id',adminAuth,orderDetailsController.changeStatusDelivered)
+router.get('/orderList/return/:id',adminAuth,orderDetailsController.changeStatusReturn)
+router.get('/orderList/cancelled/:id',adminAuth,orderDetailsController.changeStatusCancelled)
 
 
 

@@ -84,7 +84,7 @@
         <div class="row">
           <!-- Order Summary -->
           <div class="col-6 text-center">
-            <p class="order-number"><strong>Order Number:</strong> <%= orderData.orderid %></p>
+            <p class="order-number"><strong>Order ID:</strong> <%= orderData.orderid %></p>
             <div class="card text-white bg-lightgreen mb-3">
               <div class="card-body">
                 <h5 class="card-title"><%= orderData.status %></h5>
@@ -96,22 +96,7 @@
             </div>
           </div>
   
-          <!-- Address Details -->
-          <div class="col-6">
-            <div class="card bg-light address-card">
-              <div class="card-header">Shipping Address</div>
-              <div class="card-body">
-                <h5 class="card-title">Delivery Address</h5>
-                <p class="card-text">
-                  <%= orderData.address.street %><br />
-                  <%= orderData.address.city %>, <%= orderData.address.state %><br />
-                  <strong>Phone:</strong> <%= orderData.address.phone %>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-  
+          
         <!-- Payment Details -->
         <div class="row p-3">
           <div class="col-6">
@@ -145,7 +130,7 @@
                 <tr>
                   <td>
                     <div class="product-image">
-                      <img src="/uploads/re-image/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>">
+                      
                     </div>
                   </td>
                   <td><%= item.product.productName %></td>

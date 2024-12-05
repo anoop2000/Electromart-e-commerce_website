@@ -34,7 +34,7 @@
           <tr>
             <td>
               <button >
-                <a href="/orderList/orderStatus/<%= order._id %>">
+                <a href="/admin/orderList/orderStatus/<%= order._id %>">
                   <%= index + 1 + (page - 1) * limit %>
                 </a>
               </button>
@@ -58,29 +58,29 @@
                   <li>
                     <a
                       class="dropdown-item"
-                      href="/orderList/pending/<%= order._id %>"
+                      href="/admin/orderList/pending/<%= order._id %>"
                       onclick="return confirm('Are you sure you want to change the status to Pending?')"
                     >
                       Pending
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item" href="/orderList/shipped/<%= order._id %>">
+                    <a class="dropdown-item" href="/admin/orderList/shipped/<%= order._id %>">
                       Shipped
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item" href="/orderList/delivered/<%= order._id %>">
+                    <a class="dropdown-item" href="/admin/orderList/delivered/<%= order._id %>">
                       Delivered
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item" href="/orderList/return/<%= order._id %>">
+                    <a class="dropdown-item" href="/admin/orderList/return/<%= order._id %>">
                       Return
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item" href="/orderList/cancelled/<%= order._id %>">
+                    <a class="dropdown-item" href="/admin/orderList/cancelled/<%= order._id %>">
                       Cancelled
                     </a>
                   </li>
@@ -105,7 +105,7 @@
         <ul class="pagination">
         <% for (let i = 1; i <= Math.ceil(count / limit); i++) { %>
           <li class="page-item <%= i === page ? 'active' : '' %>">
-            <a class="page-link" href="/orderList/?page=<%= i %>"><%= i %></a>
+            <a class="page-link" href="/admin/orderList/?page=<%= i %>"><%= i %></a>
           </li>
         <% } %>
       </ul>

@@ -42,7 +42,7 @@ const Address = require('../../models/addressSchema')
 const orderList = async (req, res) => {
     try {
       const page = parseInt(req.query.page, 10) || 1;
-      const limit = 15;
+      const limit = 10;
       const skip = (page - 1) * limit;
   
       const count = await Order.estimatedDocumentCount();
@@ -131,26 +131,44 @@ const orderList = async (req, res) => {
   
   
 
+// const orderStatus = async (req, res) => {
+//     try {
+//         console.log("Inside orderStatus");
+        
+//       const id = req.params.id;
+//       console.log(`Fetching order with id: ${id}`);
+  
+//       const orderData = await Order.findOne({ _id: id })
+//         .populate("address")
+//         .populate("orderedItems.product")
+//         .lean();
+
+//       if (!orderData) {
+//         console.error(`Order not found for id: ${id}`);
+//         return res.status(404).send("Order not found");
+//       }
+  
+//       res.render("orderStatus", { orderData, user: req.body.user });
+//     } catch (error) {
+//       console.error("Error fetching order:", error);
+//       res.status(500).send("Internal Server Error");
+//     }
+//   };
+
+
+
+// orderStatus
 const orderStatus = async (req, res) => {
     try {
-      const orderId = req.params.id;
-      console.log(`Fetching order with id: ${orderId}`);
-  
-      const orderData = await Order.findOne({ _id: orderId })
-        .populate("address")
-        .populate("orderedItems.product");
-  
-      if (!orderData) {
-        console.error(`Order not found for id: ${orderId}`);
-        return res.status(404).send("Order not found");
-      }
-  
+      let orderData = await Order
+        .findOne({ _id: req.params.id })
+        .populate("address");
       res.render("orderStatus", { orderData, user: req.body.user });
     } catch (error) {
-      console.error("Error fetching order:", error);
-      res.status(500).send("Internal Server Error");
+      console.error(error);
     }
   };
+
 
 
   // pending
@@ -160,7 +178,7 @@ const orderStatus = async (req, res) => {
         { _id: req.params.id },
         { $set: { status: "Pending" } }
       );
-      res.redirect("/orderList");
+      res.redirect("/admin/orderList");
     } catch (error) {
       console.error("Error in status change",error.message,error.stack);
     }
@@ -175,7 +193,7 @@ const orderStatus = async (req, res) => {
         { _id: req.params.id },
         { $set: { status: "Shipped" } }
       );
-      res.redirect("/orderList");
+      res.redirect("/admin/orderList");
     } catch (error) {
         console.error("Error in status change",error.message,error.stack);
     }
@@ -190,7 +208,8 @@ const changeStatusDelivered = async (req, res) => {
         { _id: req.params.id },
         { $set: { status: "Delivered" } }
       );
-      res.redirect("/orderList");
+    res.redirect("/admin/orderList");
+    
     } catch (error) {
         console.error("Error in status change",error.message,error.stack);
     }
@@ -205,7 +224,7 @@ const changeStatusReturn = async (req, res) => {
         { _id: req.params.id },
         { $set: { status: "Return" } }
       );
-      res.redirect("/orderList");
+      res.redirect("/admin/orderList");
     } catch (error) {
         console.error("Error in status change",error.message,error.stack);
     }
@@ -224,7 +243,7 @@ const changeStatusReturn = async (req, res) => {
     //   );
       orderData.status = "Cancelled";
       orderData.save();
-      res.redirect("/orderList");
+      res.redirect("/admin/orderList");
     } catch (error) {
         console.error("Error in status change",error.message,error.stack);
     }
