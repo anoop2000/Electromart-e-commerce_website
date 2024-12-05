@@ -1,0 +1,168 @@
+<%- include("../../views/partials/admin/header") %>
+
+<style>
+
+
+
+    /* Styling for the order section */
+.order-section {
+  background-color: #f8f9fa; /* Background color for the entire section */
+  padding: 20px;
+}
+
+.order-details {
+  background-color: #fff; /* Background color for the order details */
+  border: 1px solid #ddd; /* Border around the order details */
+  padding: 20px;
+}
+
+.order-number {
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.card {
+  border-radius: 8px; /* Rounded corners for cards */
+}
+
+.bg-lightgreen {
+  background-color: #90ee90; /* Light green background color */
+}
+
+.order-info {
+  margin-top: 15px;
+}
+
+.address-card,
+.payment-card {
+  max-width: 18rem;
+}
+
+.payment-box {
+  border: 1px solid #ccc; /* Add a border for the box */
+  border-radius: 8px; /* Add border radius for rounded corners */
+}
+
+.product-details-heading {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.table {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.product-image img {
+  max-width: 100px;
+  height: auto;
+}
+
+.product-info h4 {
+  margin-bottom: 5px;
+}
+
+.product-price span {
+  font-weight: bold;
+}
+
+.total-cost span {
+  font-weight: bold;
+}
+
+</style>
+
+<section class="order-section">
+    <div class="col-9">
+      <div class="content-header">
+        <h2 class="content-title">Order Details</h2>
+      </div>
+    </div>
+  
+    <div class="container p-3">
+      <div class="order-details">
+        <div class="row">
+          <!-- Order Summary -->
+          <div class="col-6 text-center">
+            <p class="order-number"><strong>Order Number:</strong> <%= orderData.orderid %></p>
+            <div class="card text-white bg-lightgreen mb-3">
+              <div class="card-body">
+                <h5 class="card-title"><%= orderData.status %></h5>
+              </div>
+            </div>
+            <div class="order-info">
+              <p class="order-date"><strong>Order Date:</strong> <%= orderData.createdOn.toLocaleDateString() %></p>
+              <p><strong>Invoice Date:</strong> <%= orderData.invoiceDate ? orderData.invoiceDate.toLocaleDateString() : "Not Generated" %></p>
+            </div>
+          </div>
+  
+          <!-- Address Details -->
+          <div class="col-6">
+            <div class="card bg-light address-card">
+              <div class="card-header">Shipping Address</div>
+              <div class="card-body">
+                <h5 class="card-title">Delivery Address</h5>
+                <p class="card-text">
+                  <%= orderData.address.street %><br />
+                  <%= orderData.address.city %>, <%= orderData.address.state %><br />
+                  <strong>Phone:</strong> <%= orderData.address.phone %>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Payment Details -->
+        <div class="row p-3">
+          <div class="col-6">
+            <div class="payment-box bg-lightgreen p-3">
+              <div class="payment-card card text-white bg-secondary">
+                <div class="card-header">Payment</div>
+                <div class="card-body">
+                  <h5 class="card-title">₹<%= orderData.finalAmount %></h5>
+                  <p class="card-text">Payment Type: <%= orderData.paymentType %></p>
+                  <p class="card-text"><strong>Discount:</strong> ₹<%= orderData.discount %></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Ordered Items -->
+        <h5 class="product-details-heading">Ordered Products:</h5>
+        <div class="row p-3">
+          <table id="orderStatus" class="table">
+            <thead>
+              <th>Image</th>
+              <th>Product Name</th>
+              <th>Brand</th>
+              <th>Quantity</th>
+              <th>Unit Price</th>
+              <th>Total Cost</th>
+            </thead>
+            <tbody>
+              <% orderData.orderedItems.forEach(item => { %>
+                <tr>
+                  <td>
+                    <div class="product-image">
+                      <img src="/uploads/re-image/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>">
+                    </div>
+                  </td>
+                  <td><%= item.product.productName %></td>
+                  <td><%= item.product.brand %></td>
+                  <td><%= item.quantity %></td>
+                  <td>₹<%= item.salePriceprice %></td>
+                  <td>₹<%= item.quantity * item.price %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  
+
+
+<%- include("../../views/partials/admin/footer") %> 

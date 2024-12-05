@@ -1,0 +1,119 @@
+
+<%- include("../../views/partials/admin/header") %>
+
+
+
+
+
+
+
+
+
+<div class="container pt-3">
+  <div class="col-9">
+    <div class="content-header">
+      <h2 class="content-title">ORDER MANAGEMENT</h2>
+    </div>
+  </div>
+  <table id="example" class="table table-bordered table-hover" style="width: 100%">
+    <thead>
+      <tr>
+        <th scope="col" class="border-dark">Order No</th>
+        <th scope="col" class="border-dark">Order ID</th>
+        <th scope="col" class="border-dark">User Name</th>
+        <th scope="col" class="border-dark">Order Date</th>
+        <th scope="col" class="border-dark">Amount</th>
+        <th scope="col" class="border-dark">Payment Type</th>
+        <th scope="col" class="border-dark">Status</th>
+        <th scope="col" class="border-dark">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (orderData && orderData.length > 0) { %>
+        <% orderData.reverse().forEach((order, index) => { %>
+          <tr>
+            <td>
+              <button >
+                <a href="/orderList/orderStatus/<%= order._id %>">
+                  <%= index + 1 + (page - 1) * limit %>
+                </a>
+              </button>
+            </td>
+            <td><%= order.orderid %></td>
+            <td><%= order.userId?.name || 'Unknown User' %></td>
+            <td><%= new Date(order.createdOn).toLocaleDateString() %></td>
+            <td>₹<%= order.finalAmount %></td>
+            <td><%= order.paymentType %></td>
+            <td><%= order.status %></td>
+            <td>
+                <% if (order.status !=='Cancelled' ) { %>
+              <div class="btn-group">
+                <button
+                  class="btn btn-secondary btn-lg dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                ></button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="/orderList/pending/<%= order._id %>"
+                      onclick="return confirm('Are you sure you want to change the status to Pending?')"
+                    >
+                      Pending
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="/orderList/shipped/<%= order._id %>">
+                      Shipped
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="/orderList/delivered/<%= order._id %>">
+                      Delivered
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="/orderList/return/<%= order._id %>">
+                      Return
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="/orderList/cancelled/<%= order._id %>">
+                      Cancelled
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      <% } else { %>
+        <tr>
+          <td colspan="8" style="text-align: center;">No orders found</td>
+        </tr>
+      <% } %>
+    </tbody>
+
+    
+  </table>
+
+  <div class="d-flex justify-content-center py-3">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+        <% for (let i = 1; i <= Math.ceil(count / limit); i++) { %>
+          <li class="page-item <%= i === page ? 'active' : '' %>">
+            <a class="page-link" href="/orderList/?page=<%= i %>"><%= i %></a>
+          </li>
+        <% } %>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+
+
+
+<%- include("../../views/partials/admin/footer") %> 

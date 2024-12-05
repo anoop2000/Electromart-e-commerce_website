@@ -363,7 +363,7 @@
 
             <!-- Add to Cart -->
             
-            <button type="submit" class="button button-add-to-cart" 
+            <button type="submit" class="button button-add-to-cart"
                  <% if (product.quantity === 0 || product.quantity === 1) { %> 
                                     disabled 
                              style="cursor: not-allowed;" 
@@ -441,3 +441,33 @@
     });
 </script>
  
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  async function addToCart(productId) {
+    try {
+      const response = await fetch(`/addToCart?id=${productId}`, { method: 'POST' });
+      const data = await response.json();
+
+      if (data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Added to Cart',
+          text: data.message,
+        });
+        // Optionally reload the page or update the cart count
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: data.message,
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong!',
+      });
+    }
+  }

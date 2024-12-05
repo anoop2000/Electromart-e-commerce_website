@@ -72,14 +72,18 @@ const userProfile = async(req,res)=>{
         const userId=  req.session.user;
         const userData = await User.findById(userId)
         const addressData = await Address.findOne({userId : userId})
+        const orders = await Order.find({ userId }).lean(); 
 
         const emailUpdated = req.session.emailUpdated || false;
         req.session.emailUpdated = null;
+
+        await 
        
         res.render('userProfile',{
             user :userData,
             userAddress : addressData,
-            emailUpdated 
+            emailUpdated,
+            orders, // Pass orders data to the view
         })
     } catch (error) {
 
@@ -413,6 +417,7 @@ const postAddAddress = async(req,res)=>{
 }
 
 
+
 const editAddress = async(req,res)=>{
 
     try {
@@ -445,6 +450,7 @@ const editAddress = async(req,res)=>{
         
     }
 }
+
 
 
 
@@ -487,6 +493,8 @@ const postEditAddress = async(req,res)=>{
 
 
 
+
+
 const deleteAddress = async(req,res)=>{
     try {
         const addressId = req.query.id;
@@ -516,32 +524,17 @@ const deleteAddress = async(req,res)=>{
     }
 }
 
-const ordersList = async(req,res)=>{
-    try {
 
-        try {
-            const userId = req.session.user; // Retrieve the logged-in user's ID
-        
-            if (!userId) {
-              return res.redirect('/login'); // Redirect to login if the user is not authenticated
-            }
-        
-            // Fetch orders for the logged-in user
-            const orders = await Order.find({ userId })
-              .populate('orderedItems.product', 'productName') // Populate product name
-              .lean(); // Convert to plain JavaScript objects for rendering
-        
-            // Render the orders page with the fetched data
-            res.render('userProfile', { orders });
-          } catch (error) {
-            console.error('Error fetching orders:', error);
-            res.status(500).send('An error occurred while fetching your orders.');
-          }
-        
-    } catch (error) {
-        
-    }
-}
+
+
+
+
+
+
+
+
+
+
 
 
 module.exports = {
@@ -564,5 +557,5 @@ module.exports = {
     editAddress,
     postEditAddress,
     deleteAddress,
-    ordersList
+    
 }

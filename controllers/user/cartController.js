@@ -148,6 +148,46 @@ const addToCart = async (req, res) => {
 
 
 
+
+
+    // if (existingItem) {
+    //     // Check if adding another quantity exceeds stock
+    //     if (existingItem.quantity + 1 > product.quantity) {
+    //       return res.status(400).json({
+    //         success: false,
+    //         message: "Stock quantity is not sufficient!",
+    //       });
+    //     }
+  
+    //     // Update quantity and total price
+    //     existingItem.quantity += 1;
+    //     existingItem.totalPrice = existingItem.quantity * product.salePrice;
+    //   } else {
+    //     if (product.quantity < 1) {
+    //       return res.status(400).json({
+    //         success: false,
+    //         message: "Stock quantity is not sufficient!",
+    //       });
+    //     }
+  
+    //     // Add new product to the cart
+    //     cart.items.push({
+    //       productId: product._id,
+    //       quantity: 1,
+    //       price: product.salePrice,
+    //       totalPrice: product.salePrice,
+    //     });
+    //   }
+  
+
+
+
+
+  
+      
+
+
+
   
   
 
@@ -253,7 +293,80 @@ const decQty = async (req, res) => {
   };
 
 
-  const incQty = async (req, res) => {
+//   const incQty = async (req, res) => {
+//     try {
+//       const userId = req.session.user; // Get user ID from session
+//       const productId = req.params.id; // Get product ID from the route params
+  
+//       // Find the user's cart
+//       const cart = await Cart.findOne({ userid: userId });
+  
+//       if (!cart) {
+//         return res.status(404).json({ success: false, message: "Cart not found." });
+//       }
+  
+//       // Find the specific product in the cart
+//       const item = cart.items.find(item => item.productId.toString() === productId);
+  
+//       if (!item) {
+//         return res.status(404).json({ success: false, message: "Product not found in cart." });
+//       }
+  
+//       // Check if the quantity is at the maximum limit (8)
+//       if (item.quantity >= 8) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "Maximum quantity of 8 items reached.",
+//         });
+//       }
+
+
+//       // Find the product in the database to check stock
+//     const product = await Product.findById(productId);
+
+//     if (!product || item.quantity + 1 > product.quantity) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Stock quantity is not sufficient!",
+//       });
+//     }
+
+
+
+  
+//       // Update quantity and total price for the product
+//       item.quantity += 1;
+//       item.totalPrice = item.quantity * item.price;
+  
+//       // Save updated cart
+//       await cart.save();
+  
+//       // Recalculate grand total for the cart
+//       const grandTotal = cart.items.reduce((total, item) => total + item.totalPrice, 0);
+  
+//       // Respond with updated values
+//       res.json({
+//         success: true,
+//         updatedItem: {
+//           productId: item.productId,
+//           productName: item.productId.productName || "Product", // Ensure productName is populated
+//           quantity: item.quantity,
+//           totalPrice: item.totalPrice,
+//         },
+//         grandTotal,
+//       });
+//     } catch (error) {
+//       console.error("Error in incQty:", error);
+//       res.status(500).json({
+//         success: false,
+//         message: "An error occurred while updating the cart.",
+//       });
+//     }
+//   };
+
+
+
+const incQty = async (req, res) => {
     try {
       const userId = req.session.user; // Get user ID from session
       const productId = req.params.id; // Get product ID from the route params
@@ -500,35 +613,6 @@ const confirmAddress = async (req, res) => {
 
 
   
-
-
-// const selectPaymentType = async (req, res) => {
-//     try {
-//       const { paymentType } = req.body; // Extract the payment type from the request body
-//       const userId = req.session.user; // Get the logged-in user's ID
-      
-//       // Validate the user is logged in
-//       if (!userId) {
-//         return res.redirect('/login');
-//       }
-  
-//       // Validate the selected payment type
-//       if (!['COD', 'Wallet', 'Razorpay'].includes(paymentType)) {
-//         return res.status(400).json({ message: 'Invalid payment type selected.' });
-//       }
-  
-//       // Save the payment type in the session
-//       req.session.paymentType = paymentType;
-  
-    
-  
-//       res.status(200).json({ message: 'Payment type selected successfully!'});
-//     } catch (error) {
-//       console.error('Error selecting payment type:', error);
-//       res.status(500).json({ message: 'An error occurred while selecting payment type.' });
-//     }
-//   };
-
 
 
 

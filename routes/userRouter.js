@@ -6,6 +6,10 @@ const { userAuth } = require('../middlewares/auth')
 const productController = require('../controllers/user/productController')
 const profileController = require('../controllers/user/profileController')
 const cartController = require('../controllers/user/cartController')
+const orderController = require('../controllers/user/orderController')
+
+
+
 router.get('/pageNotFound',userController.pageNotFound)
 router.get('/aboutUs',userController.aboutUs)
 
@@ -53,9 +57,15 @@ router.get('/change-password',userAuth,profileController.changePassword)
 router.post('/change-password',userAuth,profileController.changePasswordValid)
 router.post('/verify-changepassword-otp',userAuth,profileController.verifyChangePassOtp)
 
-
 router.get('/userProfile',userAuth,profileController.userProfile)
-router.get('/ordersList',userAuth,profileController.ordersList)
+
+
+//order management
+
+router.get('/orderList',userAuth,orderController.ordersList)
+router.delete('/deleteOrder/:orderId', userAuth, orderController.deleteOrder);
+
+
 
 
 
@@ -81,7 +91,7 @@ router.get('/checkout',userAuth,cartController.checkOutPage)
 router.post('/checkout/editAddress',userAuth,cartController.updateAddress)
 router.post('/checkout/deleteAddress',userAuth,cartController.deleteAddress)
 router.post('/confirm-address',userAuth,cartController.confirmAddress)
-router.post('/select-payment',userAuth,cartController.selectPaymentType)
+router.post('/selectPaymentType',userAuth,cartController.selectPaymentType)
 router.get('/orderSuccess',userAuth,cartController.orderPlaced)
 
 

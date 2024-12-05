@@ -10,7 +10,7 @@ const orderSchema = new Schema({
         unique : true
     },
     userId: { 
-        type: mongoose.Types.ObjectId, 
+        type: Schema.Types.ObjectId, 
         ref: 'User',
         required: true 
     },
@@ -52,7 +52,7 @@ const orderSchema = new Schema({
         
     },
     invoiceDate : {
-        type : Date
+        type : Date,
 
     },
     status : {

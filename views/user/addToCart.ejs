@@ -715,6 +715,65 @@ async function cartInc(id, index) {
 
 
 
+// async function cartInc(productId, index) {
+//   try {
+//     // Select the required elements from the DOM
+//     const quantityElement = document.getElementById(`quantity${index}`);
+//     const priceElement = document.getElementById(`price${index}`);
+//     const totalPriceElement = document.getElementById(`totalPrice${index}`);
+//     const subTotalElement = document.getElementById('sub-total-price');
+
+//     // Fetch current quantity from the UI
+//     const currentQuantity = Number(quantityElement.textContent);
+
+//     // Check if the quantity exceeds the stock limit
+//     if (currentQuantity >= 8) {
+//       return Swal.fire({
+//         icon: "warning",
+//         title: "Max Quantity Reached",
+//         text: "You cannot purchase more than 8 items of this product.",
+//       });
+//     }
+
+//     // Send a POST request to the server to increment the quantity
+//     const response = await fetch(`/getCart/incQty/${productId}`, { method: 'POST' });
+//     const data = await response.json();
+
+//     if (data.success) {
+//       // Update the UI with new quantity and total prices
+//       quantityElement.textContent = data.updatedItem.quantity;
+//       totalPriceElement.textContent = `₹${data.updatedItem.totalPrice}`;
+//       subTotalElement.textContent = `₹${data.grandTotal}`;
+
+//       // Show a success notification
+//       Swal.fire({
+//         icon: "success",
+//         title: "Quantity Updated",
+//         text: `Quantity for ${data.updatedItem.productName} has been increased.`,
+//         timer: 1500,
+//         showConfirmButton: false,
+//       });
+//     } else {
+//       // Show an alert if stock is insufficient
+//       Swal.fire({
+//         icon: 'error',
+//         title: 'Stock Quantity Insufficient!',
+//         text: data.message || "Not enough stock available for this product.",
+//       });
+//     }
+//   } catch (error) {
+//     console.error("Error in incrementQuantity:", error);
+//     // Show a general error notification
+//     Swal.fire({
+//       icon: 'error',
+//       title: 'Oops...',
+//       text: 'Something went wrong while updating the quantity.',
+//     });
+//   }
+// }
+
+
+
 
   
 

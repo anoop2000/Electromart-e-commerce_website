@@ -577,6 +577,11 @@ img {
                       <% }); %>
                     </ul>
 
+
+                    <button type="button" id="placeOrderBtn" class="btn btn-outline-primary-2 btn-order btn-block">
+                        <span class="btn-text" id="text">Confirm Address</span>
+                      </button>
+
                     
                   </div>
 
@@ -716,7 +721,7 @@ img {
               </h3>
             </div>
 
-            <div class="panel-collapse">
+            <!-- <div class="panel-collapse">
               <div class="panel-body">
                 <div class="payment-method">
                   <label>
@@ -735,12 +740,52 @@ img {
                
                 
               </div>
-            </div>
+            </div> -->
 
-            <button type="submit" id="placeOrderBtn" class="btn btn-outline-primary-2 btn-order btn-block">
+
+            <!-- <form id="paymentForm" method="POST" action="/selectPaymentType">
+                <div class="payment-method">
+                  <label>
+                    <input type="radio" name="paymentType" id="COD" value="COD"> Cash On Delivery
+                  </label>
+                  <label>
+                    <input type="radio" name="paymentType" id="Wallet" value="Wallet"> Wallet
+                  </label>
+                  <label>
+                    <input type="radio" name="paymentType" id="Razorpay" value="Razorpay"> Razorpay
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">Place Order</button>
+              </form> -->
+              
+
+            <!-- <button type="submit" id="placeOrderBtn" class="btn btn-outline-primary-2 btn-order btn-block">
                 <span class="btn-text" id="text"><a href="/orderSuccess">Place Order</a></span>
               
-            </button>
+            </button> -->
+
+
+            <form id="paymentForm">
+                <div class="payment-method">
+                  <label>
+                    <input type="radio" name="paymentType" id="COD" value="COD"> Cash On Delivery
+                  </label>
+                  <label>
+                    <input type="radio" name="paymentType" id="Wallet" value="Wallet"> Wallet
+                  </label>
+                  <label>
+                    <input type="radio" name="paymentType" id="Razorpay" value="Razorpay"> Razorpay
+                  </label>
+                </div>
+                <button type="button" id="submitPayment" class="btn btn-outline-primary-2 btn-order btn-block">
+                  Place Order
+                </button>
+              </form>
+              
+
+
+            
+              
 
             
 
@@ -885,70 +930,182 @@ img {
 
 <script>
 
+//----------------------------------------------------------------------------------
+
+// document.getElementById('placeOrderBtn').addEventListener('click', async (event) => {
+//   event.preventDefault(); // Prevent default behavior of the button
+
+//   // Check if a payment method is selected
+//   const selectedPaymentType = document.querySelector('input[name="payment"]:checked');
+
+//   if (!selectedPaymentType) {
+//     // SweetAlert for no payment method selected
+//     return Swal.fire({
+//       icon: 'error',
+//       title: 'Error',
+//       text: 'You must choose a payment method before placing the order.',
+//       confirmButtonText: 'OK',
+//     });
+//   }
+
+//   const paymentType = selectedPaymentType.value;
+
+//   try {
+//     const response = await fetch('http://localhost:3000/select-payment', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({ paymentType }),
+//     });
+
+//     const result = await response.json();
+
+//     if (response.ok) {
+//       // SweetAlert for success and redirect
+//       Swal.fire({
+//         icon: 'success',
+//         title: 'Payment Method Selected',
+//         text: result.message || 'Your payment method has been selected successfully.',
+//         confirmButtonText: 'Proceed',
+//       }).then(() => {
+//         window.location.href = '/orderSuccess'; // Redirect to the order success page
+//       });
+//     } else {
+//       // SweetAlert for server-side error
+//       Swal.fire({
+//         icon: 'error',
+//         title: 'Error',
+//         text: result.message || 'Failed to select payment method. Please try again.',
+//         confirmButtonText: 'OK',
+//       });
+//     }
+//   } catch (err) {
+//     console.error('Error selecting payment type:', err);
+//     // SweetAlert for client-side error
+//     Swal.fire({
+//       icon: 'error',
+//       title: 'Error',
+//       text: 'An error occurred while selecting the payment method. Please try again.',
+//       confirmButtonText: 'OK',
+//     });
+//   }
+// });
 
 
-document.getElementById('placeOrderBtn').addEventListener('click', async (event) => {
-  event.preventDefault(); // Prevent default behavior of the button
 
-  // Check if a payment method is selected
-  const selectedPaymentType = document.querySelector('input[name="payment"]:checked');
 
-  if (!selectedPaymentType) {
-    // SweetAlert for no payment method selected
-    return Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'You must choose a payment method before placing the order.',
-      confirmButtonText: 'OK',
+// document.getElementById('placeOrderBtn').addEventListener('click', async (e) => {
+//   e.preventDefault(); // Prevent default form submission
+
+//   const paymentType = document.querySelector('input[name="paymentType"]:checked')?.value;
+
+//   if (!paymentType) {
+//     Swal.fire({
+//       icon: 'warning',
+//       title: 'No Payment Method Selected',
+//       text: 'Please select a payment method to proceed.',
+//     });
+//     return;
+//   }
+
+//   try {
+//     const response = await fetch('/selectPaymentType', {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({ paymentType }),
+//     });
+
+//     const result = await response.json();
+
+//     if (response.ok) {
+//       // Display SweetAlert for success
+//       Swal.fire({
+//         icon: 'success',
+//         title: 'Payment Method Selected',
+//         text: result.message,
+//         confirmButtonText: 'Place Order',
+//       }).then(() => {
+//         // Redirect to order success page after user confirmation
+//         window.location.href = '/orderSuccess';
+//       });
+//     } else {
+//       // Display SweetAlert for error
+//       Swal.fire({
+//         icon: 'error',
+//         title: 'Error',
+//         text: result.message,
+//       });
+//     }
+//   } catch (error) {
+//     console.error('Error selecting payment type:', error);
+//     // Display SweetAlert for unexpected errors
+//     Swal.fire({
+//       icon: 'error',
+//       title: 'Oops!',
+//       text: 'An error occurred while selecting the payment method.',
+//     });
+//   }
+// });
+
+
+
+
+document.getElementById('submitPayment').addEventListener('click', async (e) => {
+  e.preventDefault(); // Prevent the default form submission
+
+  const paymentType = document.querySelector('input[name="paymentType"]:checked')?.value;
+
+  if (!paymentType) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'No Payment Method Selected',
+      text: 'Please select a payment method to proceed.',
     });
+    return;
   }
 
-  const paymentType = selectedPaymentType.value;
-
   try {
-    const response = await fetch('http://localhost:3000/select-payment', {
+    const response = await fetch('/selectPaymentType', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ paymentType }),
     });
 
     const result = await response.json();
 
     if (response.ok) {
-      // SweetAlert for success and redirect
       Swal.fire({
         icon: 'success',
         title: 'Payment Method Selected',
-        text: result.message || 'Your payment method has been selected successfully.',
-        confirmButtonText: 'Proceed',
+        text: result.message,
+        confirmButtonText: 'Continue',
       }).then(() => {
-        window.location.href = '/orderSuccess'; // Redirect to the order success page
+        // Optional: Redirect to a success page or refresh
+        window.location.href = '/orderSuccess';
       });
     } else {
-      // SweetAlert for server-side error
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: result.message || 'Failed to select payment method. Please try again.',
-        confirmButtonText: 'OK',
+        text: result.message,
       });
     }
-  } catch (err) {
-    console.error('Error selecting payment type:', err);
-    // SweetAlert for client-side error
+  } catch (error) {
+    console.error('Error selecting payment type:', error);
     Swal.fire({
       icon: 'error',
-      title: 'Error',
-      text: 'An error occurred while selecting the payment method. Please try again.',
-      confirmButtonText: 'OK',
+      title: 'Oops!',
+      text: 'An error occurred while selecting the payment method.',
     });
   }
 });
 
 
-//-----------------------------------------------------------------------------------
+
+
+
+//-----------------------------------------------------------------------------------for address
 
 document.getElementById('placeOrderBtn').addEventListener('click', async () => {
   // Get the selected address
