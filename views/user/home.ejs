@@ -98,6 +98,38 @@
   .product-content-wrap a:hover {
       background-color: #ff4c4c;
   }
+
+
+  #modal-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    display: none; /* Initially hidden */
+    z-index: 1000; /* Ensure it's on top */
+    opacity: 0; /* Hidden via opacity */
+    transition: opacity 0.3s ease-in-out; /* Smooth fade-in/out */
+  }
+
+  #modal-message.visible {
+    display: block; /* Make visible */
+    opacity: 1; /* Fully visible */
+  }
+
+  #modal-message.hidden {
+    opacity: 0; /* Fade-out effect */
+    transition: opacity 0.3s ease-in-out;
+  }
+
+
+    
+  
 </style>
 <section class="hero">
   <div class="hero__slider owl-carousel">
@@ -216,7 +248,11 @@
                       <div class="product-content-wrap">
                           <h6><%=products[i].productName%></h6>
                           <h5><i class="fas fa-indian-rupee-sign"></i><%=products[i].salePrice%></h5>
-                          <a href="/addToCart?id=<%=products[i]._id%>">Add to Cart</a>
+                          <!-- <a href="/addToCart?id=<%=products[i]._id%>">Add to Cart</a> -->
+
+                         
+                          
+
                       </div>
                   </div>
               </div>
@@ -228,6 +264,9 @@
 
 
 
+
+
+  
 
 
 

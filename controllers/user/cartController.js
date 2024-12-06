@@ -147,46 +147,7 @@ const addToCart = async (req, res) => {
 
 
 
-
-
-
-    // if (existingItem) {
-    //     // Check if adding another quantity exceeds stock
-    //     if (existingItem.quantity + 1 > product.quantity) {
-    //       return res.status(400).json({
-    //         success: false,
-    //         message: "Stock quantity is not sufficient!",
-    //       });
-    //     }
   
-    //     // Update quantity and total price
-    //     existingItem.quantity += 1;
-    //     existingItem.totalPrice = existingItem.quantity * product.salePrice;
-    //   } else {
-    //     if (product.quantity < 1) {
-    //       return res.status(400).json({
-    //         success: false,
-    //         message: "Stock quantity is not sufficient!",
-    //       });
-    //     }
-  
-    //     // Add new product to the cart
-    //     cart.items.push({
-    //       productId: product._id,
-    //       quantity: 1,
-    //       price: product.salePrice,
-    //       totalPrice: product.salePrice,
-    //     });
-    //   }
-  
-
-
-
-
-  
-      
-
-
 
   
   
