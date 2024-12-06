@@ -711,6 +711,16 @@ const signup = async (req, res) => {
     }
   };
   
+
+
+  const  clearFilters = async (req, res) => {
+    try {
+      req.session.products = null;
+      res.redirect("/shop");
+    } catch (error) {
+      console.error(error);
+    }
+  };
   
 
 
@@ -740,7 +750,8 @@ module.exports = {
   filterByPrice,
   searchProducts,
   sortPrice,
-  sortByAlpha
+  sortByAlpha,
+  clearFilters
   
   
 }

@@ -42,6 +42,7 @@ router.get('/filterPrice',blockUserCheck,userAuth,userController.filterByPrice)
 router.post('/search',blockUserCheck,userAuth,userController.searchProducts)
 router.get('/sortByPrice', blockUserCheck,userAuth,userController.sortPrice);
 router.get('/sortByAlpha',blockUserCheck,userAuth,userController.sortByAlpha)
+router.get('/clearFilters',blockUserCheck,userAuth,userController.clearFilters)
 
 //profile management
 router.get('/forgot-password',profileController.getForgotPassPage)

@@ -407,6 +407,7 @@
 
 
 <div class="related-products-section">
+    <% if (relatedProducts && relatedProducts.length > 0) { %>
     <h2 style="font-size: 22px; font-weight: 600; margin-bottom: 20px; color: #333;">Related Products</h2>
     <div class="related-products-container" style="display: flex; flex-wrap: wrap; gap: 20px;">
 
@@ -423,6 +424,7 @@
         <% }) %>
 
     </div>
+    <% } %>
 </div>
 
 
