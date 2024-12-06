@@ -3,6 +3,7 @@ const router =  express.Router()
 const passport  = require('passport')
 const userController = require('../controllers/user/userController')
 const { userAuth } = require('../middlewares/auth')
+const {blockUserCheck} = require('../middlewares/auth')
 const productController = require('../controllers/user/productController')
 const profileController = require('../controllers/user/profileController')
 const cartController = require('../controllers/user/cartController')
@@ -31,16 +32,16 @@ router.get('/logout',userController.logout);
 
 
 //product-details page
-router.get('/product-details',userAuth,productController.productDetails)
+router.get('/product-details',blockUserCheck,userAuth,productController.productDetails)
 
 //home page & shopping page
 router.get('/',userController.loadHomepage)
 router.get('/shop',userAuth,userController.loadShoppingPage)
-router.get('/filter',userAuth,userController.filterProduct)
-router.get('/filterPrice',userAuth,userController.filterByPrice)
-router.post('/search',userAuth,userController.searchProducts)
-router.get('/sortByPrice', userAuth,userController.sortPrice);
-router.get('/sortByAlpha',userAuth,userController.sortByAlpha)
+router.get('/filter',blockUserCheck,userAuth,userController.filterProduct)
+router.get('/filterPrice',blockUserCheck,userAuth,userController.filterByPrice)
+router.post('/search',blockUserCheck,userAuth,userController.searchProducts)
+router.get('/sortByPrice', blockUserCheck,userAuth,userController.sortPrice);
+router.get('/sortByAlpha',blockUserCheck,userAuth,userController.sortByAlpha)
 
 //profile management
 router.get('/forgot-password',profileController.getForgotPassPage)
@@ -49,15 +50,16 @@ router.post('/verify-passForgot-otp',profileController.verifyForgotPassOtp)
 router.get('/reset-password',profileController.getResetPassPage)
 router.post('/resend-forgot-otp',profileController.resendOtp)
 router.post('/reset-password',profileController.postNewPassword)
-router.get('/change-email',userAuth,profileController.changeEmail)
-router.post('/change-email',userAuth,profileController.changeEmailValid)
-router.post('/verify-email-otp',userAuth,profileController.verifyEmailOtp)
-router.post('/update-email',userAuth,profileController.updateEmail)
-router.get('/change-password',userAuth,profileController.changePassword)
-router.post('/change-password',userAuth,profileController.changePasswordValid)
-router.post('/verify-changepassword-otp',userAuth,profileController.verifyChangePassOtp)
 
-router.get('/userProfile',userAuth,profileController.userProfile)
+//
+router.get('/change-email',blockUserCheck,userAuth,profileController.changeEmail)
+router.post('/change-email',blockUserCheck,userAuth,profileController.changeEmailValid)
+router.post('/verify-email-otp',blockUserCheck,userAuth,profileController.verifyEmailOtp)
+router.post('/update-email',blockUserCheck,userAuth,profileController.updateEmail)
+router.get('/change-password',blockUserCheck,userAuth,profileController.changePassword)
+router.post('/change-password',blockUserCheck,userAuth,profileController.changePasswordValid)
+router.post('/verify-changepassword-otp',blockUserCheck,userAuth,profileController.verifyChangePassOtp)
+router.get('/userProfile',blockUserCheck,userAuth,profileController.userProfile)
 
 
 //order management
@@ -72,27 +74,28 @@ router.put('/cancelOrder/:id', userAuth, orderController.cancelOrder);
 
 
 //Address management
-router.get('/addAddress',userAuth,profileController.addAddress)
-router.post('/addAddress',userAuth,profileController.postAddAddress)
-router.get('/edit-address',userAuth,profileController.editAddress)
-router.post('/edit-address',userAuth,profileController.postEditAddress)
-router.get('/deleteAddress',userAuth,profileController.deleteAddress)
+router.get('/addAddress',blockUserCheck,userAuth,profileController.addAddress)
+router.post('/addAddress',blockUserCheck,userAuth,profileController.postAddAddress)
+router.get('/edit-address',blockUserCheck,userAuth,profileController.editAddress)
+router.post('/edit-address',blockUserCheck,userAuth,profileController.postEditAddress)
+router.get('/deleteAddress',blockUserCheck,userAuth,profileController.deleteAddress)
 
 
 //cart management
-router.get('/getCart',userAuth,cartController.renderCartPage)
-router.get('/addToCart',userAuth,cartController.addToCart)
-router.get('/removeFromCart',userAuth,cartController.deleteFromCart)
-router.put('/getCart/decQty/:id',userAuth,cartController.decQty)
-router.put('/getCart/incQty/:id',userAuth,cartController.incQty)
+router.get('/getCart',blockUserCheck,userAuth,cartController.renderCartPage)
+router.post('/addToCart', blockUserCheck,userAuth, cartController.addToCart);
+
+router.get('/removeFromCart',blockUserCheck,userAuth,cartController.deleteFromCart)
+router.put('/getCart/decQty/:id',blockUserCheck,userAuth,cartController.decQty)
+router.put('/getCart/incQty/:id',blockUserCheck,userAuth,cartController.incQty)
 
 //checkout management
-router.get('/checkout',userAuth,cartController.checkOutPage)
-router.post('/checkout/editAddress',userAuth,cartController.updateAddress)
-router.post('/checkout/deleteAddress',userAuth,cartController.deleteAddress)
-router.post('/confirm-address',userAuth,cartController.confirmAddress)
-router.post('/selectPaymentType',userAuth,cartController.selectPaymentType)
-router.get('/orderSuccess',userAuth,cartController.orderPlaced)
+router.get('/checkout',blockUserCheck,userAuth,cartController.checkOutPage)
+router.post('/checkout/editAddress',blockUserCheck,userAuth,cartController.updateAddress)
+router.post('/checkout/deleteAddress',blockUserCheck,userAuth,cartController.deleteAddress)
+router.post('/confirm-address',blockUserCheck,userAuth,cartController.confirmAddress)
+router.post('/selectPaymentType',blockUserCheck,userAuth,cartController.selectPaymentType)
+router.get('/orderSuccess',blockUserCheck,userAuth,cartController.orderPlaced)
 
 
 

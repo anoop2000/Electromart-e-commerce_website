@@ -342,11 +342,23 @@
                 
             </div>
 
-            <% if (product.quantity > 1) { %>
+            <!-- <% if (product.quantity > 1) { %>
                 <li>Availability:<span class="in-stock text-success ml-5"><%=quantity%> Items in Stock</span></li>
             <% } else { %>
                 <span class="out-of-stock text-danger">  <span style="color:#555;">Availability</span>:                 Out of Stock</span>
-            <% } %>
+            <% } %> -->
+
+<!-------------------------------------------------------------------------------->
+            <div>
+            <li id="stock-status">
+                <% if (product.quantity > 1) { %>
+                    <span class="in-stock text-success">Availability: <%= product.quantity %> Items in Stock</span>
+                <% } else { %>
+                    <span class="out-of-stock text-danger">Availability: Out of Stock</span>
+                <% } %>
+            </li>
+            </div>
+            <!-------------------------------------------------------------------------------->
 
             <div class="short-desc">
                 <p>Description :<%= product.description %></p>
@@ -364,14 +376,24 @@
             </div>
 
             <!-- Add to Cart -->
+             <!-- <button onclick="addToCart('<%= product._id %>')">Add to Cart</button> -->
             
-            <button type="submit" class="button button-add-to-cart"
+            <!-- <button type="submit" class="button button-add-to-cart"
                  <% if (product.quantity === 0 || product.quantity === 1) { %> 
                                     disabled 
                              style="cursor: not-allowed;" 
                 <% } else { %> 
-                        onclick="window.location.href='/addToCart?id=<%= product._id %>';" 
-                <% } %>>Add to Cart</button>
+                    onclick="addToCart('<%= product._id %>')" 
+                <% } %>>Add to Cart</button> -->
+
+
+
+                <button
+                    id="add-to-cart-btn"
+                    class="button button-add-to-cart"
+                    onclick="checkStockAndAddToCart('<%= product._id %>', '<%= product.quantity %>')">
+                    Add to Cart
+                </button>
 
 
         </div>
@@ -445,33 +467,76 @@
  
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 <script>
-  async function addToCart(productId) {
-    try {
-      const response = await fetch(`/addToCart?id=${productId}`, { method: 'POST' });
-      const data = await response.json();
+    
 
-      if (data.success) {
+
+
+
+
+
+
+
+async function checkStockAndAddToCart(productId, stockQuantity) {
+    if (stockQuantity <= 1) {
         Swal.fire({
-          icon: 'success',
-          title: 'Added to Cart',
-          text: data.message,
+            icon: 'error',
+            title: 'Out of Stock',
+            text: 'The product is out of stock and cannot be added to the cart.',
         });
-        // Optionally reload the page or update the cart count
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: data.message,
-        });
-      }
-    } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Something went wrong!',
-      });
+        return;
     }
-  }
 
-  </script>
+    // Proceed to add to cart
+    const response = await addToCart(productId);
+
+    if (response.success) {
+        // Update stock quantity dynamically on the page
+        const stockElement = document.getElementById('stock-status');
+        const addToCartButton = document.getElementById('add-to-cart-btn');
+
+        stockQuantity -= 1; // Decrease stock by 1
+        if (stockQuantity <= 1) {
+            stockElement.innerHTML = '<span class="out-of-stock text-danger">Availability: Out of Stock</span>';
+            addToCartButton.disabled = true;
+            addToCartButton.style.cursor = 'not-allowed';
+        } else {
+            stockElement.innerHTML = `<span class="in-stock text-success">Availability: ${stockQuantity} Items in Stock</span>`;
+        }
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Added to Cart',
+            text: response.message,
+            confirmButtonText: 'Go to Cart',
+        }).then(() => {
+            window.location.href = '/getCart'; // Redirect to cart page
+        });
+    } else {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Warning',
+            text: response.message,
+        });
+    }
+}
+
+async function addToCart(productId) {
+    try {
+        const response = await fetch(`/addToCart?id=${productId}`, { method: 'POST' });
+        return await response.json();
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        return { success: false, message: 'Something went wrong!' };
+    }
+}
+
+
+
+
+
+
+
+    </script>

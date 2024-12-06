@@ -40,8 +40,37 @@ const adminAuth = (req,res,next)=>{
     })
 }
 
+
+const blockUserCheck = async(req,res,next)=>{
+
+    try {
+        
+        const currentUser = await User.findOne({
+          _id: req.session?.currentUser?._id,
+        });
+    
+        
+        if (currentUser?.isBlocked) {
+          req.session.destroy(); 
+          return res.redirect('/pageNotFound'); 
+        }
+    
+       
+        console.log('User is not blocked, proceeding...');
+        next();
+      } catch (error) {
+        console.error("Error in blockUserMiddleware:", error.message,error.stack);
+        
+        res.status(500).send("An error occurred while processing your request.");
+      }
+
+    
+}
+
 module.exports = {
     userAuth,
-    adminAuth
+    adminAuth,
+    blockUserCheck
+
 }
 

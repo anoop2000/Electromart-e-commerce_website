@@ -224,6 +224,8 @@ async function sendVerificationEmail(email, otp) {
   }
 }
 
+
+
 const signup = async (req, res) => {
   try {
       const { name,phone,email, password, cPassword } = req.body;
@@ -408,6 +410,8 @@ const signup = async (req, res) => {
     }
   }
 
+
+
   const logout=  async(req,res)=>{
     try {
       req.session.destroy((err)=>{
@@ -499,6 +503,8 @@ const signup = async (req, res) => {
 
 
 
+
+
   const filterByPrice = async(req,res)=>{
     try {
 
@@ -547,7 +553,7 @@ const signup = async (req, res) => {
 
   
 
-
+  
   const searchProducts = async (req, res) => {
     try {
       const user = req.session.user;

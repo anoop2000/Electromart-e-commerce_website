@@ -614,104 +614,103 @@ function confirmRemoveProduct(productId, productName) {
 
 
 
+
+
+
 async function cartDec(id, index) {
-  try {
-    // Select the required elements from the DOM
-    let quantity = document.getElementById('quantity' + index);
-    let price = document.getElementById('price' + index);
-    let totalPrice = document.getElementById('totalPrice'+index);
-    let subTotal = document.getElementById('sub-total-price');
+    try {
+        const quantity = document.getElementById('quantity' + index);
+        const totalPrice = document.getElementById('totalPrice' + index);
+        const subTotal = document.getElementById('sub-total-price');
 
-    // Check if the current quantity is 1, alert the user
-    if (Number(quantity.innerText) === 1) {
-      return Swal.fire({
-        icon: "warning",
-        title: "Minimum One Quantity",
-        text: "Please select at least one quantity",
-      });
+        let response = await fetch(`/getCart/decQty/${id}`, { method: 'PUT' });
+        let data = await response.json();
+
+        if (data.success) {
+            quantity.innerText = data.updatedItem.quantity;
+            totalPrice.innerText = '₹' + data.updatedItem.totalPrice;
+            subTotal.innerText = '₹' + data.grandTotal;
+            Swal.fire({
+                icon: "success",
+                title: "Quantity Updated",
+                text: `Quantity for ${data.updatedItem.productName} has been decreased.`,
+                timer: 1500,
+                showConfirmButton: false,
+            });
+        } else if (data.message === "Cannot decrease quantity below 1.") {
+            Swal.fire({
+                icon: "warning",
+                title: "Minimum One Quantity",
+                text: "Please select at least one quantity.",
+            });
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "An error occurred while updating the quantity.",
+        });
     }
-
-    // Send a PUT request to the backend for decrementing the quantity
-    let response = await fetch(`/getCart/decQty/${id}`, { method: 'PUT' });
-    let data = await response.json();
-
-    if (data.success) {
-      // Update the quantity in the UI
-      quantity.innerText = data.updatedItem.quantity;
-
-      // Update total price for the product and grand total
-      totalPrice.innerText = '₹' + data.updatedItem.totalPrice;
-      subTotal.innerText = '₹' + data.grandTotal;
-
-      // Show success notification
-      Swal.fire({
-        icon: "success",
-        title: "Quantity Updated",
-        text: `Quantity for ${data.updatedItem.productName} has been decreased.`,
-        timer: 1500,
-        showConfirmButton: false,
-      });
-    }
-  } catch (error) {
-    console.error("Error in cartDec:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: "An error occurred while updating the quantity.",
-    });
-  }
 }
+
+
 
 
 //-------------------------------------------------incQty---------------
 
+
+
+
+
+
+
+
+
+
 async function cartInc(id, index) {
-  try {
-    // Select the required elements from the DOM
-    let quantity = document.getElementById('quantity' + index);
-    let price = document.getElementById('price' + index);
-    let totalPrice = document.getElementById('totalPrice' + index);
-    let subTotal = document.getElementById('sub-total-price');
+    try {
+        const quantity = document.getElementById('quantity' + index);
+        const totalPrice = document.getElementById('totalPrice' + index);
+        const subTotal = document.getElementById('sub-total-price');
 
-    // Check if the quantity has reached the maximum allowed limit (8)
-    if (Number(quantity.innerText) >= 8) {
-      return Swal.fire({
-        icon: "warning",
-        title: "Max Quantity Reached",
-        text: "You cannot purchase more than 8 items of this product.",
-      });
+        let response = await fetch(`/getCart/incQty/${id}`, { method: 'PUT' });
+        let data = await response.json();
+
+        if (data.success) {
+            quantity.innerText = data.updatedItem.quantity;
+            totalPrice.innerText = '₹' + data.updatedItem.totalPrice;
+            subTotal.innerText = '₹' + data.grandTotal;
+            Swal.fire({
+                icon: "success",
+                title: "Quantity Updated",
+                text: `Quantity for ${data.updatedItem.productName} has been increased.`,
+                timer: 1500,
+                showConfirmButton: false,
+            });
+        } else if (data.message === "The product is out of stock.") {
+            Swal.fire({
+                icon: "warning",
+                title: "Out of Stock",
+                text: "This product is currently out of stock.",
+            });
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "An error occurred while updating the quantity.",
+        });
     }
-
-    // Send a PUT request to the backend for incrementing the quantity
-    let response = await fetch(`/getCart/incQty/${id}`, { method: 'PUT' });
-    let data = await response.json();
-
-    if (data.success) {
-      // Update the quantity in the UI
-      quantity.innerText = data.updatedItem.quantity;
-
-      // Update total price for the product and grand total
-      totalPrice.innerText = '₹' + data.updatedItem.totalPrice;
-      subTotal.innerText = '₹' + data.grandTotal;
-
-      // Show success notification
-      Swal.fire({
-        icon: "success",
-        title: "Quantity Updated",
-        text: `Quantity for ${data.updatedItem.productName} has been increased.`,
-        timer: 1500,
-        showConfirmButton: false,
-      });
-    }
-  } catch (error) {
-    console.error("Error in cartInc:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: "An error occurred while updating the quantity.",
-    });
-  }
 }
+
+
+
+
+
+//------------------------------------------------------------------------------------- new 
+
+
+
 
 
 
