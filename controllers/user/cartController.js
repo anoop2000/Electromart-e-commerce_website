@@ -454,6 +454,14 @@ const incQty = async (req, res) => {
             return res.status(404).json({ success: false, message: "Product not found in database." });
         }
 
+
+        if (item.quantity >= 5) {
+            return res.status(400).json({
+                success: false,
+                message: "You can purchase a maximum of 5 units for this product.",
+            });
+        }
+
         // Check if the product is out of stock or requested quantity exceeds stock
         if (product.quantity <= 1) {
             return res.status(400).json({
@@ -462,12 +470,7 @@ const incQty = async (req, res) => {
             });
         }
 
-        // if (item.quantity >= product.quantity) {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: `Only ${product.quantity} items are available in stock.`,
-        //     });
-        // }
+        
 
         // Update quantity in the cart and reduce stock
         item.quantity += 1;

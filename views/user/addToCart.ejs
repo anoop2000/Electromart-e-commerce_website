@@ -693,6 +693,13 @@ async function cartInc(id, index) {
                 title: "Out of Stock",
                 text: "This product is currently out of stock.",
             });
+        }else if(data.message === "You can purchase a maximum of 5 units for this product."){
+          Swal.fire({
+            icon: "warning",
+                title: "Maximum",
+                text: "You can purchase a maximum of 5 units for this product.",
+
+          })
         }
     } catch (error) {
         Swal.fire({

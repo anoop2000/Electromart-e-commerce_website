@@ -56,7 +56,7 @@ const blockUserCheck = async(req,res,next)=>{
         }
     
        
-        console.log('User is not blocked, proceeding...');
+        //console.log('User is not blocked, proceeding...');
         next();
       } catch (error) {
         console.error("Error in blockUserMiddleware:", error.message,error.stack);

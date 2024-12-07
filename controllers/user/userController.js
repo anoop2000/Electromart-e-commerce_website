@@ -37,12 +37,11 @@ const loadHomepage = async (req,res) => {
   try{
 
     const user = req.session.user
-    const categories = await Category.find({isListed:true})
-
-                                                         //console.log("Categories:", categories);
-
+    const categories = await Category.find({ isListed: true });
+    const categoryIds = categories.map(category => category._id);
     let productData = await Product.find({
       isBlocked :false,
+      category: { $in: categoryIds },
                                                           // category : {$in : categories.map(category=> category._id)},
       quantity : {$gt:0}
     })
