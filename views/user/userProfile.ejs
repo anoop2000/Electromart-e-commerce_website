@@ -1,6 +1,8 @@
 
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css">
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+
 
 
 
@@ -77,6 +79,13 @@
  .required {
    color: red;
  }
+
+ .thumbnail {
+  width: 75px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 4px; /* Optional for rounded corners */
+}
 
 
   @media (max-width: 768px) {
@@ -321,114 +330,93 @@
                 </div>
 
 
+
+
+
                 <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
-                  <div class="card">
-                    <div class="card-header">
-                      <h5 class="mb-0">Your Orders</h5>
-                    </div>
-                    <div class="card-body">
-                      <div class="table-responsive">
-                        <table class="table">
-                          <thead>
-                            <tr>
-                              <th>No. of Items</th>
-                              <th>Payment Method</th>
-                              <th>Total Amount</th>
-                              <th>Status</th>
-                              <th>Order Details</th>
-                              <th>Action</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <% if (orders && orders.length > 0) { %>
-                              <% orders.forEach((order, index) => { %> <!-- Ensure this opens correctly -->
-                                <tr id="order-row-<%= order.orderid %>">
-                                  <td><%= order.orderedItems.length %></td>
-                                  <td><%= order.paymentType %></td>
-                                  <td>₹<%= order.finalAmount %></td>
-                                  <td class="label badge badge-primary"><%= order.status %></td>
-                                  <td>
-                                    <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#orderDetailsModal-<%= index %>">
-                                      View Details
-                                    </button>
-                                  </td>
-                                  <td>
-                                    <button
-                                      class="cancel-order-button btn btn-danger"
-                                      data-order-id="<%= order.orderid %>"
-                                    >
-                                      Cancel
-                                    </button>
-                                  </td>
-                                </tr>
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-0">Your Orders</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>No. of Items</th>
+              <th>Payment Method</th>
+              <th>Total Amount</th>
+              <th>Status</th>
+              <th>Order Details</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (orders && orders.length > 0) { %>
+              <% orders.forEach((order, index) => { %>
+                <tr id="order-row-<%= order.orderid %>">
+                  <td><%= order.orderedItems.length %></td>
+                  <td><%= order.paymentType %></td>
+                  <td>₹<%= order.finalAmount %></td>
+                  <td class="label badge badge-primary"><%= order.status %></td>
+                  <td>
+                    <!-- <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#orderDetailsModal-<%= index %>">
+                     <a href="/viewDetails?id=<%= order._id %>"> View Details</a>
+                    </button> -->
+
+
+
+                    
+                      <button class="btn btn-primary view-details-button" data-order-id="<%= order._id %>">View Details</button>
+                    
+                  </td>
+                  <td>
+                    <button
+                      class="cancel-order-button btn btn-danger"
+                      data-order-id="<%= order.orderid %>"
+                    >
+                      Cancel
+                    </button>
+                  </td>
+                </tr>
+
+                <!-- Modal for order details -->
                 
-                                <!-- Modal for order details -->
-                                <div class="modal fade" id="orderDetailsModal-<%= index %>" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
-                                  <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                      <div class="modal-header">
-                                        <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                      </div>
-                                      <div class="modal-body">
-                                        <!-- Order Summary -->
-                                        <p><strong>Order ID:</strong> <%= order.orderid %></p>
-                                        <p><strong>Status:</strong> <%= order.status %></p>
-                                        <p><strong>Payment Type:</strong> <%= order.paymentType %></p>
-                                        <p><strong>Total Amount:</strong> ₹<%= order.finalAmount %></p>
-                                        <p><strong>Discount:</strong> ₹<%= order.discount %></p>
-                                        <p><strong>Invoice Date:</strong> <%= order.invoiceDate ? order.invoiceDate.toLocaleDateString() : 'N/A' %></p>
-                
-                                        <!-- Address Section -->
-                                        <h6>Delivery Address:</h6>
-                                        <% if (order.address) { %> 
-                                          <p>
-                                            <strong>Address Type:</strong> <%= order.address.addressType %><br>
-                                            <strong>State:</strong> <%= order.address.state %><br>
-                                            <strong>Phone:</strong> <%= order.address.phone %><br>
-                                            <strong>Alt Phone:</strong> <%= order.address.altPhone %>
-                                          </p>
-                                        <% } else { %>
-                                          <p>No address details available.</p>
-                                        <% } %> 
-                
-                                        <!-- Products Section -->
-                                        <h6>Products:</h6>
-                                        <ul class="list-group">
-                                          <% order.orderedItems.forEach(item => { %> 
-                                            <li class="list-group-item d-flex align-items-center">
-                                              <div>
-                                                <strong><%= item.product.productName %></strong><br>
-                                                Price: ₹<%= item.product.salePrice %> x <%= item.quantity %> = ₹<%= item.product.salePrice * item.quantity %><br>
-                                                Quantity: <%= item.quantity %>
-                                              </div>
-                                            </li>
-                                          <% }) %> 
-                                        </ul>
-                                      </div>
-                                      <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div> 
-                
-                              <% }); %> <!-- Ensure the orders.forEach loop closes correctly -->
-                            <% } else { %>
-                              <tr>
-                                <td colspan="7" style="text-align: center;">No orders found. <a href="/shop" class="btn btn-info">Start shopping!</a></td>
-                              </tr>
-                            <% } %> <!-- Ensure the if block closes correctly -->
-                          </tbody>
-                        </table>
+
+                <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                      </div>
+                      <div class="modal-body" id="modalContent">
+                        <!-- Content will be dynamically injected here -->
+                        <p>Loading...</p>
                       </div>
                     </div>
                   </div>
                 </div>
                 
+              
 
 
+                <!--modal end --> 
+              <% }); %> <!-- End of orders.forEach -->
+            <% } else { %>
+              <tr>
+                <td colspan="6" style="text-align: center;">No orders found. <a href="/shop" class="btn btn-info">Start shopping!</a></td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
+                              
 
 
                
@@ -610,7 +598,96 @@ document.querySelectorAll('.cancel-order-button').forEach(button => {
 
 
 
+
+
+
+
+
 </script>
+
+
+<script>
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const viewDetailsButtons = document.querySelectorAll('.view-details-button');
+
+  viewDetailsButtons.forEach((button) => {
+    button.addEventListener('click', async () => {
+      const orderId = button.dataset.orderId;
+
+      try {
+        const response = await fetch(`/viewDetails?id=${orderId}`);
+        const data = await response.json();
+
+        if (data.success) {
+          const order = data.order;
+
+          // Build modal content dynamically
+          const modalContent = `
+            <p><strong>Order ID:</strong> ${order.orderid}</p>
+            <p><strong>Status:</strong> ${order.status}</p>
+            <p><strong>Payment Type:</strong> ${order.paymentType}</p>
+            <p><strong>Total Amount:</strong> ₹${order.finalAmount}</p>
+            <p><strong>Discount:</strong> ₹${order.discount}</p>
+            <p><strong>Invoice Date:</strong> ${order.invoiceDate ? new Date(order.invoiceDate).toLocaleDateString() : 'N/A'}</p>
+            <h6>Delivery Address:</h6>
+            ${
+              order.address && order.address.address.length > 0
+                ? order.address.address
+                    .map(
+                      (addr) => `
+                        <p>
+                          <strong>Type:</strong> ${addr.addressType}<br>
+                          <strong>Name:</strong> ${addr.name}<br>
+                          <strong>City:</strong> ${addr.city}<br>
+                          <strong>Landmark:</strong> ${addr.landMark}<br>
+                          <strong>State:</strong> ${addr.state}<br>
+                          <strong>Pincode:</strong> ${addr.pincode}<br>
+                          <strong>Phone:</strong> ${addr.phone}<br>
+                          <strong>Alt Phone:</strong> ${addr.altPhone}<br>
+                        </p>`
+                    )
+                    .join('')
+                : '<p>No delivery address available.</p>'
+            }
+            <h6>Products:</h6>
+            <ul class="list-group">
+              ${order.orderedItems.map(
+                (item) =>
+                  `<li class="list-group-item">
+                     <strong>${item.product.productName}</strong><br>
+                     <img src="/uploads/re-image/${item.product.productImage[0]}" alt="${item.product.productName}" class="thumbnail">
+                     ₹${item.price} x ${item.quantity}
+                   </li>`
+              ).join('')}
+            </ul>
+          `;
+
+          document.getElementById('modalContent').innerHTML = modalContent;
+
+          // Show the modal
+          const orderDetailsModal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+          orderDetailsModal.show();
+        } else {
+          alert('Error fetching order details');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Server error. Please try again.');
+      }
+    });
+  });
+});
+ 
+</script>
+
+
+
+
+
+
+
 
 
 

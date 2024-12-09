@@ -5,37 +5,7 @@ const Address = require('../../models/addressSchema')
 
 
 
-// const orderList = async(req,res)=>{
-//     try {
-//         const page = Number(req.query.page) || 1;
-//     const limit = 15;
-//     const skip = (page - 1) * limit;
 
-//     // Fetch total order count for pagination
-//     const count = await Order.estimatedDocumentCount();
-
-//     // Fetch order data with pagination and populate user details
-//     const orderData = await Order.find()
-//       .populate('userId', 'name') // Populate user name
-//       .sort({ createdOn: -1 }) // Sort by newest first
-//       .skip(skip)
-//       .limit(limit);
-
-//       if (!orderData || orderData.length === 0) {
-//         console.log("No orders found for page:", page);
-//         return res.redirect("/pageerror"); // Or show a message
-//       }
-
-//     res.render('orderList', { orderData, count, limit, page });
-        
-//     } catch (error) {
-//         console.log("Error in loading order list page",error.message,error.stack);
-//         res.redirect('/pageerror')
-
-        
-        
-//     }
-// }
 
 
 
@@ -66,108 +36,30 @@ const orderList = async (req, res) => {
   
 
 
-// const orderStatus = async (req, res) => {
-//     try {
-//       const orderData = await Order.findOne({ orderid: req.params.id })
-//         .populate("address")
-//         .populate("orderedItems.product"); // Populate products in orderedItems
-  
-//       if (!orderData) {
-//         return res.status(404).send("Order not found");
-//       }
-  
-//       res.render("orderStatus", { orderData, user: req.body.user });
-//     } catch (error) {
-//       console.error(error);
-//       res.status(500).send("Internal Server Error");
-//     }
-//   };
-
-
-// const orderStatus = async (req, res) => {
-//     try {
-//       console.log(`Fetching order with id: ${req.params.id}`);
-//       const orderData = await Order.findOne({ _id: req.params.id })
-//         .populate("address")
-//         .populate("orderedItems.product");
-        
-//       if (!orderData) {
-//         console.error(`Order not found for id: ${req.params.id}`);
-//         return res.status(404).send("Order not found");
-//       }
-//       console.log(`Order data fetched successfully: ${orderData}`);
-//       res.render("orderStatus", { orderData, user: req.body.user });
-//     } catch (error) {
-//       console.error("Error fetching order:", error);
-//       res.status(500).send("Internal Server Error");
-//     }
-//   };
-
-
-
-
-// const orderStatus = async (req, res) => {
-//     try {
-//       console.log(`Fetching order with id: ${req.params.id}`);
-      
-//       // Find the order by _id
-//       const orderData = await Order.findOne({ _id: req.params.id })
-//         .populate("address")
-//         .populate("orderedItems.product");
-      
-//       // Check if the order exists
-//       if (!orderData) {
-//         console.error(`Order not found for id: ${req.params.id}`);
-//         return res.status(404).send("Order not found");
-//       }
-  
-//       console.log(`Order data fetched successfully: ${JSON.stringify(orderData)}`);
-//       res.render("orderStatus", { orderData, user: req.body.user });
-//     } catch (error) {
-//       console.error("Error fetching order:", error);
-//       res.status(500).send("Internal Server Error");
-//     }
-//   };
-  
-  
-
-// const orderStatus = async (req, res) => {
-//     try {
-//         console.log("Inside orderStatus");
-        
-//       const id = req.params.id;
-//       console.log(`Fetching order with id: ${id}`);
-  
-//       const orderData = await Order.findOne({ _id: id })
-//         .populate("address")
-//         .populate("orderedItems.product")
-//         .lean();
-
-//       if (!orderData) {
-//         console.error(`Order not found for id: ${id}`);
-//         return res.status(404).send("Order not found");
-//       }
-  
-//       res.render("orderStatus", { orderData, user: req.body.user });
-//     } catch (error) {
-//       console.error("Error fetching order:", error);
-//       res.status(500).send("Internal Server Error");
-//     }
-//   };
 
 
 
 // orderStatus
 const orderStatus = async (req, res) => {
     try {
-      let orderData = await Order
+      const orderData = await Order
         .findOne({ _id: req.params.id })
-        .populate("address");
+        .populate({
+          path: "address",
+          select: "address userId", // Only fetch necessary fields from Address
+        })
+        .populate({
+          path: "orderedItems.product",
+          select: "productName brand salePrice productImage", // Fetch product details
+        });
+        
       res.render("orderStatus", { orderData, user: req.body.user });
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching order details:", error);
+      res.status(500).send("Internal Server Error");
     }
   };
+  
 
 
 

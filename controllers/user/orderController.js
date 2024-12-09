@@ -4,6 +4,7 @@ const Product = require('../../models/productSchema')
 const Address = require('../../models/addressSchema')
 const Cart = require('../../models/cartSchema')
 const session = require('express-session')
+const mongoose = require("mongoose");
 
 
 
@@ -11,98 +12,11 @@ const session = require('express-session')
 
 
 
-// const ordersList = async (req, res) => {
-//     try {
-//         console.log("Fetching orders for the user.");
-
-//         const userId = req.session.user; // Retrieve the logged-in user's ID
-//         if (!userId) {
-//             return res.redirect('/login'); // Redirect to login if the user is not authenticated
-//         }
-
-       
-
-//         const orders = await Order.find({ userId: userId })
-//   .populate({
-//     path: 'orderedItems.product',
-//     select: 'productName salePrice  ' // Select only the necessary fields
-//   })
-//   .populate({
-//     path: 'address',
-//     select: 'address.addressType address.state address.phone address.altPhone' // Select required fields from address
-//   })
-//   .lean(); // Convert Mongoose documents to plain JS objects
-
-  
-
-// res.render('user/userProfile', { orders });
-
-
-//         if (!orders || orders.length === 0) {
-//             console.log("No orders found for the user.");
-//             return res.render('userProfile', { orders: [], message: 'No orders found.' });
-//         }
-
-//         console.log("Orders fetched:", orders);
-
-//         // Render the user profile with orders
-//         res.render('userProfile', { orders, message: null });
-//     } catch (error) {
-//         console.error('Error fetching orders:', error.message, error.stack);
-//         res.status(500).send('An error occurred while fetching orders.');
-//     }
-// };
 
 
 
 
 
-// const ordersList = async (req, res) => {
-//     try {
-//       console.log("Fetching orders for the user.");
-  
-//       const userId = req.session.user; // Retrieve the logged-in user's ID
-//       if (!userId) {
-//         return res.redirect('/login'); // Redirect to login if the user is not authenticated
-//       }
-  
-//       const orders = await Order.find({ userId: userId })
-//         .populate({
-//           path: 'orderedItems.product',
-//           select: 'productName salePrice', // Select only the necessary fields
-//         })
-//         .populate({
-//           path: 'address',
-//           select: 'address', // Populate the entire address array
-//           model: 'Address', // Ensure it references the correct model
-//           match: { userId }, // Ensure only addresses for the current user are fetched
-//         })
-//         .lean(); // Convert Mongoose documents to plain JS objects
-  
-//       // Flatten the address array to fetch the first (or appropriate) address for each order
-//       orders.forEach(order => {
-//         if (order.address && Array.isArray(order.address.address) && order.address.address.length > 0) {
-//           order.address = order.address.address[0]; // Use the first address (or adjust as needed)
-//         } else {
-//           order.address = null; // Handle cases where no address is found
-//         }
-//       });
-  
-//       if (!orders || orders.length === 0) {
-//         console.log("No orders found for the user.");
-//         return res.render('user/userProfile', { orders: [], message: 'No orders found.' });
-//       }
-  
-//       console.log("Orders fetched:", orders);
-  
-//       // Render the user profile with orders
-//       res.render('user/userProfile', { orders, message: null });
-//     } catch (error) {
-//       console.error('Error fetching orders:', error.message, error.stack);
-//       res.status(500).send('An error occurred while fetching orders.');
-//     }
-//   };
-  
 
 
 
@@ -161,6 +75,64 @@ const ordersList = async (req, res) => {
 
 
 
+
+
+
+
+
+
+
+const viewDetails = async (req, res) => {
+    try {
+
+        console.log("Inside view details page");
+        
+      const orderId = req.query.id;
+
+      console.log("OrderId :",orderId);
+      
+
+
+  
+      // Validate ObjectId
+      if (!mongoose.Types.ObjectId.isValid(orderId)) {
+        return res.status(400).json({ error: "Invalid Order ID" });
+      }
+  
+      // Fetch order with populated fields
+      const order = await Order.findById(orderId)
+        .populate('orderedItems.product', 'productName salePrice description productImage')
+        .populate({
+            path: 'address',
+            select: 'address', // Select only the 'address' array
+          })
+  
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+  
+      res.json({ success: true, order });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Server Error" });
+    }
+  };
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
 const cancelOrder = async (req, res) => {
     try {
         const { id } = req.params; // Retrieve the order ID from the route
@@ -201,7 +173,8 @@ const cancelOrder = async (req, res) => {
 
   module.exports = {
    ordersList,
-   cancelOrder
+   cancelOrder,
+   viewDetails
    
   }
 

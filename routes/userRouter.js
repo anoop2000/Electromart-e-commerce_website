@@ -66,6 +66,7 @@ router.get('/userProfile',blockUserCheck,userAuth,profileController.userProfile)
 //order management
 
 router.get('/orderList',userAuth,orderController.ordersList)
+router.get('/viewDetails',userAuth,orderController.viewDetails)
 router.put('/cancelOrder/:id', userAuth, orderController.cancelOrder);
 
 
