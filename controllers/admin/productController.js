@@ -58,7 +58,7 @@ const addProducts = async (req, res) => {
                 }
             }
 
-            const categoryId = await Category.findOne({ name: products.category }); // no need to access `.name`
+            const categoryId = await Category.findOne({ name: products.category }); 
          
             if (!categoryId) {
                        return res.status(400).json("Invalid category name");

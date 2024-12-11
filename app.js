@@ -11,6 +11,8 @@ const db = require('./config/db')
 const userRouter = require('./routes/userRouter')
 const adminRouter = require('./routes/adminRouter')
 
+const {errorHandler} = require('./middlewares/auth');
+
 db()
 
 
@@ -42,6 +44,9 @@ app.use((req,res,next)=>{
 })
 
 
+
+
+
 app.use((req,res,next)=>{
     res.set('cache-control','no-store')
     next()
@@ -60,9 +65,16 @@ app.use(express.static(path.join(__dirname,'public')))
 app.use('/',userRouter)
 app.use('/admin',adminRouter)
 
+
+
+app.use(errorHandler);
+
 const PORT =  process.env.PORT || 3000;
 app.listen(PORT,()=> console.log(`Server running on ${PORT}`)
 )
+
+
+
 
 module.exports = app
 

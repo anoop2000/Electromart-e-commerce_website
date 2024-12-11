@@ -260,6 +260,8 @@
                      <p class="card-text">
                        <strong>Email: </strong><%=user.email%>
                      </p>
+
+                     <a href="/editProfile" class="btn btn-sm btn-primary me-2">Edit Profile</a>
                      <!-- <a href="/change-email" class="btn btn-sm btn-success ml-2">Change Email</a> -->
                      <a href="/change-password" class="btn btn-sm btn-success">Change Password</a>
                    </div>
@@ -383,21 +385,54 @@
                 <!-- Modal for order details -->
                 
 
-                <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+                <!-- <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
                   <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                       <div class="modal-header">
                         <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-
                       </div>
-                      <div class="modal-body" id="modalContent">
-                        <!-- Content will be dynamically injected here -->
-                        <p>Loading...</p>
+                      <div class="modal-body" id="modalContent"> -->
+
+                        <!-- Content will be injected dynamically -->
+
+                      <!-- </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div> -->
+
+
+
+
+                <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="orderDetailsModalLabel">Order Details - <%= order.orderid %></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <h6>Ordered Items</h6>
+                        <% order.orderedItems.forEach(item => { %>
+                          <div>
+                            <strong><%= item.product.productName %></strong>
+                            <p>Price: <%= item.price %> | Quantity: <%= item.quantity %></p>
+                            
+                          </div>
+                        <% }) %>
+                
+                        
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                       </div>
                     </div>
                   </div>
                 </div>
+                
                 
               
 
@@ -606,7 +641,9 @@ document.querySelectorAll('.cancel-order-button').forEach(button => {
 </script>
 
 
+
 <script>
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -623,45 +660,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.success) {
           const order = data.order;
 
-          // Build modal content dynamically
+          // Build address details
+          const addressContent = order.address && order.address.address
+            ? order.address.address.map(addr => `
+                <p>
+                  <strong>Type:</strong> ${addr.addressType}<br>
+                  <strong>Name:</strong> ${addr.name}<br>
+                  <strong>City:</strong> ${addr.city}<br>
+                  <strong>Landmark:</strong> ${addr.landMark}<br>
+                  <strong>State:</strong> ${addr.state}<br>
+                  <strong>Pincode:</strong> ${addr.pincode}<br>
+                  <strong>Phone:</strong> ${addr.phone}<br>
+                  <strong>Alt Phone:</strong> ${addr.altPhone || 'N/A'}<br>
+                </p>
+              `).join('')
+            : '<p>No delivery address available.</p>';
+
+          // Inject address into modal content
           const modalContent = `
-            <p><strong>Order ID:</strong> ${order.orderid}</p>
-            <p><strong>Status:</strong> ${order.status}</p>
-            <p><strong>Payment Type:</strong> ${order.paymentType}</p>
-            <p><strong>Total Amount:</strong> ₹${order.finalAmount}</p>
-            <p><strong>Discount:</strong> ₹${order.discount}</p>
-            <p><strong>Invoice Date:</strong> ${order.invoiceDate ? new Date(order.invoiceDate).toLocaleDateString() : 'N/A'}</p>
             <h6>Delivery Address:</h6>
-            ${
-              order.address && order.address.address.length > 0
-                ? order.address.address
-                    .map(
-                      (addr) => `
-                        <p>
-                          <strong>Type:</strong> ${addr.addressType}<br>
-                          <strong>Name:</strong> ${addr.name}<br>
-                          <strong>City:</strong> ${addr.city}<br>
-                          <strong>Landmark:</strong> ${addr.landMark}<br>
-                          <strong>State:</strong> ${addr.state}<br>
-                          <strong>Pincode:</strong> ${addr.pincode}<br>
-                          <strong>Phone:</strong> ${addr.phone}<br>
-                          <strong>Alt Phone:</strong> ${addr.altPhone}<br>
-                        </p>`
-                    )
-                    .join('')
-                : '<p>No delivery address available.</p>'
-            }
-            <h6>Products:</h6>
-            <ul class="list-group">
-              ${order.orderedItems.map(
-                (item) =>
-                  `<li class="list-group-item">
-                     <strong>${item.product.productName}</strong><br>
-                     <img src="/uploads/re-image/${item.product.productImage[0]}" alt="${item.product.productName}" class="thumbnail">
-                     ₹${item.price} x ${item.quantity}
-                   </li>`
-              ).join('')}
-            </ul>
+            ${addressContent}
           `;
 
           document.getElementById('modalContent').innerHTML = modalContent;
@@ -670,7 +688,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const orderDetailsModal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
           orderDetailsModal.show();
         } else {
-          alert('Error fetching order details');
+          alert('Error fetching order details.');
         }
       } catch (err) {
         console.error(err);
@@ -679,6 +697,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+  
+
+
+
+
  
 </script>
 

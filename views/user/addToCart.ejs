@@ -667,6 +667,55 @@ async function cartDec(id, index) {
 
 
 
+// async function cartInc(id, index) {
+//     try {
+//         const quantity = document.getElementById('quantity' + index);
+//         const totalPrice = document.getElementById('totalPrice' + index);
+//         const subTotal = document.getElementById('sub-total-price');
+
+//         let response = await fetch(`/getCart/incQty/${id}`, { method: 'PUT' });
+//         let data = await response.json();
+
+//         if (data.success) {
+//             quantity.innerText = data.updatedItem.quantity;
+//             totalPrice.innerText = '₹' + data.updatedItem.totalPrice;
+//             subTotal.innerText = '₹' + data.grandTotal;
+//             Swal.fire({
+//                 icon: "success",
+//                 title: "Quantity Updated",
+//                 text: `Quantity for ${data.updatedItem.productName} has been increased.`,
+//                 timer: 1500,
+//                 showConfirmButton: false,
+//             });
+//         } else if (data.message === "The product is out of stock.") {
+//             Swal.fire({
+//                 icon: "warning",
+//                 title: "Out of Stock",
+//                 text: "This product is currently out of stock.",
+//             });
+//         }else if(data.message === "You can purchase a maximum of 5 units for this product."){
+//           Swal.fire({
+//             icon: "warning",
+//                 title: "Maximum",
+//                 text: "You can purchase a maximum of 5 units for this product.",
+
+//           })
+//         }
+//     } catch (error) {
+//         Swal.fire({
+//             icon: "error",
+//             title: "Error",
+//             text: "An error occurred while updating the quantity.",
+//         });
+//     }
+// }
+
+
+
+
+
+
+
 async function cartInc(id, index) {
     try {
         const quantity = document.getElementById('quantity' + index);
@@ -687,19 +736,24 @@ async function cartInc(id, index) {
                 timer: 1500,
                 showConfirmButton: false,
             });
+        } else if (data.message.includes("Only 1 unit")) {
+            Swal.fire({
+                icon: "warning",
+                title: "Stock Alert",
+                text: data.message,
+            });
+        } else if (data.message === "You can purchase a maximum of 5 units for this product.") {
+            Swal.fire({
+                icon: "warning",
+                title: "Limit Reached",
+                text: data.message,
+            });
         } else if (data.message === "The product is out of stock.") {
             Swal.fire({
                 icon: "warning",
                 title: "Out of Stock",
                 text: "This product is currently out of stock.",
             });
-        }else if(data.message === "You can purchase a maximum of 5 units for this product."){
-          Swal.fire({
-            icon: "warning",
-                title: "Maximum",
-                text: "You can purchase a maximum of 5 units for this product.",
-
-          })
         }
     } catch (error) {
         Swal.fire({
@@ -709,6 +763,7 @@ async function cartInc(id, index) {
         });
     }
 }
+
 
 
 

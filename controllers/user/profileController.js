@@ -525,6 +525,54 @@ const deleteAddress = async(req,res)=>{
 }
 
 
+const getEditProfile = async(req,res)=>{
+    try {
+        const userId = req.session.user;
+        const user = await User.findOne({_id:userId})
+
+
+        res.render('edit-profile',{
+            user : user,
+            name : user.name,
+            phone : user.phone
+        })
+        
+    } catch (error) {
+        res.redirect('/pageNotFound',{message:"Error while editing user profile"})
+
+        
+    }
+}
+
+
+
+const updateProfile  =  async(req,res)=>{
+    try {
+        
+        const userId  = req.session.user;
+        const {name , phone} = req.body;
+        const findUser = await User.findById(userId);
+
+        if (!findUser) {
+            return res.redirect("/pageNotFound");
+        }
+
+        await User.updateOne(
+            {_id : userId},
+            {$set :{name : name,phone : phone}}
+        )
+
+        res.redirect('/userProfile')
+        
+    } catch (error) {
+
+        console.error("Error in updating profile:", error);
+      res.redirect("/pageNotFound");
+        
+    }
+}
+
+
 
 
 
@@ -557,5 +605,7 @@ module.exports = {
     editAddress,
     postEditAddress,
     deleteAddress,
+    getEditProfile,
+    updateProfile
     
 }

@@ -4,6 +4,7 @@ const passport  = require('passport')
 const userController = require('../controllers/user/userController')
 const { userAuth } = require('../middlewares/auth')
 const {blockUserCheck} = require('../middlewares/auth')
+const {errorHandler} =  require('../middlewares/auth')
 const productController = require('../controllers/user/productController')
 const profileController = require('../controllers/user/profileController')
 const cartController = require('../controllers/user/cartController')
@@ -61,6 +62,8 @@ router.get('/change-password',blockUserCheck,userAuth,profileController.changePa
 router.post('/change-password',blockUserCheck,userAuth,profileController.changePasswordValid)
 router.post('/verify-changepassword-otp',blockUserCheck,userAuth,profileController.verifyChangePassOtp)
 router.get('/userProfile',blockUserCheck,userAuth,profileController.userProfile)
+router.get('/editProfile',blockUserCheck,userAuth,profileController.getEditProfile)
+router.post('/updateProfile',blockUserCheck,userAuth,profileController.updateProfile)
 
 
 //order management
@@ -99,6 +102,11 @@ router.post('/confirm-address',blockUserCheck,userAuth,cartController.confirmAdd
 router.post('/selectPaymentType',blockUserCheck,userAuth,cartController.selectPaymentType)
 router.get('/orderSuccess',blockUserCheck,userAuth,cartController.orderPlaced)
 
+// router.get('/test-error', (req, res, next) => {
+//     const error = new Error("This is a test error!");
+//     error.status = 400; // Set a specific status code if desired
+//     next(error); // Pass the error to the next middleware (error handler)
+// });
 
 
 

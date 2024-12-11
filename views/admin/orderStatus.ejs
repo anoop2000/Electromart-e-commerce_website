@@ -102,18 +102,24 @@
 
 
         <!-- Address Details -->
-      <div class="address-details p-3">
-        <h5>Delivery Address:</h5>
-        <% if (orderData.address) { %>
-          <p><strong>Name:</strong> <%= orderData.address.address[0].name %></p>
-          <p><strong>City:</strong> <%= orderData.address.address[0].city %></p>
-          <p><strong>State:</strong> <%= orderData.address.address[0].state %></p>
-          <p><strong>Pincode:</strong> <%= orderData.address.address[0].pincode %></p>
-          <p><strong>Phone:</strong> <%= orderData.address.address[0].phone %></p>
-        <% } else { %>
-          <p>Address not available</p>
-        <% } %>
-      </div>
+      <!-- Address Details -->
+<div class="address-details p-3">
+    <h5>Delivery Address:</h5>
+    <% if (orderData.address) { %>
+      <p><strong>Name:</strong> <%= orderData.address.name %></p>
+      <p><strong>City:</strong> <%= orderData.address.city %></p>
+      <p><strong>State:</strong> <%= orderData.address.state %></p>
+      <p><strong>Pincode:</strong> <%= orderData.address.pincode %></p>
+      <p><strong>Phone:</strong> <%= orderData.address.phone %></p>
+    <% } else { %>
+      <p>Address not available</p>
+    <% } %>
+  </div>
+  
+
+
+
+      
 
   
         <!-- Payment Details -->

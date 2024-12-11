@@ -107,6 +107,88 @@ const renderCartPage = async (req, res) => {
 
 
 
+
+
+
+// const addToCart = async (req, res) => {
+//     try {
+//         const userId = req.session.user;
+//         const productId = req.query.id;
+
+//         if (!userId) {
+//             return res.redirect('/login');
+//         }
+
+//         const product = await Product.findById(productId);
+//         if (!product) {
+//             return res.status(404).json({ success: false, message: 'Product not found' });
+//         }
+
+//         // Validate stock
+//         if (product.quantity <= 1) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: 'The product is out of stock and cannot be added to the cart.',
+//             });
+//         }
+
+
+//          // Update product status based on quantity
+//          if (product.quantity <= 1) {
+//             product.status = "Out of stock";
+//         } else {
+//             product.status = "Available";
+//         }
+
+
+//         let cart = await Cart.findOne({ userid: userId });
+//         if (!cart) {
+//             cart = new Cart({ userid: userId, items: [] });
+//         }
+
+//         const existingItem = cart.items.find((item) => item.productId.toString() === productId);
+
+//         if (existingItem) {
+//             // Check if the quantity has already hit the limit (5 in this case)
+//             if (existingItem.quantity >= 5) {
+//                 // If the quantity limit is reached, do not increment the quantity.
+//                 // Just return a JSON response with the redirect URL.
+//                 return res.status(200).json({
+//                     success: true,
+//                     message: 'Product quantity limit reached.',
+//                     redirectUrl: '/getCart'  // Send the redirect URL in the response.
+//                 });
+//             }
+//             existingItem.quantity += 1;  // Increment quantity if it hasn't hit the limit.
+//             existingItem.totalPrice = existingItem.quantity * product.salePrice;
+//         } else {
+//             cart.items.push({
+//                 productId: product._id,
+//                 quantity: 1,
+//                 price: product.salePrice,
+//                 totalPrice: product.salePrice,
+//             });
+//         }
+
+//         await product.save();  // Optionally save product to ensure data consistency.
+//         await cart.save();  // Save the updated cart.
+
+//         res.status(200).json({
+//             success: true,
+//             message: 'Product added to cart.',
+//             redirectUrl: '/getCart'  // Send the redirect URL in the response.
+//         });
+
+//     } catch (error) {
+//         console.error('Error in addToCart:', error);
+//         res.status(500).json({ success: false, message: 'Internal Server Error' });
+//     }
+// };
+
+
+
+
+
 const addToCart = async (req, res) => {
     try {
         const userId = req.session.user;
@@ -121,8 +203,8 @@ const addToCart = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Product not found' });
         }
 
-        // Validate stock
-        if (product.quantity <= 1) {
+        // Check product stock
+        if (product.quantity <= 0) {
             return res.status(400).json({
                 success: false,
                 message: 'The product is out of stock and cannot be added to the cart.',
@@ -137,15 +219,31 @@ const addToCart = async (req, res) => {
         const existingItem = cart.items.find((item) => item.productId.toString() === productId);
 
         if (existingItem) {
-            if (existingItem.quantity >= 8) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'You reached the maximum quantity of 8.',
+            const stockDifference = product.quantity - existingItem.quantity;
+
+            // If stock difference is exactly 1, render cart page without incrementing quantity
+            if (stockDifference === 1) {
+                return res.status(200).json({
+                    success: true,
+                    message: `Only 1 unit of ${product.productName} is left in stock.`,
+                    redirectUrl: '/getCart' // Redirect to cart page
                 });
             }
+
+            // Check if the quantity has reached the limit (5 in this case)
+            if (existingItem.quantity >= 5) {
+                return res.status(200).json({
+                    success: true,
+                    message: 'Product quantity limit reached.',
+                    redirectUrl: '/getCart'
+                });
+            }
+
+            // Increment the cart quantity and update total price
             existingItem.quantity += 1;
             existingItem.totalPrice = existingItem.quantity * product.salePrice;
         } else {
+            // Add a new item to the cart if it doesn't already exist
             cart.items.push({
                 productId: product._id,
                 quantity: 1,
@@ -154,25 +252,23 @@ const addToCart = async (req, res) => {
             });
         }
 
-        // Decrement product stock
-        product.quantity -= 1;
-        if (product.quantity <= 1) {
-            product.status = 'Out of stock';
-        }
+        // Save the cart and product status
         await product.save();
-
-        // Save updated cart
         await cart.save();
 
         res.status(200).json({
             success: true,
             message: 'Product added to cart.',
+            redirectUrl: '/getCart'
         });
     } catch (error) {
         console.error('Error in addToCart:', error);
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 };
+
+
+
 
 
 
@@ -229,62 +325,7 @@ const addToCart = async (req, res) => {
 //-----------------------------------------------------------------------------------------
  //original
   
-// const decQty = async (req, res) => {
-//     try {
-//       const userId = req.session.user; // Get user ID from session
-//       const productId = req.params.id; // Get product ID from the route params
-  
-//       // Find the user's cart
-//       const cart = await Cart.findOne({ userid: userId });
-  
-//       if (!cart) {
-//         return res.status(404).json({ success: false, message: "Cart not found." });
-//       }
-  
-//       // Find the specific product in the cart
-//       const item = cart.items.find(item => item.productId.toString() === productId);
-  
-//       if (!item) {
-//         return res.status(404).json({ success: false, message: "Product not found in cart." });
-//       }
-  
-//       // Prevent decreasing the quantity below 1
-//       if (item.quantity <= 1) {
-//         return res.status(400).json({
-//           success: false,
-//           message: "Cannot decrease quantity below 1.",
-//         });
-//       }
-  
-//       // Update quantity and total price for the product
-//       item.quantity -= 1;
-//       item.totalPrice = item.quantity * item.price;
-  
-//       // Save updated cart
-//       await cart.save();
-  
-//       // Recalculate grand total for the cart
-//       const grandTotal = cart.items.reduce((total, item) => total + item.totalPrice, 0);
-  
-//       // Respond with updated values
-//       res.json({
-//         success: true,
-//         updatedItem: {
-//           productId: item.productId,
-//           productName: item.productId.productName || "Product", // Ensure productName is populated
-//           quantity: item.quantity,
-//           totalPrice: item.totalPrice,
-//         },
-//         grandTotal,
-//       });
-//     } catch (error) {
-//       console.error("Error in decQty:", error);
-//       res.status(500).json({
-//         success: false,
-//         message: "An error occurred while updating the cart.",
-//       });
-//     }
-//   };
+
 
 
 
@@ -313,20 +354,10 @@ const decQty = async (req, res) => {
             });
         }
 
-        // Fetch the product details from the database
-        const product = await Product.findById(productId);
-        if (!product) {
-            return res.status(404).json({ success: false, message: "Product not found in database." });
-        }
-
-        // Update quantity in the cart and increase stock
+        // Decrement quantity in the cart
         item.quantity -= 1;
         item.totalPrice = item.quantity * item.price;
-        product.quantity += 1;
 
-        // Update product status based on updated stock
-        product.status = product.quantity > 0 ? "Available" : "Out of stock";
-        await product.save();
         await cart.save();
 
         // Recalculate cart's grand total
@@ -336,18 +367,18 @@ const decQty = async (req, res) => {
             success: true,
             updatedItem: {
                 productId: item.productId,
-                productName: product.productName,
+                productName: item.productId.productName,
                 quantity: item.quantity,
                 totalPrice: item.totalPrice,
             },
             grandTotal,
-            productStock: product.quantity,
         });
     } catch (error) {
         console.error("Error in decQty:", error);
         res.status(500).json({ success: false, message: "An error occurred while updating the cart." });
     }
 };
+
 
 
 
@@ -366,64 +397,6 @@ const decQty = async (req, res) => {
 
 
 //original
-
-// const incQty = async (req, res) => {
-//     try {
-//       const userId = req.session.user; // Get user ID from session
-//       const productId = req.params.id; // Get product ID from the route params
-  
-//       // Find the user's cart
-//       const cart = await Cart.findOne({ userid: userId });
-  
-//       if (!cart) {
-//         return res.status(404).json({ success: false, message: "Cart not found." });
-//       }
-  
-//       // Find the specific product in the cart
-//       const item = cart.items.find(item => item.productId.toString() === productId);
-  
-//       if (!item) {
-//         return res.status(404).json({ success: false, message: "Product not found in cart." });
-//       }
-  
-//       // Check if the quantity is at the maximum limit (8)
-//       if (item.quantity >= 8) {
-//         return res.status(400).json({
-//           success: false,
-//           message: "Maximum quantity of 8 items reached.",
-//         });
-//       }
-  
-//       // Update quantity and total price for the product
-//       item.quantity += 1;
-//       item.totalPrice = item.quantity * item.price;
-  
-//       // Save updated cart
-//       await cart.save();
-  
-//       // Recalculate grand total for the cart
-//       const grandTotal = cart.items.reduce((total, item) => total + item.totalPrice, 0);
-  
-//       // Respond with updated values
-//       res.json({
-//         success: true,
-//         updatedItem: {
-//           productId: item.productId,
-//           productName: item.productId.productName || "Product", // Ensure productName is populated
-//           quantity: item.quantity,
-//           totalPrice: item.totalPrice,
-//         },
-//         grandTotal,
-//       });
-//     } catch (error) {
-//       console.error("Error in incQty:", error);
-//       res.status(500).json({
-//         success: false,
-//         message: "An error occurred while updating the cart.",
-//       });
-//     }
-//   };
-
 
 
 
@@ -454,32 +427,29 @@ const incQty = async (req, res) => {
             return res.status(404).json({ success: false, message: "Product not found in database." });
         }
 
+        let productQtyOrdered = 5;
 
-        if (item.quantity >= 5) {
+        // Check if stock is 1 unit away from the cart quantity
+        const stockDifference = product.quantity - item.quantity;
+        if (stockDifference === 1) {
+            return res.status(400).json({
+                success: false,
+                message: `Only 1 unit of ${product.productName} is left in stock.`,
+            });
+        }
+
+        // Limit to a maximum of 5 units for this product in the cart
+        if (item.quantity >= productQtyOrdered) {
             return res.status(400).json({
                 success: false,
                 message: "You can purchase a maximum of 5 units for this product.",
             });
         }
 
-        // Check if the product is out of stock or requested quantity exceeds stock
-        if (product.quantity <= 1) {
-            return res.status(400).json({
-                success: false,
-                message: "The product is out of stock.",
-            });
-        }
-
-        
-
-        // Update quantity in the cart and reduce stock
+        // Increment quantity in the cart
         item.quantity += 1;
         item.totalPrice = item.quantity * item.price;
-        product.quantity -= 1;
 
-        // Update product status based on remaining stock
-        product.status = product.quantity > 0 ? "Available" : "Out of stock";
-        await product.save();
         await cart.save();
 
         // Recalculate cart's grand total
@@ -494,7 +464,6 @@ const incQty = async (req, res) => {
                 totalPrice: item.totalPrice,
             },
             grandTotal,
-            productStock: product.quantity,
         });
     } catch (error) {
         console.error("Error in incQty:", error);
@@ -618,7 +587,7 @@ const updateAddress = async (req, res) => {
     }
   };
 
-  
+
 
   
 
@@ -730,103 +699,109 @@ const selectPaymentType = async (req, res) => {
 
 
 
-  const orderPlaced = async (req, res) => {
+
+
+
+
+
+
+const orderPlaced = async (req, res) => {
     try {
         console.log("Starting orderPlaced controller...");
-      
-  
-      // Validate user session
-      const userId = req.session.user; // Adjust to the actual session field
-      if (!userId) {
-        console.log("User is not logged in. Redirecting to login...");
-        return res.redirect('/login');
-      }
-      
-  
-      // Fetch cart data and populate product details
-      const cartData = await Cart.findOne({ userid: userId }).populate('items.productId');
-      
-      if (!cartData || cartData.items.length === 0) {
-        console.log("Cart is empty. Redirecting to shop...");
-        return res.redirect('/shop');
-      }
-  
-      // Fetch user's address
-      const addressData = await Address.findOne({ userId });
-      
-  
-      if (!addressData || addressData.address.length === 0) {
-        console.log("No addresses found. Redirecting to add-address...");
-        return res.redirect('/add-address');
-      }
-  
-      // Use the first address as the default address
 
-      const selectedAddress = req.session.selectedAddress
+        // Validate user session
+        const userId = req.session.user;
+        if (!userId) {
+            console.log("User is not logged in. Redirecting to login...");
+            return res.redirect('/login');
+        }
 
-      const paymentType = req.session.paymentType;
-      
-      
-  
-      // Prepare ordered items
-      const orderedItems = cartData.items.map((item) => ({
-        product: item.productId._id,
-        quantity: item.quantity,
-        price: item.productId.salePrice || item.price, // Ensure fallback to cart item price
-      }));
-      
-  
-      // Calculate total price and final amount
-      const totalPrice = orderedItems.reduce(
-        (total, item) => total + item.price * item.quantity,
-        0
-      );
-      const discount = req.session.couponDiscount || 0;
-      const finalAmount = totalPrice - discount;
-      
-  
-      // Create the order
-      const order = await Order.create({
-        userId,
-        orderedItems,
-        totalPrice,
-        discount,
-        finalAmount,
-        address: selectedAddress, // Reference to the selected address
-        status: 'Pending',
-        invoiceDate: new Date(),
-        createdOn: new Date(),
-        couponApplied: !!req.session.couponApplied,
-        paymentType : paymentType
-      });
+        // Fetch cart data and populate product details
+        const cartData = await Cart.findOne({ userid: userId }).populate('items.productId');
 
-      delete req.session.selectedAddress;
-      
-  
-      // Clear the cart
-      await Cart.deleteOne({ userid: userId });
-      
-  
-      // Render the order success page
-      res.render('orderSuccess', {
-        user: req.session.currentUser, // Ensure correct user data is passed
-        order,
-        cartData: cartData.items, // Pass only the items
-        addressData: selectedAddress, // Pass the selected address
-      });
-      console.log("Order success page rendered.");
+        if (!cartData || cartData.items.length === 0) {
+            console.log("Cart is empty. Redirecting to shop...");
+            return res.redirect('/shop');
+        }
+
+        // Fetch user's address
+        const addressData = await Address.findOne({ userId });
+
+        if (!addressData || addressData.address.length === 0) {
+            console.log("No addresses found. Redirecting to add-address...");
+            return res.redirect('/add-address');
+        }
+
+        // Use the selected address from session
+        const selectedAddress = req.session.selectedAddress;
+        const paymentType = req.session.paymentType;
+
+        // Prepare ordered items
+        const orderedItems = cartData.items.map((item) => ({
+            product: item.productId._id,
+            quantity: item.quantity,
+            price: item.productId.salePrice || item.price,
+        }));
+
+        // Calculate total price and final amount
+        const totalPrice = orderedItems.reduce(
+            (total, item) => total + item.price * item.quantity,
+            0
+        );
+        const discount = req.session.couponDiscount || 0;
+        const finalAmount = totalPrice - discount;
+
+        // Update product quantities
+        for (const item of cartData.items) {
+            const product = item.productId;
+            if (product.quantity < item.quantity) {
+                console.log(`Not enough stock for ${product.productName}.`);
+                return res.status(400).send('Insufficient stock for one or more items.');
+            }
+            product.quantity -= item.quantity;
+
+            // Update product status if necessary
+            if (product.quantity <= 1) {
+                product.status = "Out of stock";
+            }
+
+            await product.save(); // Save updated product
+        }
+
+        // Create the order
+        const order = await Order.create({
+            userId,
+            orderedItems,
+            totalPrice,
+            discount,
+            finalAmount,
+            address: selectedAddress,
+            status: 'Pending',
+            invoiceDate: new Date(),
+            createdOn: new Date(),
+            couponApplied: !!req.session.couponApplied,
+            paymentType: paymentType
+        });
+
+        delete req.session.selectedAddress;
+
+        // Clear the cart
+        await Cart.deleteOne({ userid: userId });
+
+        // Render the order success page
+        res.render('orderSuccess', {
+            user: req.session.currentUser,
+            order,
+            cartData: cartData.items,
+            addressData: selectedAddress,
+        });
+        console.log("Order success page rendered.");
     } catch (error) {
-      console.error("Error in orderPlaced controller:", error);
-      res.redirect('/pageNotFound'); // Redirect to an error page on failure
+        console.error("Error in orderPlaced controller:", error);
+        res.redirect('/pageNotFound'); // Redirect to an error page on failure
     }
-  };
+};
 
-
-
-  
-
-
-  
 
 
 
