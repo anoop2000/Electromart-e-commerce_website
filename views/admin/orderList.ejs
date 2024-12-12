@@ -34,12 +34,12 @@
           <tr>
             <td>
               <button >
-                <a href="/admin/orderList/orderStatus/<%= order._id %>">
+                
                   <%= index + 1 + (page - 1) * limit %>
-                </a>
+                
               </button>
             </td>
-            <td><%= order.orderid %></td>
+            <td><a href="/admin/orderList/orderStatus/<%= order._id %>"><%= order.orderid %></a></td>
             <td><%= order.userId?.name || 'Unknown User' %></td>
             <td><%= new Date(order.createdOn).toLocaleDateString() %></td>
             <td>₹<%= order.finalAmount %></td>

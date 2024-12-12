@@ -736,23 +736,23 @@ async function cartInc(id, index) {
                 timer: 1500,
                 showConfirmButton: false,
             });
-        } else if (data.message.includes("Only 1 unit")) {
+        } else if (data.message.includes("out of stock")) {
             Swal.fire({
                 icon: "warning",
-                title: "Stock Alert",
+                title: "Out of Stock",
                 text: data.message,
             });
-        } else if (data.message === "You can purchase a maximum of 5 units for this product.") {
+        } else if (data.message.includes("maximum of 5 units")) {
             Swal.fire({
                 icon: "warning",
                 title: "Limit Reached",
                 text: data.message,
             });
-        } else if (data.message === "The product is out of stock.") {
+        } else {
             Swal.fire({
-                icon: "warning",
-                title: "Out of Stock",
-                text: "This product is currently out of stock.",
+                icon: "error",
+                title: "Error",
+                text: data.message,
             });
         }
     } catch (error) {

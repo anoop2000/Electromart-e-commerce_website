@@ -75,100 +75,98 @@
 
 <section class="order-section">
     <div class="col-9">
-      <div class="content-header">
-        <h2 class="content-title">Order Details</h2>
-      </div>
+        <div class="content-header">
+            <h2 class="content-title">Order Details</h2>
+        </div>
     </div>
-  
+
     <div class="container p-3">
-      <div class="order-details">
-        <div class="row">
-          <!-- Order Summary -->
-          <div class="col-6 text-center">
-            <p class="order-number"><strong>Order ID:</strong> <%= orderData.orderid %></p>
-            <div class="card text-white bg-lightgreen mb-3">
-              <div class="card-body">
-                <h5 class="card-title"><%= orderData.status %></h5>
-              </div>
-            </div>
-            <div class="order-info">
-              <p class="order-date"><strong>Order Date:</strong> <%= new Date(orderData.createdOn).toLocaleDateString() %></p>
-              <p><strong>Invoice Date:</strong> <%= orderData.invoiceDate ? new Date(orderData.invoiceDate).toLocaleDateString() : "Not Generated" %></p>
-            </div>
-          </div>
-        </div>
-
-
-
-
-        <!-- Address Details -->
-      <!-- Address Details -->
-<div class="address-details p-3">
-    <h5>Delivery Address:</h5>
-    <% if (orderData.address) { %>
-      <p><strong>Name:</strong> <%= orderData.address.name %></p>
-      <p><strong>City:</strong> <%= orderData.address.city %></p>
-      <p><strong>State:</strong> <%= orderData.address.state %></p>
-      <p><strong>Pincode:</strong> <%= orderData.address.pincode %></p>
-      <p><strong>Phone:</strong> <%= orderData.address.phone %></p>
-    <% } else { %>
-      <p>Address not available</p>
-    <% } %>
-  </div>
-  
-
-
-
-      
-
-  
-        <!-- Payment Details -->
-        <div class="row p-3">
-          <div class="col-6">
-            <div class="payment-box bg-lightgreen p-3">
-              <div class="payment-card card text-white bg-secondary">
-                <div class="card-header">Payment</div>
-                <div class="card-body">
-                  <h5 class="card-title">₹<%= orderData.finalAmount %></h5>
-                  <p class="card-text">Payment Type: <%= orderData.paymentType %></p>
-                  <p class="card-text"><strong>Discount:</strong> ₹<%= orderData.discount %></p>
+        <div class="order-details">
+            <!-- Order Summary -->
+            <div class="row">
+                <div class="col-6 text-center">
+                    <p class="order-number"><strong>Order ID:</strong> <%= orderData.orderid %></p>
+                    <div class="card text-white bg-lightgreen mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= orderData.status %></h5>
+                        </div>
+                    </div>
+                    <p><strong>Order Date:</strong> <%= new Date(orderData.createdOn).toLocaleDateString() %></p>
+                    <p><strong>Invoice Date:</strong> <%= orderData.invoiceDate ? new Date(orderData.invoiceDate).toLocaleDateString() : "Not Generated" %></p>
                 </div>
-              </div>
             </div>
-          </div>
+
+            <!-- Address Details -->
+       
+
+                <div class="address-details p-3">
+                  <h5>Delivery Address:</h5>
+                  <% if (orderData.addressDetails) { %>
+                      <p><strong>Address Type:</strong> <%= orderData.addressDetails.addressType %></p>
+                      <p><strong>Name:</strong> <%= orderData.addressDetails.name %></p>
+                      <p><strong>City:</strong> <%= orderData.addressDetails.city %></p>
+                      <p><strong>Land mark:</strong> <%= orderData.addressDetails.landMark %></p>
+                      <p><strong>State:</strong> <%= orderData.addressDetails.state %></p>
+                      <p><strong>Pincode:</strong> <%= orderData.addressDetails.pincode %></p>
+                      <p><strong>Phone:</strong> <%= orderData.addressDetails.phone %></p>
+                      <p><strong>Alternate Phone:</strong> <%= orderData.addressDetails.altPhone %></p>
+                  <% } else { %>
+                      <p>Address not available</p>
+                  <% } %>
+                </div>
+
+
+
+            <!-- Payment Details -->
+            <div class="row p-3">
+                <div class="col-6">
+                    <div class="payment-box bg-lightgreen p-3">
+                        <div class="payment-card card text-white bg-secondary">
+                            <div class="card-header">Payment</div>
+                            <div class="card-body">
+                                <h5 class="card-title">₹<%= orderData.finalAmount %></h5>
+                                <p class="card-text">Payment Type: <%= orderData.paymentType %></p>
+                                <p class="card-text"><strong>Discount:</strong> ₹<%= orderData.discount %></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ordered Items -->
+            <h5 class="product-details-heading">Ordered Products:</h5>
+            <div class="row p-3">
+                <table id="orderStatus" class="table">
+                    <thead>
+                        <th>Image</th>
+                        <th>Product Name</th>
+                        <th>Brand</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total Cost</th>
+                    </thead>
+                    <tbody>
+                        <% orderData.orderedItems.forEach(item => { %>
+                            <tr>
+                                <td>
+                                    <img src="/uploads/re-image/<%= item.product.productImage[0] %>" 
+                                         alt="<%= item.product.productName %>" 
+                                         style="width: 50px; height: 50px;">
+                                </td>
+                                <td><%= item.product.productName %></td>
+                                <td><%= item.product.brand %></td>
+                                <td><%= item.quantity %></td>
+                                <td>₹<%= item.price %></td>
+                                <td>₹<%= item.quantity * item.price %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
         </div>
-  
-        <!-- Ordered Items -->
-        <h5 class="product-details-heading">Ordered Products:</h5>
-        <div class="row p-3">
-          <table id="orderStatus" class="table">
-            <thead>
-              <th>Image</th>
-              <th>Product Name</th>
-              <th>Brand</th>
-              <th>Quantity</th>
-              <th>Unit Price</th>
-              <th>Total Cost</th>
-            </thead>
-            <tbody>
-              <% orderData.orderedItems.forEach(item => { %>
-                <tr>
-                  <td>
-                    <img src="/uploads/re-image/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" style="width: 50px; height: 50px;">
-                  </td>
-                  <td><%= item.product.productName %></td>
-                  <td><%= item.product.brand %></td>
-                  <td><%= item.quantity %></td>
-                  <td>₹<%= item.price %></td>
-                  <td>₹<%= item.quantity * item.price %></td>
-                </tr>
-              <% }); %>
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
-  </section>
+</section>
+
   
   
   

@@ -347,8 +347,8 @@
 <!-------------------------------------------------------------------------------->
             <div>
             <li id="stock-status">
-                <% if (product.quantity > 1) { %>
-                    <span class="in-stock text-success">Availability: <%= product.quantity %> Items in Stock</span>
+                <% if (product.quantity >= 1) { %>
+                    <span class="in-stock text-success">Availability: <%= product.quantity %> Item(s) in Stock</span>
                 <% } else { %>
                     <span class="out-of-stock text-danger">Availability: Out of Stock</span>
                 <% } %>
@@ -477,49 +477,57 @@
 
 
 
-async function checkStockAndAddToCart(productId, stockQuantity) {
-    if (stockQuantity <= 1) {
+    
+
+
+
+
+
+
+
+async function checkStockAndAddToCart(productId) {
+    try {
+        const response = await fetch(`/addToCart?id=${productId}`, {
+            method: 'POST',
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch');
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Added to Cart',
+                text: data.message,
+                confirmButtonText: 'Go to Cart',
+            }).then(() => {
+                window.location.href = data.redirectUrl;
+            });
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Notice',
+                text: data.message,
+                confirmButtonText: 'Go to Cart',
+            }).then(() => {
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                }
+            });
+        }
+    } catch (error) {
         Swal.fire({
             icon: 'error',
-            title: 'Out of Stock',
-            text: 'The product is out of stock and cannot be added to the cart.',
-        });
-        return;
-    }
-
-    // Proceed to add to cart
-    const response = await addToCart(productId);
-
-    if (response.success) {
-        // Update stock quantity dynamically on the page
-        const stockElement = document.getElementById('stock-status');
-        const addToCartButton = document.getElementById('add-to-cart-btn');
-
-        // stockQuantity -= 1; // Decrease stock by 1
-        // if (stockQuantity <= 1) {
-        //     stockElement.innerHTML = '<span class="out-of-stock text-danger">Availability: Out of Stock</span>';
-        //     addToCartButton.disabled = true;
-        //     addToCartButton.style.cursor = 'not-allowed';
-        // } else {
-        //     stockElement.innerHTML = `<span class="in-stock text-success">Availability: ${stockQuantity} Items in Stock</span>`;
-        // }
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Added to Cart',
-            text: response.message,
-            confirmButtonText: 'Go to Cart',
-        }).then(() => {
-            window.location.href = '/getCart'; // Redirect to cart page
-        });
-    } else {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Warning',
-            text: response.message,
+            title: 'Error',
+            text: 'An error occurred while adding the product to the cart.',
         });
     }
 }
+
+
 
 
 

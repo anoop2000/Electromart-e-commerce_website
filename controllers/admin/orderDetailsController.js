@@ -39,59 +39,73 @@ const orderList = async (req, res) => {
 
 
 
-// orderStatus
-// const orderStatus = async (req, res) => {
-//     try {
-//       const orderData = await Order
-//         .findOne({ _id: req.params.id })
-//         .populate({
-//           path: "address",
-//           select: "address userId", // Only fetch necessary fields from Address
-//         })
-//         .populate({
-//           path: "orderedItems.product",
-//           select: "productName brand salePrice productImage", // Fetch product details
-//         });
-        
-//       res.render("orderStatus", { orderData, user: req.body.user });
-//     } catch (error) {
-//       console.error("Error fetching order details:", error);
-//       res.status(500).send("Internal Server Error");
-//     }
-//   };
-
-
-
 
 const orderStatus = async (req, res) => {
-    try {
+  try {
+      const orderId = req.params.id;
+
+      console.log("Inside the order success");
+      console.log("orderId:", orderId);
+
+      
       const orderData = await Order
-        .findOne({ _id: req.params.id })
-        .populate({
-          path: "address",
-          select: "address userId", // Fetch only the necessary fields
-        })
-        .populate({
-          path: "orderedItems.product",
-          select: "productName brand salePrice productImage", // Fetch product details
-        });
-  
-      // If the address is populated, extract the first address or the matching address
-      const selectedAddress = orderData?.address?.address?.find(addr => addr._id.equals(orderData.address));
-  
+          .findOne({ _id: orderId })
+          .populate({
+              path: "orderedItems.product",
+              select: "productName brand salePrice productImage", 
+          })
+          .lean(); 
+
+      if (!orderData) {
+          return res.status(404).send("Order not found");
+      }
+
+      //console.log("Order data:", orderData);
+
+     
+      const userAddresses = await Address.findOne({ userId: orderData.userId }).lean();
+
+      if (!userAddresses || !userAddresses.address) {
+          return res.status(404).send("User addresses not found");
+      }
+
+      const deliveryAddress = userAddresses.address.find(
+          (addr) => addr._id.equals(orderData.address) 
+      );
+
+      if (!deliveryAddress) {
+          return res.status(404).send("Delivery address not found");
+      }
+
+      //console.log("Delivery Address Details:", deliveryAddress);
+
+      
       res.render("orderStatus", {
-        orderData: {
-          ...orderData.toObject(),
-          address: selectedAddress,
-        },
-        user: req.body.user,
+          orderData: {
+              ...orderData, 
+              addressDetails: deliveryAddress, 
+          },
+          user: req.body.user, 
       });
-    } catch (error) {
+  } catch (error) {
       console.error("Error fetching order details:", error);
       res.status(500).send("Internal Server Error");
-    }
-  };
+  }
+};
+
+
+
+
+
+
+
   
+
+
+
+
+
+
 
 
 

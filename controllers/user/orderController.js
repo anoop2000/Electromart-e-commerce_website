@@ -79,193 +79,59 @@ const ordersList = async (req, res) => {
 
 
 
-
-
-
-// const viewDetails = async (req, res) => {
-//     try {
-
-//         console.log("Inside view details page");
-        
-//       const orderId = req.query.id;
-
-//       console.log("OrderId :",orderId);
-  
-//       // Validate ObjectId
-//       if (!mongoose.Types.ObjectId.isValid(orderId)) {
-//         return res.status(400).json({ error: "Invalid Order ID" });
-//       }
-  
-//       // Fetch order with populated fields
-//       const order = await Order.findById(orderId)
-//         .populate('orderedItems.product', 'productName salePrice description productImage')
-//         .populate({
-//             path: 'address',
-//             select: 'address', // Select only the 'address' array
-//           })
-
-
-//           console.log("Order :",order);
-          
-  
-//       if (!order) {
-//         return res.status(404).json({ error: "Order not found" });
-//       }
-  
-//       res.json({ success: true, order });
-//     } catch (error) {
-//       console.error(error);
-//       res.status(500).json({ error: "Server Error" });
-//     }
-//   };
-
-
-
-
-
-// const viewDetails = async (req, res) => {
-//     try {
-//         console.log("Inside view details page");
-
-//         const orderId = req.query.id;
-//         console.log("OrderId :", orderId);
-
-//         // Validate ObjectId
-//         if (!mongoose.Types.ObjectId.isValid(orderId)) {
-//             return res.status(400).json({ error: "Invalid Order ID" });
-//         }
-
-
-//         console.log("order");
-        
-//         // Fetch order with populated fields
-        
-//         const order = await Order.findById(orderId)
-//         .populate('orderedItems.product', 'productName salePrice description productImage')
-//         .populate('address.address', 'addressType name city landMark state pincode phone').lean();
-      
-
-
-//         console.log("Order Data:", order);
-// console.log("Order Address:", order.address);
-
-
-//         //console.log("Order :", order);
-
-//         if (!order) {
-//             return res.status(404).json({ error: "Order not found" });
-//         }
-
-//         res.json({ success: true, order });
-//     } catch (error) {
-//         console.error("error :",error);
-//         res.status(500).json({ error: "Server Error" });
-//     }
-// };
-
-
-
-
-
-// const viewDetails = async (req, res) => {
-//     try {
-//       console.log("Inside view details page");
-  
-//       const orderId = req.query.id;
-//       console.log("OrderId :", orderId);
-  
-//       // Validate ObjectId
-//       if (!mongoose.Types.ObjectId.isValid(orderId)) {
-//         return res.status(400).json({ error: "Invalid Order ID" });
-//       }
-  
-//       // Fetch order with populated fields
-//       const order = await Order.findById(orderId)
-//         .populate({
-//           path: 'orderedItems.product',
-//           select: 'productName salePrice description productImage', // Select fields to include
-//           model: 'Product'
-//         })
-//         .populate({
-//           path: 'address.address',
-//           select: 'address.addressType address.name address.city address.landMark address.state address.pincode address.phone',
-//           model: 'Address'
-//         });
-  
-//       if (!order) {
-//         return res.status(404).json({ error: "Order not found" });
-//       }
-  
-//       console.log("Order:", order);
-  
-//       res.json({ success: true, order });
-//     } catch (error) {
-//       console.error("Error fetching order details:", error);
-//       res.status(500).json({ error: "Server Error" });
-//     }
-//   };
-  
-
-
-
-
 const viewDetails = async (req, res) => {
     try {
+        console.log("Fetching order details...");
 
-        console.log("inside the views ..");
-        
-        // Fetch userId and orderId from the session and params
         const userId = req.session.user;
         const orderId = req.query.id;
 
-
-        console.log("UserId :",userId);
-        console.log("OrderId :",orderId);
-        
-        
-        
-        // Fetch the order using the provided orderId
         const order = await Order.findOne({ _id: orderId })
-            .populate('orderedItems.product', 'productName salePrice description productImage'); // Populate product details in orderedItems
-        
+            .populate('orderedItems.product', 'productName salePrice productImage') // Include necessary fields
+            .lean();
 
-            console.log("Order :",order);
-            
         if (!order) {
             return res.status(404).json({ error: 'Order not found' });
         }
 
-        // Fetch user's addresses
-        const userAddresses = await Address.findOne({ userId : userId });
+        const userAddresses = await Address.findOne({ userId }).lean();
 
-        console.log("userAddress :",userAddresses);
-        
+       
 
-        // Convert the order to plain object to manipulate it
-        const orderObj = order.toObject();
 
-        console.log("orderObj :",orderObj);
-        
-        
+        const deliveryAddress = userAddresses?.address?.find(
+            addr => addr._id.toString() === order.address.toString()
+        );
 
-        // Find and add the corresponding delivery address to the order
-        if (userAddresses && userAddresses.address) {
-            orderObj.deliveryAddress = userAddresses.address.find(
-                addr => addr._id.toString() === order.address.toString()
-            );
-        }
+        const responseData = {
+            orderId: order.orderid,
+            invoiceDate: order.invoiceDate,
+            products: order.orderedItems.map(item => ({
+                productName: item.product.productName,
+                price: item.price,
+                quantity: item.quantity,
+                productImage: item.product.productImage[0], // Use first image
+            })),
+            totalPrice: order.totalPrice,
+            discount: order.discount,
+            finalAmount: order.finalAmount,
+            address: deliveryAddress || {},
+            paymentType: order.paymentType,
+            status: order.status,
+            createdOn: order.createdOn,
+        };
 
-        // Return the order details to be displayed in the modal
-        res.render('userProfile/orderDetailsModal', {
-        
-            order: orderObj, 
-            session: req.session
-        });
+        res.json({ success: true, data: responseData });
     } catch (error) {
         console.error('Error fetching order details:', error);
         res.status(500).json({ error: 'Error loading order details' });
     }
 };
+
+
+
+
+
 
 
   
@@ -287,6 +153,7 @@ const viewDetails = async (req, res) => {
 const cancelOrder = async (req, res) => {
     try {
         const { id } = req.params; // Retrieve the order ID from the route
+        const userId = req.session.user;
         const order = await Order.findOne({ orderid: id }); // Ensure ID is used directly here
 
         if (!order) {
@@ -299,11 +166,38 @@ const cancelOrder = async (req, res) => {
             });
         }
 
+        
+
+
+
         if (order.status === "Pending" || order.status === "Shipped") {
-            order.status = "Cancelled"; // Update the status to "Cancelled"
+            // Restore the product quantities
+            for (const item of order.orderedItems) {
+              const { product, quantity } = item;
+      
+              // Increment product stock
+              const productDoc = await Product.findById(product._id);
+              if (productDoc) {
+                productDoc.quantity += quantity;
+                if(productDoc.quantity){
+                    productDoc.status = "Available";
+                }
+                await productDoc.save();
+              }
+            }
+
+            order.status = "Cancelled";
+            //order.cancellationReason = reason;
             await order.save();
-            return res.status(200).json({ message: "Order successfully cancelled." });
+
+            return res.status(200).json({ message: "Order successfully cancelled and inventory restored." });
+            // return res.status(200).json({ 
+            //     message: "Order successfully cancelled and inventory restored.", 
+            //     reason: order.cancellationReason 
+            //   });
         }
+
+
 
         res.status(400).json({ message: "Order cannot be cancelled at this stage." });
     } catch (error) {

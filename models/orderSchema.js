@@ -29,7 +29,8 @@ const orderSchema = new Schema({
             type : Number,
             default : 0,
             
-        }
+        },
+        
     }],
     totalPrice :{
         type : Number,
@@ -71,8 +72,12 @@ const orderSchema = new Schema({
         default : false
     },paymentType: {
         type: String, 
-        // enum: ["COD","Wallet","Razorpay"]
-        default : 'toBeChosen'
+        enum: ["COD","Wallet","Razorpay"]
+        // default : 'toBeChosen'
+    },
+    cancellationReason : {
+        type : String,
+        default : "none"
     }
 
     

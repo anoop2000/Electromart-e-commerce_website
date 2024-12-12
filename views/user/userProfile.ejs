@@ -362,14 +362,8 @@
                   <td>₹<%= order.finalAmount %></td>
                   <td class="label badge badge-primary"><%= order.status %></td>
                   <td>
-                    <!-- <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#orderDetailsModal-<%= index %>">
-                     <a href="/viewDetails?id=<%= order._id %>"> View Details</a>
-                    </button> -->
-
-
-
-                    
-                      <button class="btn btn-primary view-details-button" data-order-id="<%= order._id %>">View Details</button>
+      
+                      <button class="btn btn-primary view-details-btn" data-order-id="<%= order._id %>">View Details</button>
                     
                   </td>
                   <td>
@@ -382,60 +376,75 @@
                   </td>
                 </tr>
 
-                <!-- Modal for order details -->
-                
+                <!--modal for canccellation reason-->
 
-                <!-- <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
-                  <div class="modal-dialog modal-lg">
+
+                <!-- <div id="cancelModal" class="modal fade" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
                     <div class="modal-content">
                       <div class="modal-header">
-                        <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <h5 class="modal-title">Cancellation Reason</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
                       </div>
-                      <div class="modal-body" id="modalContent"> -->
-
-                        <!-- Content will be injected dynamically -->
-
-                      <!-- </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <div class="modal-body">
+                        <form id="cancelForm">
+                          <div class="form-group">
+                            <label for="reason">Reason:</label>
+                            <textarea id="reason" class="form-control" rows="3" required></textarea>
+                          </div>
+                          <button type="submit" class="btn btn-primary">Save</button>
+                        </form>
                       </div>
                     </div>
                   </div>
                 </div> -->
+                
+                <!--modal for canccellation reason-->
+
+                <!-- Modal for order details -->
+                
+
+                
 
 
 
 
-                <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
-                  <div class="modal-dialog">
-                    <div class="modal-content">
+            <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                  <div class="modal-content">
                       <div class="modal-header">
-                        <h5 class="modal-title" id="orderDetailsModalLabel">Order Details - <%= order.orderid %></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          <h5 class="modal-title" id="orderDetailsModalLabel" styel="font-weight: bold;">Order Details</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       </div>
                       <div class="modal-body">
-                        <h6>Ordered Items</h6>
-                        <% order.orderedItems.forEach(item => { %>
-                          <div>
-                            <strong><%= item.product.productName %></strong>
-                            <p>Price: <%= item.price %> | Quantity: <%= item.quantity %></p>
+                          <p><strong>Order ID:</strong> <span id="modalOrderId"></span></p>
+                          <p><strong>Invoice Date:</strong> <span id="modalInvoiceDate"></span></p>
+                          <p><strong>Delivery Address:</strong></p>
+                          
+                          <pre id="modalDeliveryAddress"></pre>
+                          <p><strong>Phone:</strong> <span id="modalDeliveryPhone"></span></p>
+                          <p><strong>Total Price:</strong> ₹<span id="modalTotalPrice"></span></p>
+                          <p><strong>Discount:</strong> ₹<span id="modalDiscount"></span></p>
+                          <p><strong>Final Amount:</strong> ₹<span id="modalFinalAmount"></span></p>
+                          <p><strong>Payment Type:</strong> <span id="modalPaymentType"></span></p>
+                          <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+                          <p><strong>Created On:</strong> <span id="modalCreatedOn"></span></p>
+                          <h6>Products:</h6>
+                          <div id="modalProductsList">
+
                             
                           </div>
-                        <% }) %>
-                
-                        
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                       </div>
-                    </div>
                   </div>
-                </div>
-                
-                
-              
-
+              </div>
+          </div>
+          
+    
 
                 <!--modal end --> 
               <% }); %> <!-- End of orders.forEach -->
@@ -646,57 +655,82 @@ document.querySelectorAll('.cancel-order-button').forEach(button => {
 
 
 
-document.addEventListener('DOMContentLoaded', () => {
-  const viewDetailsButtons = document.querySelectorAll('.view-details-button');
 
-  viewDetailsButtons.forEach((button) => {
-    button.addEventListener('click', async () => {
-      const orderId = button.dataset.orderId;
 
-      try {
-        const response = await fetch(`/viewDetails?id=${orderId}`);
-        const data = await response.json();
 
-        if (data.success) {
-          const order = data.order;
 
-          // Build address details
-          const addressContent = order.address && order.address.address
-            ? order.address.address.map(addr => `
-                <p>
-                  <strong>Type:</strong> ${addr.addressType}<br>
-                  <strong>Name:</strong> ${addr.name}<br>
-                  <strong>City:</strong> ${addr.city}<br>
-                  <strong>Landmark:</strong> ${addr.landMark}<br>
-                  <strong>State:</strong> ${addr.state}<br>
-                  <strong>Pincode:</strong> ${addr.pincode}<br>
-                  <strong>Phone:</strong> ${addr.phone}<br>
-                  <strong>Alt Phone:</strong> ${addr.altPhone || 'N/A'}<br>
-                </p>
-              `).join('')
-            : '<p>No delivery address available.</p>';
 
-          // Inject address into modal content
-          const modalContent = `
-            <h6>Delivery Address:</h6>
-            ${addressContent}
-          `;
 
-          document.getElementById('modalContent').innerHTML = modalContent;
+document.querySelectorAll('.view-details-btn').forEach(button => {
+    button.addEventListener('click', function () {
+        const orderId = this.dataset.orderId;
 
-          // Show the modal
-          const orderDetailsModal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
-          orderDetailsModal.show();
-        } else {
-          alert('Error fetching order details.');
-        }
-      } catch (err) {
-        console.error(err);
-        alert('Server error. Please try again.');
-      }
+        fetch(`/viewDetails?id=${orderId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const {
+                        orderId,
+                        invoiceDate,
+                        products,
+                        totalPrice,
+                        discount,
+                        finalAmount,
+                        address,
+                        paymentType,
+                        status,
+                        createdOn,
+                    } = data.data;
+
+                    document.getElementById('modalOrderId').textContent = orderId;
+                    document.getElementById('modalInvoiceDate').textContent = new Date(invoiceDate).toLocaleDateString();
+                    document.getElementById('modalTotalPrice').textContent = totalPrice;
+                    document.getElementById('modalDiscount').textContent = discount;
+                    document.getElementById('modalFinalAmount').textContent = finalAmount;
+                    document.getElementById('modalPaymentType').textContent = paymentType;
+                    document.getElementById('modalStatus').textContent = status;
+                    document.getElementById('modalCreatedOn').textContent = new Date(createdOn).toLocaleString();
+
+                    // const deliveryAddress = `${address.addressType} address\n${address.name}\n${address.city}\n${address.state}\n${address.pincode}`;
+
+                    const deliveryAddress = `Address Type: ${address.addressType} 
+Name: ${address.name}
+City: ${address.city}
+State: ${address.state}
+Pincode: ${address.pincode}`;
+
+                                              
+
+
+                    document.getElementById('modalDeliveryAddress').textContent = deliveryAddress;
+                    document.getElementById('modalDeliveryPhone').textContent = address.phone;
+
+                    const productList = document.getElementById('modalProductsList');
+                    productList.innerHTML = ''; // Clear previous content
+                    products.forEach(product => {
+                        const productItem = `
+                            <div class="product-item" style="display: flex; align-items: center; margin-bottom: 10px; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+                                <img src="/uploads/re-image/${product.productImage}" alt="${product.productName}" style="width: 75px; height: 75px; object-fit: cover; margin-right: 10px;">
+                                <div>
+                                    <p style="margin: 0;"><strong>${product.productName}</strong></p>
+                                    <p style="margin: 0;">Quantity: ${product.quantity}</p>
+                                    <p style="margin: 0;">Price: ₹${product.price}</p>
+                                </div>
+                            </div>`;
+                        productList.insertAdjacentHTML('beforeend', productItem);
+                    });
+
+                    const orderDetailsModal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+                    orderDetailsModal.show();
+                } else {
+                    alert(data.error || 'Failed to load order details.');
+                }
+            })
+            .catch(err => console.error('Error fetching order details:', err));
     });
-  });
 });
+
+
 
   
 
@@ -705,6 +739,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
  
 </script>
+
+
+<script>
+
+document.querySelectorAll('.cancel-order-button').forEach(button => {
+  button.addEventListener('click', function () {
+    const orderId = this.dataset.orderId;
+    document.querySelector('#cancelForm').dataset.orderId = orderId;
+    $('#cancelModal').modal('show');
+  });
+});
+ 
+
+</script>
+
+
 
 
 
