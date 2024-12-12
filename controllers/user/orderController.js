@@ -153,6 +153,14 @@ const viewDetails = async (req, res) => {
 const cancelOrder = async (req, res) => {
     try {
         const { id } = req.params; // Retrieve the order ID from the route
+        console.log("Id :",id);
+        
+        
+
+        // const { reason } = req.body;
+        // console.log("Reason :",reason)
+        
+        
         const userId = req.session.user;
         const order = await Order.findOne({ orderid: id }); // Ensure ID is used directly here
 
@@ -187,10 +195,10 @@ const cancelOrder = async (req, res) => {
             }
 
             order.status = "Cancelled";
-            //order.cancellationReason = reason;
+                     //order.cancellationReason = reason;
             await order.save();
 
-            return res.status(200).json({ message: "Order successfully cancelled and inventory restored." });
+             return res.status(200).json({ message: "Order successfully cancelled and inventory restored." });
             // return res.status(200).json({ 
             //     message: "Order successfully cancelled and inventory restored.", 
             //     reason: order.cancellationReason 
@@ -199,7 +207,7 @@ const cancelOrder = async (req, res) => {
 
 
 
-        res.status(400).json({ message: "Order cannot be cancelled at this stage." });
+        res.status(400).json({ message: "Order cannot be cancelled at this stage.", });
     } catch (error) {
         console.error("Error cancelling order:", error);
         res.status(500).json({ message: "An error occurred while cancelling the order." });
