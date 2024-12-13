@@ -512,11 +512,16 @@ const signup = async (req, res) => {
       const brands = await Brand.find({}).lean()
       const categories = await Category.find({isListed : true}).lean();
       
-      let findProducts = await Product.find({
-        salePrice : {$gt: req.query.gt,$lt : req.query.lt},
+      let findProducts = req.session.filteredProducts || await Product.find({
+        //salePrice : {$gt: req.query.gt,$lt : req.query.lt},
         isBlocked : false,
         quantity : {$gt :0}
       }).lean()
+
+      // Apply the price filter
+      findProducts = findProducts.filter(
+      (product) => product.salePrice > req.query.gt && product.salePrice < req.query.lt
+    );
 
       findProducts.sort((a,b)=>new Date(b.createdAt) - new Date(a.createdAt))
 
@@ -632,7 +637,7 @@ const signup = async (req, res) => {
 
       const sort = req.query.sort || 'desc'; 
     
-      let products = await Product.find({ isBlocked: false, quantity: { $gt: 0 } }).lean();
+      let products = req.session.filteredProducts || await Product.find({ isBlocked: false, quantity: { $gt: 0 } }).lean();
   
       if (sort === 'asc') {
         products.sort((a, b) => a.salePrice - b.salePrice); 
@@ -673,10 +678,10 @@ const signup = async (req, res) => {
       const brand = await Brand.find({}).lean();
   
       
-      const sort = req.query.sort || 'desc'; 
+      const sort = req.query.sort || 'az'; 
   
      
-      let products = await Product.find({ isBlocked: false, quantity: { $gt: 0 } }).lean();
+      let products = req.session.filteredProducts || await Product.find({ isBlocked: false, quantity: { $gt: 0 } }).lean();
   
       if (sort === 'az') {
         
@@ -714,7 +719,7 @@ const signup = async (req, res) => {
 
   const  clearFilters = async (req, res) => {
     try {
-      req.session.products = null;
+      req.session.filteredProducts = null;
       res.redirect("/shop");
     } catch (error) {
       console.error(error);

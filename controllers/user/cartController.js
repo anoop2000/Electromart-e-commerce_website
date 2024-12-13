@@ -797,6 +797,7 @@ const orderPlaced = async (req, res) => {
             addressData: selectedAddress,
         });
         console.log("Order success page rendered.");
+        
     } catch (error) {
         console.error("Error in orderPlaced controller:", error);
         res.redirect('/pageNotFound'); // Redirect to an error page on failure

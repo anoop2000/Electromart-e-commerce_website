@@ -68,7 +68,7 @@ router.post('/updateProfile',blockUserCheck,userAuth,profileController.updatePro
 
 //order management
 
-router.get('/orderList',userAuth,orderController.ordersList)
+router.get('/orders',userAuth,orderController.ordersList)
 router.get('/viewDetails',userAuth,orderController.viewDetails)
 router.put('/cancelOrder/:id', userAuth, orderController.cancelOrder);
 

@@ -22,7 +22,7 @@ const mongoose = require("mongoose");
 
 const ordersList = async (req, res) => {
     try {
-        console.log("Fetching orders for the user.");
+        //console.log("Fetching orders for the user.");
 
         const userId = req.session.user; // Retrieve the logged-in user's ID
         if (!userId) {
@@ -38,8 +38,10 @@ const ordersList = async (req, res) => {
                 path: 'address',
                 select: 'address', // Populate the entire address array
                 model: 'Address',
-            }).sort({ createdOn: -1 })
+            }).sort({createdOn : -1})
             .lean();
+
+            console.log("Sorted Orders:", orders.map(order => order.createdOn));
 
         // Map over the orders to structure the data appropriately
         const enrichedOrders = orders.map(order => {
@@ -61,7 +63,8 @@ const ordersList = async (req, res) => {
             return res.render('user/userProfile', { orders: [], message: 'No orders found.' });
         }
 
-        console.log("Orders fetched:", enrichedOrders);
+        console.log("Final enriched orders:", enrichedOrders.map(order => order.createdOn));
+
 
         // Render the user profile with orders
         res.render('user/userProfile', { orders: enrichedOrders, message: null });
@@ -264,6 +267,8 @@ const cancelOrder = async (req, res) => {
         }
 
         res.status(400).json({ message: "Order cannot be cancelled at this stage." });
+
+        
     } catch (error) {
         console.error("Error cancelling order:", error);
         res.status(500).json({ message: "An error occurred while cancelling the order." });
