@@ -89,6 +89,7 @@
                     <div class="card text-white bg-lightgreen mb-3">
                         <div class="card-body">
                             <h5 class="card-title"><%= orderData.status %></h5>
+                            <h5 class="card-title">Reason  :<%= orderData.cancellationReason %></h5>
                         </div>
                     </div>
                     <p><strong>Order Date:</strong> <%= new Date(orderData.createdOn).toLocaleDateString() %></p>

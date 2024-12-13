@@ -3,6 +3,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css">
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
 
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5+5hb7ie3I4x6tDtghzcf5IbYzJ6G+WEYj6M0zNQ" crossorigin="anonymous">
 
 
 
@@ -379,17 +381,56 @@
                 <!--modal for canccellation reason-->
 
 
+                <div id="cancelReasonModal" class="modal fade" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Cancellation Reason</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form id="cancelReasonForm">
+                          <div class="form-group">
+                            <label for="reason">Reason:</label>
+                            <textarea id="reason" class="form-control" rows="3" required></textarea>
+                          </div>
+                          <button type="submit" class="btn btn-primary">Save</button>
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 
 
-                <!--modal for canccellation reason-->
 
-                <!-- Modal for order details -->
+                <div id="reasonModal" class="modal fade" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                          <div class="modal-header">
+                              <h5 class="modal-title">Cancellation Reason</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body" id="reasonModalBody">
+                              <!-- Reason will be injected dynamically -->
+                          </div>
+                          <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              
+              <!--modal for canccellation reason-->
+
+                
+                
+                <!-- Modal for view order details -->
                 
 
-                
-
-
-
+          
 
             <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
               <div class="modal-dialog">
@@ -410,6 +451,7 @@
                           <p><strong>Final Amount:</strong> ₹<span id="modalFinalAmount"></span></p>
                           <p><strong>Payment Type:</strong> <span id="modalPaymentType"></span></p>
                           <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+                          <p><strong>Reason for Cancellation:</strong> <span id="modalReason"></span></p>
                           <p><strong>Created On:</strong> <span id="modalCreatedOn"></span></p>
                           <h6>Products:</h6>
                           <div id="modalProductsList">
@@ -444,7 +486,7 @@
 
 
                
-
+<!-- ----------------------------------------------------order section end---------------------------------->
 
 
 
@@ -554,11 +596,88 @@
 
 
 
+// document.querySelectorAll('.cancel-order-button').forEach(button => {
+//     button.addEventListener('click', async () => {
+//         const orderId = button.getAttribute('data-order-id'); // Get the correct order ID
+
+//         // Confirmation prompt using SweetAlert
+//         const result = await Swal.fire({
+//             title: 'Are you sure?',
+//             text: 'Do you want to cancel the order?',
+//             icon: 'warning',
+//             showCancelButton: true,
+//             confirmButtonColor: '#3085d6',
+//             cancelButtonColor: '#d33',
+//             confirmButtonText: 'Yes, cancel it!',
+//         });
+
+//         if (result.isConfirmed) {
+//             try {
+//                 const response = await fetch(`/cancelOrder/${orderId}`, {
+//                     method: 'PUT',
+//                     headers: {
+//                         'Content-Type': 'application/json',
+//                         Authorization: `Bearer ${localStorage.getItem('token')}`,
+//                     },
+//                 });
+
+//                 const data = await response.json();
+
+//                 if (response.status === 200) {
+//                     // Show success alert
+//                     Swal.fire({
+//                         icon: 'success',
+//                         title: 'Order Cancelled',
+//                         text: data.message,
+//                     });
+
+//                     // Update the status on the frontend instantly
+//                     const row = document.querySelector(`#order-row-${orderId}`);
+//                     if (row) {
+//                         const statusCell = row.querySelector('.label'); // Assuming 'label' is the class for the status element
+//                         if (statusCell) {
+//                             statusCell.textContent = 'Cancelled';
+//                             statusCell.classList.remove('badge-primary', 'badge-success'); // Remove other status classes
+//                             statusCell.classList.add('badge-danger'); // Add class for "Cancelled"
+//                         }
+//                     }
+//                 } else {
+//                     Swal.fire({
+//                         icon: 'error',
+//                         title: 'Unable to Cancel Order',
+//                         text: data.message,
+//                     });
+//                 }
+//             } catch (error) {
+//                 console.error('Error cancelling order:', error);
+//                 Swal.fire({
+//                     icon: 'error',
+//                     title: 'Error',
+//                     text: 'An error occurred while attempting to cancel the order.',
+//                 });
+//             }
+//         }
+//     });
+// });
+
+
+
+
+
+
+
+
+
+//----------------------------------------------------------------------------
+
+
+
+
+
 document.querySelectorAll('.cancel-order-button').forEach(button => {
     button.addEventListener('click', async () => {
-        const orderId = button.getAttribute('data-order-id'); // Get the correct order ID
+        const orderId = button.getAttribute('data-order-id');
 
-        // Confirmation prompt using SweetAlert
         const result = await Swal.fire({
             title: 'Are you sure?',
             text: 'Do you want to cancel the order?',
@@ -566,7 +685,7 @@ document.querySelectorAll('.cancel-order-button').forEach(button => {
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, cancel it!',
+            confirmButtonText: 'Yes, cancel it!'
         });
 
         if (result.isConfirmed) {
@@ -575,40 +694,93 @@ document.querySelectorAll('.cancel-order-button').forEach(button => {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
 
                 const data = await response.json();
 
                 if (response.status === 200) {
-                    // Show success alert
                     Swal.fire({
                         icon: 'success',
                         title: 'Order Cancelled',
-                        text: data.message,
+                        text: data.message
+                    }).then(() => {
+                        // Open the cancellation reason modal
+                        const modal = new bootstrap.Modal(document.getElementById('cancelReasonModal'));
+                        modal.show();
+
+                        document.getElementById('cancelReasonForm').onsubmit = async (e) => {
+                            e.preventDefault();
+                            const reason = document.getElementById('reason').value;
+
+                            // Save the reason to the server
+                            await fetch(`/cancelOrder/${orderId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                                },
+                                body: JSON.stringify({ reason })
+                            });
+
+                            // Store reason in local storage (optional: adapt for server-side persistence)
+                            localStorage.setItem(`cancelReason-${orderId}`, reason);
+
+                            // Update the status column
+                            const row = document.querySelector(`#order-row-${orderId}`);
+                            if (row) {
+                                const statusCell = row.querySelector('.label');
+                                // Update status and add the "View Reason" link
+                                statusCell.classList.remove('badge-primary', 'badge-success');
+                                statusCell.classList.add('badge-danger');
+                                statusCell.textContent = 'Cancelled';
+                                const reasonLink = document.createElement('a');
+                                reasonLink.href = '#';
+                                reasonLink.textContent = 'View Reason';
+                                reasonLink.classList.add('reason-tooltip');
+                                reasonLink.setAttribute('title', reason); // Set tooltip content
+                                reasonLink.style.fontSize = '0.8rem'; // Smaller font size
+                                reasonLink.style.padding = '2px 0'; // Reduce padding
+                                reasonLink.style.color = 'blue';
+                                reasonLink.style.textDecoration = 'underline';
+                                reasonLink.style.cursor = 'pointer';
+                                reasonLink.style.display = 'block'; // Display below the status
+
+                                // Add hover effect for color change
+                                reasonLink.addEventListener('mouseover', () => {
+                                    reasonLink.style.color = 'red';
+                                });
+                                reasonLink.addEventListener('mouseout', () => {
+                                    reasonLink.style.color = 'blue';
+                                });
+
+                                // Add link below the status cell
+                                statusCell.insertAdjacentElement('afterend', reasonLink);
+
+                                // Initialize Bootstrap tooltip for the dynamically added link
+                                new bootstrap.Tooltip(reasonLink);
+
+                                // Add click event to open the modal with reason text
+                                reasonLink.addEventListener('click', (e) => {
+                                    e.preventDefault(); // Prevent default anchor behavior
+
+                                    // Open a modal with the reason text
+                                    const reasonModal = new bootstrap.Modal(document.getElementById('reasonModal'));
+                                    document.getElementById('reasonModalBody').textContent = reason; // Set reason in modal body
+                                    reasonModal.show();
+                                });
+                            }
+
+                            // Close the modal
+                            modal.hide();
+                        };
                     });
-
-
-                    
-
-
-
-                    // Update the status on the frontend instantly
-                    const row = document.querySelector(`#order-row-${orderId}`);
-                    if (row) {
-                        const statusCell = row.querySelector('.label'); // Assuming 'label' is the class for the status element
-                        if (statusCell) {
-                            statusCell.textContent = 'Cancelled';
-                            statusCell.classList.remove('badge-primary', 'badge-success'); // Remove other status classes
-                            statusCell.classList.add('badge-danger'); // Add class for "Cancelled"
-                        }
-                    }
                 } else {
                     Swal.fire({
                         icon: 'error',
                         title: 'Unable to Cancel Order',
-                        text: data.message,
+                        text: data.message
                     });
                 }
             } catch (error) {
@@ -616,7 +788,7 @@ document.querySelectorAll('.cancel-order-button').forEach(button => {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'An error occurred while attempting to cancel the order.',
+                    text: 'An error occurred while attempting to cancel the order.'
                 });
             }
         }
@@ -624,6 +796,69 @@ document.querySelectorAll('.cancel-order-button').forEach(button => {
 });
 
 
+
+// Restore "View Reason" links from local storage after reload
+// Restore "View Reason" links from local storage after reload
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.order-row').forEach(row => {
+        const orderId = row.getAttribute('data-order-id');
+        const reason = localStorage.getItem(`cancelReason-${orderId}`);
+        if (reason) {
+            const statusCell = row.querySelector('.label');
+            
+            // Check if the "View Reason" link already exists
+            if (statusCell && (!statusCell.nextElementSibling || !statusCell.nextElementSibling.classList.contains('reason-tooltip'))) {
+                // Update status to "Cancelled"
+                statusCell.classList.remove('badge-primary', 'badge-success');
+                statusCell.classList.add('badge-danger');
+                statusCell.textContent = 'Cancelled';
+                
+                // Create the "View Reason" link
+                const reasonLink = document.createElement('a');
+                reasonLink.href = '#';
+                reasonLink.textContent = 'View Reason';
+                reasonLink.classList.add('reason-tooltip');
+                reasonLink.setAttribute('title', reason);
+                reasonLink.style.fontSize = '0.8rem'; // Smaller font size
+                reasonLink.style.padding = '2px 0'; // Reduce padding
+                reasonLink.style.color = 'blue';
+                reasonLink.style.textDecoration = 'underline';
+                reasonLink.style.cursor = 'pointer';
+                reasonLink.style.display = 'block';
+
+                // Add hover effect for color change
+                reasonLink.addEventListener('mouseover', () => {
+                    reasonLink.style.color = 'red';
+                });
+                reasonLink.addEventListener('mouseout', () => {
+                    reasonLink.style.color = 'blue';
+                });
+
+                // Add click event to open the modal with reason text
+                reasonLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const reasonModal = new bootstrap.Modal(document.getElementById('reasonModal'));
+                    document.getElementById('reasonModalBody').textContent = reason;
+                    reasonModal.show();
+                });
+
+                // Insert the link below the status cell
+                statusCell.insertAdjacentElement('afterend', reasonLink);
+
+                // Initialize Bootstrap tooltip for the dynamically added link
+                new bootstrap.Tooltip(reasonLink);
+            }
+        }
+    });
+});
+
+
+
+
+
+
+
+//----------------------------------------------------------------------------
 
 
 
@@ -664,6 +899,7 @@ document.querySelectorAll('.view-details-btn').forEach(button => {
                         address,
                         paymentType,
                         status,
+                        reason,
                         createdOn,
                     } = data.data;
 
@@ -674,6 +910,7 @@ document.querySelectorAll('.view-details-btn').forEach(button => {
                     document.getElementById('modalFinalAmount').textContent = finalAmount;
                     document.getElementById('modalPaymentType').textContent = paymentType;
                     document.getElementById('modalStatus').textContent = status;
+                    document.getElementById('modalReason').textContent = reason;
                     document.getElementById('modalCreatedOn').textContent = new Date(createdOn).toLocaleString();
 
                     // const deliveryAddress = `${address.addressType} address\n${address.name}\n${address.city}\n${address.state}\n${address.pincode}`;
@@ -751,6 +988,9 @@ Pincode: ${address.pincode}`;
 
 
 <%- include("../../views/partials/user/footer") %>
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoHpU208PXz1tr7WSn5MQb6AOUjX6VrjIEiZAnFkaU1IJtv" crossorigin="anonymous"></script>
+
 
 
 

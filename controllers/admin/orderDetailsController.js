@@ -88,7 +88,7 @@ const orderStatus = async (req, res) => {
           user: req.body.user, 
       });
   } catch (error) {
-      console.error("Error fetching order details:", error);
+      console.error("Error fetching order details:", error.stack, error.message);
       res.status(500).send("Internal Server Error");
   }
 };

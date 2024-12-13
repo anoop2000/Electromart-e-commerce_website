@@ -61,6 +61,10 @@ const orderSchema = new Schema({
         required : true,
         enum : ["Pending","Shipped","Delivered","Cancelled","Returned"]
 
+    },cancellationReason : {
+        type : String,
+        default : "none",
+        
     },
     createdOn : {
         type : Date,
@@ -74,11 +78,8 @@ const orderSchema = new Schema({
         type: String, 
         enum: ["COD","Wallet","Razorpay"]
         // default : 'toBeChosen'
-    },
-    cancellationReason : {
-        type : String,
-        default : "none"
     }
+    
 
     
 })

@@ -118,6 +118,7 @@ const viewDetails = async (req, res) => {
             address: deliveryAddress || {},
             paymentType: order.paymentType,
             status: order.status,
+            reason: order.cancellationReason,
             createdOn: order.createdOn,
         };
 
@@ -133,19 +134,72 @@ const viewDetails = async (req, res) => {
 
 
 
+// const cancelOrder = async (req, res) => {
+//     try {
+//         const { id } = req.params; // Retrieve the order ID from the route
+//         console.log("Id :",id);
+        
+        
 
-  
-  
-  
+//         const { reason } = req.body;
+//         console.log("Reason :",reason)
+        
+        
+//         const userId = req.session.user;
+//         const order = await Order.findOne({ orderid: id }); // Ensure ID is used directly here
+
+//         if (!order) {
+//             return res.status(404).json({ message: "Order not found" });
+//         }
+
+//         if (order.status === "Delivered" || order.status === "Returned") {
+//             return res.status(400).json({ 
+//                 message: `You cannot cancel this order because the order status is ${order.status}.` 
+//             });
+//         }
+
+    
+//         if (order.status === "Pending" || order.status === "Shipped") {
+//             // Restore the product quantities
+//             for (const item of order.orderedItems) {
+//               const { product, quantity } = item;
+      
+//               // Increment product stock
+//               const productDoc = await Product.findById(product._id);
+//               if (productDoc) {
+//                 productDoc.quantity += quantity;
+//                 if(productDoc.quantity){
+//                     productDoc.status = "Available";
+//                 }
+//                 await productDoc.save();
+//               }
+//             }
+
+//             order.status = "Cancelled";
+//             //          order.cancellationReason = reason;
+//             // await order.save();
+
+//             order.set('cancellationReason', reason);
+// await order.save();
+
+//                 console.log("cancellationReason :",order.cancellationReason);
+                
+
+//              //return res.status(200).json({ message: "Order successfully cancelled and inventory restored." });
+//             return res.status(200).json({ 
+//                 message: "Order successfully cancelled and inventory restored.", 
+//                 reason: order.cancellationReason 
+//               });
+//         }
 
 
 
-
-
-
-
-
-
+//         res.status(400).json({ message: "Order cannot be cancelled at this stage.", });
+//     } catch (error) {
+//         console.error("Error cancelling order:", error);
+//         res.status(500).json({ message: "An error occurred while cancelling the order." });
+//     }
+// };
 
 
 
@@ -153,15 +207,11 @@ const viewDetails = async (req, res) => {
 const cancelOrder = async (req, res) => {
     try {
         const { id } = req.params; // Retrieve the order ID from the route
-        console.log("Id :",id);
-        
-        
+        console.log("Id :", id);
 
-        // const { reason } = req.body;
-        // console.log("Reason :",reason)
-        
-        
-        const userId = req.session.user;
+        const { reason } = req.body;
+        console.log("Reason :", reason);
+
         const order = await Order.findOne({ orderid: id }); // Ensure ID is used directly here
 
         if (!order) {
@@ -174,40 +224,46 @@ const cancelOrder = async (req, res) => {
             });
         }
 
-        
+        if (reason) {
+            // Update cancellation reason and status if the reason is provided
+            order.set('cancellationReason', reason);
+            order.set('status', 'Cancelled');
+            await order.save();
 
+            console.log("cancellationReason :", order.cancellationReason);
 
+            return res.status(200).json({ 
+                message: "Order successfully cancelled.", 
+                reason: order.cancellationReason 
+            });
+        }
 
         if (order.status === "Pending" || order.status === "Shipped") {
             // Restore the product quantities
             for (const item of order.orderedItems) {
-              const { product, quantity } = item;
-      
-              // Increment product stock
-              const productDoc = await Product.findById(product._id);
-              if (productDoc) {
-                productDoc.quantity += quantity;
-                if(productDoc.quantity){
-                    productDoc.status = "Available";
+                const { product, quantity } = item;
+
+                // Increment product stock
+                const productDoc = await Product.findById(product._id);
+                if (productDoc) {
+                    productDoc.quantity += quantity;
+                    if (productDoc.quantity) {
+                        productDoc.status = "Available";
+                    }
+                    await productDoc.save();
                 }
-                await productDoc.save();
-              }
             }
 
-            order.status = "Cancelled";
-                     //order.cancellationReason = reason;
+            order.set('status', 'Cancelled');
             await order.save();
 
-             return res.status(200).json({ message: "Order successfully cancelled and inventory restored." });
-            // return res.status(200).json({ 
-            //     message: "Order successfully cancelled and inventory restored.", 
-            //     reason: order.cancellationReason 
-            //   });
+            return res.status(200).json({ 
+                message: "Order successfully cancelled and inventory restored.",
+                reason: order.cancellationReason 
+            });
         }
 
-
-
-        res.status(400).json({ message: "Order cannot be cancelled at this stage.", });
+        res.status(400).json({ message: "Order cannot be cancelled at this stage." });
     } catch (error) {
         console.error("Error cancelling order:", error);
         res.status(500).json({ message: "An error occurred while cancelling the order." });
