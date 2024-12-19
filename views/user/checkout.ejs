@@ -230,7 +230,7 @@ img {
 }
 
 .breadcrumb-item:hover {
-  color: #0056b3; 
+  color: red; 
 }
 
 .breadcrumb-divider {
@@ -260,6 +260,15 @@ img {
 
 .confirm-btn:hover {
   background-color: #0056b3;
+}
+
+#discountAmount{
+  color : red;
+  
+}
+
+#grandTotalAfterDiscount{
+  color: green;
 }
 
 
@@ -300,9 +309,13 @@ img {
                 <button class="btn btn-primary square-btn" type="submit">Apply Coupon</button>
               </form>
               <label for="checkout-discount-input" class="text-truncate mt-2">
-                Have a coupon?<span>Click the button</span>
+                Have a coupon?<span>Click the Apply button</span>
               </label>
+              
             </div>
+            <button type="button" class="btn btn-sm btn-outline-danger" id="removeCouponBtn">
+              Remove Coupon
+            </button>
             <hr>
 
 
@@ -341,18 +354,50 @@ img {
               
                       <tr class="summary-subtotal">
                         <td colspan="2">Subtotal:</td>
+                        <td></td>
                         <td>₹<span id="subtotal"><%= grandTotal %></span></td>
                       </tr>
               
                       <tr>
                         <td colspan="2">Shipping:</td>
+                        <td></td>
                         <td>Free shipping</td>
                       </tr>
+
+                    
               
                       <tr class="summary-total">
                         <td colspan="2">Total:</td>
+                        <td></td>
                         <td>₹<span id="grandTotal"><%= finalAmount %></span></td>
                       </tr>
+
+                      
+
+                      <tr id="couponAppliedRow" style="display: none;">
+                        <td>Coupon Applied:</td>
+                        <td></td>
+                        <td></td>
+                        <td id="appliedCoupon"></td>
+                      </tr>
+
+                      <!-- Discount Row, initially hidden -->
+                      <tr id="discountRow" style="display: none;">
+                        <td>Discount:</td>
+                        <td></td>
+                        <td></td>
+                        <td id="discountAmount"> </td>
+                      </tr>
+
+                      <!-- New Total After Discount Row, initially hidden -->
+                      <tr id="newTotalRow" style="display: none;">
+                        <td>Total After Discount:</td>
+                        <td></td>
+                        <td></td>
+                        <td id="grandTotalAfterDiscount"></td>
+                      </tr>
+
+
                     </tbody>
                   </table>
                 </div>
@@ -726,20 +771,33 @@ img {
 
             <form id="paymentForm">
                 <div class="payment-method">
-                  <label>
-                    <input type="radio" name="paymentType" id="COD" value="COD"> Cash On Delivery
-                  </label>
+                  <div>
+                    <label>
+                      <input type="radio" name="paymentType" id="COD" value="COD"> Cash on Delivery
+                    </label>
+
+                  </div>
+                  <div>
                   <label>
                     <input type="radio" name="paymentType" id="Wallet" value="Wallet"> Wallet
                   </label>
+                  </div>
+                  <div>
                   <label>
                     <input type="radio" name="paymentType" id="Razorpay" value="Razorpay"> Razorpay
                   </label>
+                  </div>
                 </div>
                 <button type="button" id="submitPayment" class="btn btn-outline-primary-2 btn-order btn-block">
                   Place Order
                 </button>
-              </form>
+            </form>
+
+
+
+
+
+              
               
 
 
@@ -859,6 +917,7 @@ img {
     }
   </script>
 
+
 <script>
     // Function to get query parameters
     function getQueryParam(param) {
@@ -885,11 +944,18 @@ img {
 
 
 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
+<script>
+  //Store the total amount in a JavaScript variable
+  const totalAmount = Number('<%- finalAmount %>') || 0;
+</script>
 
 <script>
 
-//----------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------FOR payment--------------
+
+
 
 
 
@@ -909,6 +975,14 @@ document.getElementById('submitPayment').addEventListener('click', async (e) => 
     });
     return;
   }
+
+  
+  const totalAmount = Number('<%= finalAmount %>') - Number('<%= discountAmount %>');
+
+  
+
+
+ if(paymentType === "COD"){
 
   try {
     const response = await fetch('/selectPaymentType', {
@@ -941,10 +1015,104 @@ document.getElementById('submitPayment').addEventListener('click', async (e) => 
     Swal.fire({
       icon: 'error',
       title: 'Oops!',
-      text: 'An error occurred while selecting the payment method.',
+      text: 'An error occurred while placing the order.',
     });
   }
+
+  } else if(paymentType === "Razorpay"){
+
+
+
+    try {
+
+    
+
+          // Calculate amount in paise
+          console.log("totalAmount",totalAmount);
+          
+          const amountInPaise = Math.round(totalAmount*100);
+          console.log('Amount in paise:', amountInPaise); // Debug log
+
+          // Create order on server
+
+          
+          const response = await fetch('/create-razorpay-order', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              amount: amountInPaise
+            }),
+          });
+
+          const order = await response.json();
+
+          const options = {
+            key: '<%- process.env.RAZORPAY_KEY_ID %>',
+            amount: amountInPaise,
+            currency: 'INR',
+            name: 'ElectroMart',
+            description: 'Purchase Payment',
+            order_id: order.id,
+            handler: async function (response) {
+              const verifyResponse = await fetch('/verify-payment', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_signature: response.razorpay_signature
+                }),
+              });
+
+              const verifyResult = await verifyResponse.json();
+
+              if (verifyResult.success) {
+                Swal.fire({
+                  icon : "Success",
+                  title : "Payment success",
+                  text : "Order created Successfully"
+                }).then(()=>{
+                  window.location.href = '/orderSuccess';
+                })
+
+                
+              } else {
+                Swal.fire({
+                  icon: "error",
+                  title: "Payment Failed",
+                  text: "There was an issue with your payment. Please try again."
+                });
+              }
+            },
+            prefill: {
+              name: '<%- user.name %>',
+              email: '<%- user.email %>',
+            },
+            theme: {
+              color: '#3399cc'
+            }
+          };
+
+          const rzp = new Razorpay(options);
+          rzp.open();
+
+        } catch (error) {
+          console.error('Error:', error);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "There was an error processing your payment. Please try again."
+          });
+        }
+
+  }
+
 });
+
 
 
 
@@ -1012,6 +1180,152 @@ document.getElementById('placeOrderBtn').addEventListener('click', async () => {
 
 
 </script>
+
+
+<!-------------------------------------------------------------------------coupon applying------------------------------------->
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  // Define a variable to keep track of the applied coupon count
+  let appliedCouponCount = 0;
+
+  // Attach a submit event listener to the couponApplyForm element
+  document.addEventListener('DOMContentLoaded', function () {
+    const couponApplyFormElement = document.getElementById('couponApplyForm');
+    couponApplyFormElement.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      await couponApply();
+    });
+  });
+
+  // Function to handle coupon form submission
+  async function couponApply() {
+    if (appliedCouponCount > 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Coupon Already Applied",
+        text: "Only one coupon can be applied at a time.",
+      });
+      return;
+    }
+
+    const couponCode = document.getElementById("appendedInputButton").value.trim(); // Fetch the input value
+    if (!couponCode) {
+      Swal.fire({
+        icon: "error",
+        title: "Empty Field",
+        text: "Please enter a valid coupon code.",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch("/checkout/applyCoupon", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: couponCode }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        appliedCouponCount++;
+
+        // Show success message
+        Swal.fire({
+          icon: "success",
+          title: "Coupon Applied!",
+          text: "Your coupon has been applied successfully.",
+        });
+
+        // Update UI to show coupon details
+        document.getElementById("couponAppliedRow").style.display = "table-row";
+        document.getElementById("appliedCoupon").innerText = couponCode;
+
+        document.getElementById("discountRow").style.display = "table-row";
+        document.getElementById("discountAmount").innerText = "-₹" + result.discountAmount;
+
+        document.getElementById("newTotalRow").style.display = "table-row";
+        document.getElementById("grandTotalAfterDiscount").innerText = "₹" + result.grandTotalAfterDiscount;
+
+        //document.getElementById("grandTotal").innerHTML = "₹" + result.grandTotalAfterDiscount;
+      } else {
+        // Show error messages based on response
+        Swal.fire({
+          icon: "error",
+          title: "Coupon Error",
+          text: result.message || "Invalid coupon. Please try again.",
+        });
+
+        // Hide coupon rows
+        document.getElementById("couponAppliedRow").style.display = "none";
+        document.getElementById("discountRow").style.display = "none";
+        document.getElementById("newTotalRow").style.display = "none";
+      }
+    } catch (error) {
+      console.error("Error applying coupon:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Something went wrong. Please try again later.",
+      });
+    }
+  }
+</script>
+
+<!------------------------------------------------------------------------------------------------------------------>
+
+<!-------------------------------------------------coupon removing----------------------------------------------->
+
+
+
+<script>
+  document.getElementById('removeCouponBtn')?.addEventListener('click', async function () {
+    try {
+      const response = await fetch('/checkout/removeCoupon', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Show success message
+        Swal.fire({
+          icon: 'success',
+          title: 'Coupon Removed',
+          text: 'The coupon has been removed successfully.',
+          showConfirmButton: false,
+          timer: 1500
+        }).then(() => {
+          // Reload the page to update the prices
+          window.location.reload();
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: result.message || 'Failed to remove coupon'
+        });
+      }
+    } catch (error) {
+      console.error('Error removing coupon:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while removing the coupon'
+      });
+    }
+  });
+</script>
+ 
+
+<!-------------------------------------------------coupon removing---------------------------------------------->
 
 <%- include("../../views/partials/user/footer") %>
 

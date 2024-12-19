@@ -9,7 +9,7 @@ const productController = require('../controllers/user/productController')
 const profileController = require('../controllers/user/profileController')
 const cartController = require('../controllers/user/cartController')
 const orderController = require('../controllers/user/orderController')
-
+const wishlistController = require('../controllers/user/wishlistController')
 
 
 router.get('/pageNotFound',userController.pageNotFound)
@@ -102,11 +102,28 @@ router.post('/confirm-address',blockUserCheck,userAuth,cartController.confirmAdd
 router.post('/selectPaymentType',blockUserCheck,userAuth,cartController.selectPaymentType)
 router.get('/orderSuccess',blockUserCheck,userAuth,cartController.orderPlaced)
 
-// router.get('/test-error', (req, res, next) => {
-//     const error = new Error("This is a test error!");
-//     error.status = 400; // Set a specific status code if desired
-//     next(error); // Pass the error to the next middleware (error handler)
-// });
+router.post('/checkout/applyCoupon',blockUserCheck,userAuth,cartController.applyCoupon)
+router.post('/checkout/removeCoupon',blockUserCheck,userAuth,cartController.removeCoupon)
+
+router.post('/create-razorpay-order',blockUserCheck, userAuth, cartController.createRazorpayOrder);
+// router.post('/verify-payment',blockUserCheck, userAuth, cartController.verifyPayment);
+
+
+//wishlist management
+router.get('/wishlist',blockUserCheck,userAuth,wishlistController.loadwishlist);
+router.post('/addToWishlist',blockUserCheck,userAuth,wishlistController.addToWishlist)
+router.get('/removeFromWishlist',blockUserCheck,userAuth,wishlistController.removeProduct)
+router.post('/moveToCart/:id',blockUserCheck,userAuth,wishlistController.moveToCart)
+
+
+router.get('/example-error', (req, res, next) => {
+    try {
+        // Simulating an error
+        throw new Error("This is an example error!");
+    } catch (err) {
+        next(err); // Passing the error to the error-handling middleware
+    }
+});
 
 
 

@@ -138,13 +138,13 @@
     }
 </style>
 <body>
-    <h1><%= statusCode || "Error" %></h1>
-    <p><%= message || "An unexpected error occurred. Please try again later." %></p>
+    <h1>"Error"</h1>
+    <p> "An unexpected error occurred. Please try again later."</p>
     <button onclick="goToHomePage()">Go to Home Page</button>
 
     <script>
         function goToHomePage() {
-            window.location.href = "/";
+            window.location.href = "/";//home
         }
     </script>
 </body>

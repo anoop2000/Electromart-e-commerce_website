@@ -11,6 +11,8 @@ const mongoose = require("mongoose");
 
 const orderList = async (req, res) => {
     try {
+      console.log("Inside the admin order list");
+      
       const page = parseInt(req.query.page, 10) || 1;
       const limit = 10;
       const skip = (page - 1) * limit;

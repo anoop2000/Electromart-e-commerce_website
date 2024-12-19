@@ -212,8 +212,8 @@
  .category-brand-container {
    text-align: center;
  }
-
-
+ 
+ 
 
  /*-----------------------------------*/
 
@@ -381,9 +381,16 @@
 
 
      <main class="product-grid">
+
+      <% if (products.length === 0) { %>
+        <div class="no-products-message">
+          <h2>No products found.</h2>
+        </div>
+      <% } else { %>
+
         <%for(let i=0;i<products.length;i++) {%>
          <div class="product-card">
-           <span class="wishlist-btn" onclick="">❤️</span>
+           <span class="wishlist-btn " data-product-id="<%= products[i]._id %>"><a href="/wishlist">❤️</a></span>
            <a href="/product-details?id=<%=products[i]._id%>">
              <img src="/uploads/re-image/<%=products[i].productImage[0]%>" alt="<%=products[i].productName%>" />
              <h4><%=products[i].productName%></h4>
@@ -394,6 +401,7 @@
            <!-- <button><a href="/addToCart?id=<%=products[i]._id%>">Add to Cart</a></button> -->
          </div>
         <%}%>
+        <% } %>
      </main>
    </div>
 
@@ -422,6 +430,50 @@
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
 <%- include("../../views/partials/user/footer") %>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".wishlist-btn").forEach(button => {
+      button.addEventListener("click", async (event) => {
+        event.preventDefault(); 
+
+        const productId = button.getAttribute("data-product-id");
+
+        try {
+          const response = await fetch('/addToWishlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId })
+          });
+
+          const result = await response.json();
+
+          if (result.status) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: result.message,
+            });
+          } else {
+            Swal.fire({
+              icon: 'info',
+              title: 'Oops!',
+              text: result.message,
+            });
+          }
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong! Please try again later.',
+          });
+        }
+      });
+    });
+  });
+</script>
+
 
 
 

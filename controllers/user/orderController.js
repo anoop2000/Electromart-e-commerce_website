@@ -22,7 +22,7 @@ const mongoose = require("mongoose");
 
 const ordersList = async (req, res) => {
     try {
-        //console.log("Fetching orders for the user.");
+        console.log("Fetching orders for the user.");
 
         const userId = req.session.user; // Retrieve the logged-in user's ID
         if (!userId) {
@@ -66,8 +66,16 @@ const ordersList = async (req, res) => {
         console.log("Final enriched orders:", enrichedOrders.map(order => order.createdOn));
 
 
+        console.log('Rendering userProfile with:', {
+            orders: enrichedOrders,
+            message: null,
+            activeTab: 'orders'
+        });
+        
+
+
         // Render the user profile with orders
-        res.render('user/userProfile', { orders: enrichedOrders, message: null });
+        res.render('user/userProfile', { orders: enrichedOrders, message: null}); // Specify the active tab
     } catch (error) {
         console.error('Error fetching orders:', error.message, error.stack);
         res.status(500).send('An error occurred while fetching orders.');

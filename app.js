@@ -11,7 +11,7 @@ const db = require('./config/db')
 const userRouter = require('./routes/userRouter')
 const adminRouter = require('./routes/adminRouter')
 
-const {errorHandler} = require('./middlewares/auth');
+//const {errorHandler} = require('./middlewares/auth');
 
 db()
 
@@ -67,7 +67,19 @@ app.use('/admin',adminRouter)
 
 
 
-app.use(errorHandler);
+//app.use(errorHandler);
+
+
+// app.use("/*", async (req, res) => {
+//     try {
+      
+  
+//       res.render("page-404");
+//     } catch (error) {
+//       console.error("Error occurred while fetching cart data:", error);
+     
+//     }
+//   });
 
 const PORT =  process.env.PORT || 3000;
 app.listen(PORT,()=> console.log(`Server running on ${PORT}`)

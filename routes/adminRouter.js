@@ -6,6 +6,7 @@ const categoryController = require('../controllers/admin/categoryController')
 const brandController = require('../controllers/admin/brandController')
 const productController = require('../controllers/admin/productController')
 const orderDetailsController = require('../controllers/admin/orderDetailsController')
+const couponController = require('../controllers/admin/couponController')
 
 const {userAuth,adminAuth} = require('../middlewares/auth') 
 const multer = require('multer')
@@ -70,7 +71,13 @@ router.get('/orderList/return/:id',adminAuth,orderDetailsController.changeStatus
 router.get('/orderList/cancelled/:id',adminAuth,orderDetailsController.changeStatusCancelled)
 
 
+//coupon management
 
+router.get('/coupon',adminAuth,couponController.loadCoupon)
+router.post('/createCoupon',adminAuth,couponController.createCoupon)
+router.get('/editCoupon',adminAuth,couponController.editCoupon)
+router.post('/updatecoupon',adminAuth,couponController.updateCoupon)
+router.get('/deletecoupon',adminAuth,couponController.deleteCoupon)
 
 
 module.exports = router

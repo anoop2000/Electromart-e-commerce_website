@@ -95,28 +95,28 @@ const blockUserCheck = async(req,res,next)=>{
 
 
 
-const errorHandler = (err, req, res, next) => {
+// const errorHandler = (err, req, res, next) => {
     
-    console.error(`[Error] ${err.message}`, err.stack);
+//     console.error(`[Error] ${err.message}`, err.stack);
 
     
-    const statusCode = err.status || 500;
-    const errorMessage = err.message || "An unexpected error occurred. Please try again later.";
+//     const statusCode = err.status || 500;
+//     const errorMessage = err.message || "An unexpected error occurred. Please try again later.";
 
     
-    if (req.headers.accept && req.headers.accept.includes("application/json")) {
-        return res.status(statusCode).json({
-            success: false,
-            message: errorMessage,
-        });
-    }
+//     if (req.headers.accept && req.headers.accept.includes("application/json")) {
+//         return res.status(statusCode).json({
+//             success: false,
+//             message: errorMessage,
+//         });
+//     }
 
     
-    res.status(statusCode).render("page-404", {
-        message: errorMessage,
-        statusCode,
-    });
-};
+//     res.render("page-404", {
+//         message: errorMessage,
+//         statusCode,
+//     });
+// };
 
 
 
@@ -127,7 +127,7 @@ module.exports = {
     userAuth,
     adminAuth,
     blockUserCheck,
-    errorHandler
+    //errorHandler
 
 }
 

@@ -458,7 +458,7 @@ const signup = async (req, res) => {
 
         const categories = await Category.find({isListed :true});
 
-        let itemsPerPage = 6;
+        let itemsPerPage = 3;
         let currentPage = parseInt(req.query.page) || 1
         let startIndex = (currentPage-1) * itemsPerPage
         let endIndex = (startIndex+itemsPerPage)

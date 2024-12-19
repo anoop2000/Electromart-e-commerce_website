@@ -84,6 +84,7 @@ const userProfile = async(req,res)=>{
             userAddress : addressData,
             emailUpdated,
             orders, // Pass orders data to the view
+            
         })
     } catch (error) {
 
