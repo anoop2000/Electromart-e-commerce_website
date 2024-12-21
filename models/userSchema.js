@@ -42,11 +42,17 @@ const userSchema = new Schema({
         type : Schema.Types.ObjectId,
         ref : "Cart"
     }],
-    wallet : [{
+    wallet : {
         type : Number,
         default :0
         
-    }],
+    },
+    walletHistory: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Wallet'
+        }
+    ],
     wishlist :[{
         type : Schema.Types.ObjectId,
         ref: "Wishlist"

@@ -172,7 +172,7 @@ const addProductOffer = async(req,res)=>{
             return res.json({status:false , message :"This products category already has a category offer"})
         }
 
-        findProduct.salePrice = findProduct.salePrice - Math.floor(findProduct.regularPrice*(percentage/100))
+        findProduct.salePrice = findProduct.regularPrice - Math.floor(findProduct.regularPrice*(percentage/100))
         findProduct.productOffer = parseInt(percentage);
         await findProduct.save()
 

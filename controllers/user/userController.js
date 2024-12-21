@@ -468,6 +468,16 @@ const signup = async (req, res) => {
         if(user){
           userData = await User.findOne({_id : user});
           if(userData){
+
+
+            //console.log('User data before save:', userData);
+        //console.log('Wallet value before save:', userData.wallet);
+
+
+            if (!Number.isFinite(userData.wallet)) {
+              userData.wallet = 0; // Default or handle appropriately
+          }
+
             const searchEntry = {
               category : findCategory ? findCategory._id : null,
               brand : findBrand ? findBrand.brandName : null,
@@ -475,6 +485,10 @@ const signup = async (req, res) => {
           }
           userData.searchHistory.push(searchEntry)
           await userData.save()
+
+          
+
+          
         }
       }
 

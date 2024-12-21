@@ -70,7 +70,7 @@ const securePassword = async(password)=>{
 const userProfile = async(req,res)=>{   
     try {
         const userId=  req.session.user;
-        const userData = await User.findById(userId)
+        const userData = await User.findById(userId).populate('walletHistory');
         const addressData = await Address.findOne({userId : userId})
         const orders = await Order.find({ userId }).lean(); 
 

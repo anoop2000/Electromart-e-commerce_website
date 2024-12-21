@@ -69,8 +69,9 @@ router.post('/updateProfile',blockUserCheck,userAuth,profileController.updatePro
 //order management
 
 router.get('/orders',userAuth,orderController.ordersList)
-router.get('/viewDetails',userAuth,orderController.viewDetails)
-router.put('/cancelOrder/:id', userAuth, orderController.cancelOrder);
+//router.get('/viewDetails',userAuth,orderController.viewDetails)
+router.get('/orderStatusPage/:id', orderController.orderStatusPage);
+router.post('/cancelOrder/:id', userAuth, orderController.cancelOrder);
 
 
 
@@ -103,10 +104,11 @@ router.post('/selectPaymentType',blockUserCheck,userAuth,cartController.selectPa
 router.get('/orderSuccess',blockUserCheck,userAuth,cartController.orderPlaced)
 
 router.post('/checkout/applyCoupon',blockUserCheck,userAuth,cartController.applyCoupon)
-router.post('/checkout/removeCoupon',blockUserCheck,userAuth,cartController.removeCoupon)
+//router.post('/checkout/removeCoupon',blockUserCheck,userAuth,cartController.removeCoupon)
 
 router.post('/create-razorpay-order',blockUserCheck, userAuth, cartController.createRazorpayOrder);
-// router.post('/verify-payment',blockUserCheck, userAuth, cartController.verifyPayment);
+router.post('/verify-payment',blockUserCheck, userAuth, cartController.verifyPayment);
+router.get('/checkout/processPayment',userAuth,cartController.processWalletPayment);
 
 
 //wishlist management
@@ -116,14 +118,14 @@ router.get('/removeFromWishlist',blockUserCheck,userAuth,wishlistController.remo
 router.post('/moveToCart/:id',blockUserCheck,userAuth,wishlistController.moveToCart)
 
 
-router.get('/example-error', (req, res, next) => {
-    try {
-        // Simulating an error
-        throw new Error("This is an example error!");
-    } catch (err) {
-        next(err); // Passing the error to the error-handling middleware
-    }
-});
+// router.get('/example-error', (req, res, next) => {
+//     try {
+//         // Simulating an error
+//         throw new Error("This is an example error!");
+//     } catch (err) {
+//         next(err); // Passing the error to the error-handling middleware
+//     }
+// });
 
 
 

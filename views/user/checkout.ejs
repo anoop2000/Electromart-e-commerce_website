@@ -1,3 +1,5 @@
+checkout 
+
 
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -313,7 +315,7 @@ img {
               </label>
               
             </div>
-            <button type="button" class="btn btn-sm btn-outline-danger" id="removeCouponBtn">
+            <button type="button" class="btn btn-sm btn-outline-danger" id="removeCouponBtn" onclick="window.location.reload()">
               Remove Coupon
             </button>
             <hr>
@@ -369,7 +371,7 @@ img {
                       <tr class="summary-total">
                         <td colspan="2">Total:</td>
                         <td></td>
-                        <td>₹<span id="grandTotal"><%= finalAmount %></span></td>
+                        <td>₹<span id="grandTotal"><%= grandTotal %></span></td>
                       </tr>
 
                       
@@ -959,159 +961,165 @@ img {
 
 
 
-
-
-
 document.getElementById('submitPayment').addEventListener('click', async (e) => {
-  e.preventDefault(); // Prevent the default form submission
+    e.preventDefault(); // Prevent the default form submission
 
-  const paymentType = document.querySelector('input[name="paymentType"]:checked')?.value;
+    const paymentType = document.querySelector('input[name="paymentType"]:checked')?.value;
 
-  if (!paymentType) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'No Payment Method Selected',
-      text: 'Please select a payment method to proceed.',
-    });
-    return;
-  }
+    const walletBalance = Number('<%= walletBalance %>');
 
-  
-  const totalAmount = Number('<%= finalAmount %>') - Number('<%= discountAmount %>');
-
-  
-
-
- if(paymentType === "COD"){
-
-  try {
-    const response = await fetch('/selectPaymentType', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ paymentType }),
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-      Swal.fire({
-        icon: 'success',
-        title: 'Payment Method Selected',
-        text: result.message,
-        confirmButtonText: 'Continue',
-      }).then(() => {
-        // Optional: Redirect to a success page or refresh
-        window.location.href = '/orderSuccess';
-      });
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: result.message,
-      });
+    const totalAmount = Number('<%- finalAmount %>') || 0;
+    
+    if (!paymentType) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'No Payment Method Selected',
+            text: 'Please select a payment method to proceed.',
+        });
+        return;
     }
-  } catch (error) {
-    console.error('Error selecting payment type:', error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops!',
-      text: 'An error occurred while placing the order.',
-    });
-  }
 
-  } else if(paymentType === "Razorpay"){
-
-
-
-    try {
 
     
 
-          // Calculate amount in paise
+    if (paymentType === "COD") {
+        try {
+            const response = await fetch('/selectPaymentType', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paymentType }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Payment Method Selected',
+                    text: result.message,
+                    confirmButtonText: 'Continue',
+                }).then(() => {
+                    window.location.href = '/orderSuccess';
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: result.message,
+                });
+            }
+        } catch (error) {
+            console.error('Error selecting payment type:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops!',
+                text: 'An error occurred while placing the order.',
+            });
+        }
+    } else if (paymentType === "Razorpay") {
+                        try {
+
+
+
+                          // Calculate amount in paise
           console.log("totalAmount",totalAmount);
           
-          const amountInPaise = Math.round(totalAmount*100);
+          const amountInPaise = Math.round(totalAmount * 100);
           console.log('Amount in paise:', amountInPaise); // Debug log
 
-          // Create order on server
+                          
 
-          
-          const response = await fetch('/create-razorpay-order', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              amount: amountInPaise
-            }),
-          });
+                            // Create Razorpay order
+                            const response = await fetch('/create-razorpay-order', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            });
 
-          const order = await response.json();
+                            const result = await response.json();
+                            if (!result.success) {
+                                throw new Error(result.error);
+                            }
 
-          const options = {
-            key: '<%- process.env.RAZORPAY_KEY_ID %>',
-            amount: amountInPaise,
-            currency: 'INR',
-            name: 'ElectroMart',
-            description: 'Purchase Payment',
-            order_id: order.id,
-            handler: async function (response) {
-              const verifyResponse = await fetch('/verify-payment', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
+                            // Configure Razorpay
+                            const options = {
+                                key: result.key,
+                                amount: result.order.amount,
+                                // amount : amountInPaise,
+                                
+                                currency: 'INR',
+                                name: 'ElectroMart',
+                                description: 'Purchase Payment',
+                                order_id: result.order.id,
+                            
+                handler: async function (response) {
+                    try {
+                        const verifyResponse = await fetch('/verify-payment', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_signature: response.razorpay_signature
+                            })
+                        });
+
+                        const verifyResult = await verifyResponse.json();
+
+                        if (verifyResult.success) {
+                            // Redirect directly to the order success page with order details
+                            window.location.href = '/orderSuccess';
+                        } else {
+                            throw new Error(verifyResult.message || 'Payment verification failed');
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Payment Failed',
+                            text: error.message
+                        });
+                    }
                 },
-                body: JSON.stringify({
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_signature: response.razorpay_signature
-                }),
-              });
 
-              const verifyResult = await verifyResponse.json();
 
-              if (verifyResult.success) {
-                Swal.fire({
-                  icon : "Success",
-                  title : "Payment success",
-                  text : "Order created Successfully"
-                }).then(()=>{
-                  window.location.href = '/orderSuccess';
-                })
 
-                
-              } else {
-                Swal.fire({
-                  icon: "error",
-                  title: "Payment Failed",
-                  text: "There was an issue with your payment. Please try again."
-                });
-              }
-            },
-            prefill: {
-              name: '<%- user.name %>',
-              email: '<%- user.email %>',
-            },
-            theme: {
-              color: '#3399cc'
-            }
-          };
+                prefill: {
+                    name: '<%= user.name %>',
+                    email: '<%= user.email %>'
+                },
+                theme: {
+                    color: '#3399cc'
+                }
+            };
 
-          const rzp = new Razorpay(options);
-          rzp.open();
-
+            const rzp = new Razorpay(options);
+            rzp.open();
         } catch (error) {
-          console.error('Error:', error);
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "There was an error processing your payment. Please try again."
-          });
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message
+            });
         }
-
-  }
-
+    } 
+    else if (paymentType === 'Wallet') {
+        
+          // Check if the wallet balance is sufficient
+          if (walletBalance < totalAmount) {
+            return Swal.fire({
+              icon: "error",
+              title: "Insufficient Balance",
+              text: "You do not have enough balance in your wallet to complete this transaction."
+            });
+          
+        }
+        window.location.href = '/checkout/processPayment';
+      }
 });
+
 
 
 
@@ -1282,7 +1290,7 @@ document.getElementById('placeOrderBtn').addEventListener('click', async () => {
 
 
 
-<script>
+<!-- <script>
   document.getElementById('removeCouponBtn')?.addEventListener('click', async function () {
     try {
       const response = await fetch('/checkout/removeCoupon', {
@@ -1322,7 +1330,7 @@ document.getElementById('placeOrderBtn').addEventListener('click', async () => {
       });
     }
   });
-</script>
+</script> -->
  
 
 <!-------------------------------------------------coupon removing---------------------------------------------->

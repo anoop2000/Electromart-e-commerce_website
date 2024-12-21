@@ -185,6 +185,22 @@
   background-color: rgb(234, 227, 227);
 }
 
+.tab-content > .tab-pane {
+    display: none;
+}
+
+.tab-content > .active {
+    display: block;
+}
+
+.nav-link {
+    cursor: pointer;
+}
+
+.nav-link.active {
+    background-color: #e9ecef;
+    color: #495057;
+}
 
 </style>
 
@@ -367,13 +383,13 @@
                   <td class="label badge badge-primary"><%= order.status %></td>
                   <td>
       
-                      <button class="btn btn-primary view-details-btn" data-order-id="<%= order._id %>">View Details</button>
+                    <a href="/orderStatusPage/<%= order._id %>"><button class="btn btn-primary view-details-btn" >View Details</button></a>
                     
                   </td>
                   <td>
                     <button
                       class="cancel-order-button btn btn-danger"
-                      data-order-id="<%= order.orderid %>"
+                      data-order-id="<%= order._id %>"
                     >
                       Cancel
                     </button>
@@ -501,55 +517,76 @@
               
 
 
-               <div class="tab-pane fade" id="track-orders" role="tabpanel" aria-labelledby="track-orders-tab">
-                 <div class="card">
-                   <div class="card-header">
-                     <h5 class="mb-0">Wallet</h5>
-                   </div>
-                   <div class="card-body contact-from-area">
-                     <div class="row">
-                       <div class="col-lg-8 mx-auto text-center mt-90">
-                         <form>
-                           <div class="form-group">
-                             <label for="walletAmount" class="h4">Amount</label>
-                             <div class="h3"></div>
-                           </div>
-                           <button type="button" class="btn btn-success" onclick="">Add Money</button>
-                         </form>
-                       </div>
-                     </div>
-                   </div>
-                 </div>
-               </div>
+              <div class="tab-pane fade" id="track-orders" role="tabpanel" aria-labelledby="track-orders-tab">
+                <div class="card">
+                  <div class="card-header">
+                    <h5 class="mb-0">Wallet</h5>
+                  </div>
+                  <div class="card-body contact-from-area">
+                    <div class="row">
+                      <div class="col-lg-8 mx-auto text-center mt-90">
+                        <form>
+                          <div class="form-group">
+                            <label for="walletAmount" class="h4">Balance</label>
+                            <div class="h3">₹<%= user.wallet %></div>
+
+                          </div>
+                          <!-- <button type="button" class="btn btn-success" onclick="">Add Money</button> -->
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
 
-               <div class="tab-pane fade" id="wallet-history" role="tabpanel" aria-labelledby="orders-tab">
-                 <div class="card">
-                   <div class="card-header">
-                     <h5 class="mb-0">Wallet History</h5>
-                   </div>
-                   <div class="card-body">
-                     <div class="table-responsive">
-                       <table class="table">
-                         <thead>
-                           <tr>
-                             <th>Date</th>
-                             <th>Status</th>
-                             <th>Amount</th>
-                           </tr>
-                         </thead>
-                         <tbody>
-                           <tr>
-                             <td></td>
-                             <td></td>
-                             <td></td>
-                           </tr>
-                         </tbody>
-                       </table>
-                     </div>
-                   </div>
-                 </div>
-               </div>
+              <div class="tab-pane fade" id="wallet-history" role="tabpanel" aria-labelledby="orders-tab">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="mb-0">Wallet History</h5>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Date</th>
+                          <th>Status</th>
+                          <th>Amount</th>
+                          <th>Description</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% if (user.walletHistory && Array.isArray(user.walletHistory)) { %>
+                          <% user.walletHistory.forEach(transaction=> { %>
+                            <tr>
+                              <td>
+                                <%= transaction.date ? new Date(transaction.date).toLocaleDateString() : 'N/A' %>
+                              </td>
+                              <td>
+                                <%= transaction.status %>
+                              </td>
+                              <td>₹<%= transaction.amount %>
+                              </td>
+                              <td>
+                                <%= transaction.description || 'No description' %>
+                              </td>
+
+                            </tr>
+                            <% }); %>
+                              <% } else { %>
+                                <tr>
+                                  <td colspan="2">No wallet transactions found.</td>
+                                </tr>
+                                <% } %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
 
 
                <div class="tab-pane fade" id="referal" role="tabpanel" aria-labelledby="track-orders-tab">
@@ -563,11 +600,11 @@
                      <p>Earned: ₹</p>
                    </div>
                  </div>
-               </div>
-       </div>
-     </div>
-   </div>
- </section>
+                </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
 </main>
 
 
@@ -602,260 +639,241 @@
 
 
 
+
+
+
+
+
+
+
 // document.querySelectorAll('.cancel-order-button').forEach(button => {
-//     button.addEventListener('click', async () => {
-//         const orderId = button.getAttribute('data-order-id'); // Get the correct order ID
+//   button.addEventListener('click', async () => {
+//     const orderId = button.getAttribute('data-order-id');
 
-//         // Confirmation prompt using SweetAlert
-//         const result = await Swal.fire({
-//             title: 'Are you sure?',
-//             text: 'Do you want to cancel the order?',
-//             icon: 'warning',
-//             showCancelButton: true,
-//             confirmButtonColor: '#3085d6',
-//             cancelButtonColor: '#d33',
-//             confirmButtonText: 'Yes, cancel it!',
-//         });
+//     // Check the current status of the order
+//     const statusCell = document.querySelector(`#order-row-${orderId} .label`);
+//     if (statusCell && statusCell.textContent.trim().toLowerCase() === 'cancelled') {
+//       Swal.fire({
+//         icon: 'info',
+//         title: 'Order Already Cancelled',
+//         text: 'This order cannot be cancelled because it is already in a cancelled state.'
+//       });
+//       return; // Stop further execution
+//     }
 
-//         if (result.isConfirmed) {
-//             try {
-//                 const response = await fetch(`/cancelOrder/${orderId}`, {
-//                     method: 'PUT',
-//                     headers: {
-//                         'Content-Type': 'application/json',
-//                         Authorization: `Bearer ${localStorage.getItem('token')}`,
-//                     },
-//                 });
-
-//                 const data = await response.json();
-
-//                 if (response.status === 200) {
-//                     // Show success alert
-//                     Swal.fire({
-//                         icon: 'success',
-//                         title: 'Order Cancelled',
-//                         text: data.message,
-//                     });
-
-//                     // Update the status on the frontend instantly
-//                     const row = document.querySelector(`#order-row-${orderId}`);
-//                     if (row) {
-//                         const statusCell = row.querySelector('.label'); // Assuming 'label' is the class for the status element
-//                         if (statusCell) {
-//                             statusCell.textContent = 'Cancelled';
-//                             statusCell.classList.remove('badge-primary', 'badge-success'); // Remove other status classes
-//                             statusCell.classList.add('badge-danger'); // Add class for "Cancelled"
-//                         }
-//                     }
-//                 } else {
-//                     Swal.fire({
-//                         icon: 'error',
-//                         title: 'Unable to Cancel Order',
-//                         text: data.message,
-//                     });
-//                 }
-//             } catch (error) {
-//                 console.error('Error cancelling order:', error);
-//                 Swal.fire({
-//                     icon: 'error',
-//                     title: 'Error',
-//                     text: 'An error occurred while attempting to cancel the order.',
-//                 });
-//             }
-//         }
+//     const result = await Swal.fire({
+//       title: 'Are you sure?',
+//       text: 'Do you want to cancel the order?',
+//       icon: 'warning',
+//       showCancelButton: true,
+//       confirmButtonColor: '#3085d6',
+//       cancelButtonColor: '#d33',
+//       confirmButtonText: 'Yes, cancel it!'
 //     });
+
+//     if (result.isConfirmed) {
+//       try {
+//         // Show cancellation reason modal
+//         const modal = new bootstrap.Modal(document.getElementById('cancelReasonModal'));
+//         modal.show();
+
+//         document.getElementById('cancelReasonForm').onsubmit = async (e) => {
+//           e.preventDefault();
+//           const reason = document.getElementById('reason').value;
+
+//           const response = await fetch(`/cancelOrder/${orderId}`, {
+//             method:'POST',
+//             headers: {
+//               'Content-Type': 'application/json',
+//               Authorization: `Bearer ${localStorage.getItem('token')}`
+//             },
+//             body: JSON.stringify({ reason })
+//           });
+
+//           const data = await response.json();
+
+//           if (response.status === 200) {
+//             Swal.fire({
+//               icon: 'success',
+//               title: 'Order Cancelled',
+//               text: data.message
+//             }).then(() => {
+//               // Update the status column
+//               if (statusCell) {
+//                 statusCell.classList.remove('badge-primary', 'badge-success');
+//                 statusCell.classList.add('badge-danger');
+//                 statusCell.textContent = 'Cancelled';
+
+//                 // Add the "View Reason" link
+//                 const reasonLink = document.createElement('a');
+//                 reasonLink.href = '#';
+//                 reasonLink.textContent = 'View Reason';
+//                 reasonLink.classList.add('reason-tooltip');
+//                 reasonLink.setAttribute('title', reason);
+//                 reasonLink.style.fontSize = '0.8rem';
+//                 reasonLink.style.color = 'blue';
+//                 reasonLink.style.textDecoration = 'underline';
+//                 reasonLink.style.cursor = 'pointer';
+//                 reasonLink.style.display = 'block';
+
+//                 // Add hover effect for color change
+//                 reasonLink.addEventListener('mouseover', () => {
+//                   reasonLink.style.color = 'red';
+//                 });
+//                 reasonLink.addEventListener('mouseout', () => {
+//                   reasonLink.style.color = 'blue';
+//                 });
+
+//                 // Add link below the status cell
+//                 statusCell.insertAdjacentElement('afterend', reasonLink);
+
+//                 // Initialize Bootstrap tooltip for the dynamically added link
+//                 new bootstrap.Tooltip(reasonLink);
+
+//                 // Add click event to open the modal with reason text
+//                 reasonLink.addEventListener('click', (e) => {
+//                   e.preventDefault();
+
+//                   // Open a modal with the reason text
+//                   const reasonModal = new bootstrap.Modal(document.getElementById('reasonModal'));
+//                   document.getElementById('reasonModalBody').textContent = reason;
+//                   reasonModal.show();
+//                 });
+//               }
+
+//               modal.hide();
+//             });
+//           } else {
+//             Swal.fire({
+//               icon: 'error',
+//               title: 'Unable to Cancel Order',
+//               text: data.message
+//             });
+//           }
+//         };
+//       } catch (error) {
+//         console.error('Error cancelling order:', error);
+//         Swal.fire({
+//           icon: 'error',
+//           title: 'Error',
+//           text: 'An error occurred while attempting to cancel the order.'
+//         });
+//       }
+//     }
+//   });
 // });
 
 
 
 
 
-
-
-
-
-//----------------------------------------------------------------------------
-
-
-
-
-
 document.querySelectorAll('.cancel-order-button').forEach(button => {
-    button.addEventListener('click', async () => {
-        const orderId = button.getAttribute('data-order-id');
+  button.addEventListener('click', async () => {
+    const orderId = button.getAttribute('data-order-id');
 
-        const result = await Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you want to cancel the order?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, cancel it!'
+    // Check the current status of the order
+    const statusCell = document.querySelector(`#order-row-${orderId} .label`);
+    if (statusCell && statusCell.textContent.trim().toLowerCase() === 'cancelled') {
+      Swal.fire({
+        icon: 'info',
+        title: 'Order Already Cancelled',
+        text: 'This order cannot be cancelled because it is already in a cancelled state.'
+      });
+      return; // Stop further execution
+    }
+
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to cancel the order?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, cancel it!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        // Make API call to update the order status to "Cancelled"
+        const response = await fetch(`/cancelOrder/${orderId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
         });
 
-        if (result.isConfirmed) {
-            try {
-                const response = await fetch(`/cancelOrder/${orderId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
+        const data = await response.json();
 
-                const data = await response.json();
+        if (response.status === 200) {
+          // Update the status cell to show "Cancelled"
+          if (statusCell) {
+            statusCell.classList.remove('badge-primary', 'badge-success');
+            statusCell.classList.add('badge-danger');
+            statusCell.textContent = 'Cancelled';
+          }
 
-                if (response.status === 200) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Order Cancelled',
-                        text: data.message
-                    }).then(() => {
-                        // Open the cancellation reason modal
-                        const modal = new bootstrap.Modal(document.getElementById('cancelReasonModal'));
-                        modal.show();
+          // Show success Swal
+          Swal.fire({
+            icon: 'success',
+            title: 'Order Cancelled',
+            text: data.message
+          }).then(() => {
+            // Open modal to add cancellation reason
+            const modal = new bootstrap.Modal(document.getElementById('cancelReasonModal'));
+            modal.show();
 
-                        document.getElementById('cancelReasonForm').onsubmit = async (e) => {
-                            e.preventDefault();
-                            const reason = document.getElementById('reason').value;
+            // Handle reason submission
+            document.getElementById('cancelReasonForm').onsubmit = async (e) => {
+              e.preventDefault();
+              const reason = document.getElementById('reason').value;
 
-                            // Save the reason to the server
-                            await fetch(`/cancelOrder/${orderId}`, {
-                                method: 'PUT',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    Authorization: `Bearer ${localStorage.getItem('token')}`
-                                },
-                                body: JSON.stringify({ reason })
-                            });
+              // Make API call to save the cancellation reason
+              const reasonResponse = await fetch(`/cancelOrderReason/${orderId}`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({ reason })
+              });
 
-                            // Store reason in local storage (optional: adapt for server-side persistence)
-                            localStorage.setItem(`cancelReason-${orderId}`, reason);
+              const reasonData = await reasonResponse.json();
 
-                            // Update the status column
-                            const row = document.querySelector(`#order-row-${orderId}`);
-                            if (row) {
-                                const statusCell = row.querySelector('.label');
-                                // Update status and add the "View Reason" link
-                                statusCell.classList.remove('badge-primary', 'badge-success');
-                                statusCell.classList.add('badge-danger');
-                                statusCell.textContent = 'Cancelled';
-                                const reasonLink = document.createElement('a');
-                                reasonLink.href = '#';
-                                reasonLink.textContent = 'View Reason';
-                                reasonLink.classList.add('reason-tooltip');
-                                reasonLink.setAttribute('title', reason); // Set tooltip content
-                                reasonLink.style.fontSize = '0.8rem'; // Smaller font size
-                                reasonLink.style.padding = '2px 0'; // Reduce padding
-                                reasonLink.style.color = 'blue';
-                                reasonLink.style.textDecoration = 'underline';
-                                reasonLink.style.cursor = 'pointer';
-                                reasonLink.style.display = 'block'; // Display below the status
-
-                                // Add hover effect for color change
-                                reasonLink.addEventListener('mouseover', () => {
-                                    reasonLink.style.color = 'red';
-                                });
-                                reasonLink.addEventListener('mouseout', () => {
-                                    reasonLink.style.color = 'blue';
-                                });
-
-                                // Add link below the status cell
-                                statusCell.insertAdjacentElement('afterend', reasonLink);
-
-                                // Initialize Bootstrap tooltip for the dynamically added link
-                                new bootstrap.Tooltip(reasonLink);
-
-                                // Add click event to open the modal with reason text
-                                reasonLink.addEventListener('click', (e) => {
-                                    e.preventDefault(); // Prevent default anchor behavior
-
-                                    // Open a modal with the reason text
-                                    const reasonModal = new bootstrap.Modal(document.getElementById('reasonModal'));
-                                    document.getElementById('reasonModalBody').textContent = reason; // Set reason in modal body
-                                    reasonModal.show();
-                                });
-                            }
-
-                            // Close the modal
-                            modal.hide();
-                        };
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Unable to Cancel Order',
-                        text: data.message
-                    });
-                }
-            } catch (error) {
-                console.error('Error cancelling order:', error);
+              if (reasonResponse.status === 200) {
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'An error occurred while attempting to cancel the order.'
+                  icon: 'success',
+                  title: 'Reason Saved',
+                  text: reasonData.message
+                }).then(() => {
+                  modal.hide();
                 });
-            }
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error Saving Reason',
+                  text: reasonData.message
+                });
+              }
+            };
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Unable to Cancel Order',
+            text: data.message
+          });
         }
-    });
-});
-
-
-
-// Restore "View Reason" links from local storage after reload
-// Restore "View Reason" links from local storage after reload
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.order-row').forEach(row => {
-        const orderId = row.getAttribute('data-order-id');
-        const reason = localStorage.getItem(`cancelReason-${orderId}`);
-        if (reason) {
-            const statusCell = row.querySelector('.label');
-            
-            // Check if the "View Reason" link already exists
-            if (statusCell && (!statusCell.nextElementSibling || !statusCell.nextElementSibling.classList.contains('reason-tooltip'))) {
-                // Update status to "Cancelled"
-                statusCell.classList.remove('badge-primary', 'badge-success');
-                statusCell.classList.add('badge-danger');
-                statusCell.textContent = 'Cancelled';
-                
-                // Create the "View Reason" link
-                const reasonLink = document.createElement('a');
-                reasonLink.href = '#';
-                reasonLink.textContent = 'View Reason';
-                reasonLink.classList.add('reason-tooltip');
-                reasonLink.setAttribute('title', reason);
-                reasonLink.style.fontSize = '0.8rem'; // Smaller font size
-                reasonLink.style.padding = '2px 0'; // Reduce padding
-                reasonLink.style.color = 'blue';
-                reasonLink.style.textDecoration = 'underline';
-                reasonLink.style.cursor = 'pointer';
-                reasonLink.style.display = 'block';
-
-                // Add hover effect for color change
-                reasonLink.addEventListener('mouseover', () => {
-                    reasonLink.style.color = 'red';
-                });
-                reasonLink.addEventListener('mouseout', () => {
-                    reasonLink.style.color = 'blue';
-                });
-
-                // Add click event to open the modal with reason text
-                reasonLink.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const reasonModal = new bootstrap.Modal(document.getElementById('reasonModal'));
-                    document.getElementById('reasonModalBody').textContent = reason;
-                    reasonModal.show();
-                });
-
-                // Insert the link below the status cell
-                statusCell.insertAdjacentElement('afterend', reasonLink);
-
-                // Initialize Bootstrap tooltip for the dynamically added link
-                new bootstrap.Tooltip(reasonLink);
-            }
-        }
-    });
+      } catch (error) {
+        console.error('Error cancelling order:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An error occurred while attempting to cancel the order.'
+        });
+      }
+    }
+  });
 });
 
 
@@ -911,7 +929,7 @@ document.querySelectorAll('.view-details-btn').forEach(button => {
 
                     document.getElementById('modalOrderId').textContent = orderId;
                     document.getElementById('modalInvoiceDate').textContent = new Date(invoiceDate).toLocaleDateString();
-                    document.getElementById('modalTotalPrice').textContent = totalPrice;
+                    document.getElementById('modalTotalPrice').textContent = finalAmount+discount;
                     document.getElementById('modalDiscount').textContent = discount;
                     document.getElementById('modalFinalAmount').textContent = finalAmount;
                     document.getElementById('modalPaymentType').textContent = paymentType;
