@@ -803,8 +803,11 @@ const orderPlaced = async (req, res) => {
             }
         }
 
+        let order;
+
+        if(paymentType === "COD"){
         // Create the order
-        const order = await Order.create({
+         order = await Order.create({
             userId,
             orderedItems,
             totalPrice,
@@ -825,6 +828,11 @@ const orderPlaced = async (req, res) => {
         await newOrder.save();
 
         console.log("new order",newOrder);
+
+    }else if(paymentType === "Razorpay"){
+        order = req.session.razorpayOrder;
+
+    }
         
 
         delete req.session.selectedAddress;
@@ -835,7 +843,7 @@ const orderPlaced = async (req, res) => {
         // Render the order success page
         res.render('orderSuccess', {
             user: req.session.currentUser,
-            order,
+            order ,
             cartData: cartData.items,
             addressData: selectedAddress,
         });
@@ -998,17 +1006,17 @@ const removeCoupon = async (req, res) => {
 //original 
 
 const createRazorpayOrder = async (req, res) => {
-    //console.log("req.body from razorpay",req.body);
+    console.log("req.body from razorpay",req.body);
     
     try {
 
 
-        if (!req.session.finalAmount) {
+        if (!req.body.amount) {
             return res.status(400).json({ error: 'Amount is required' });
           }
       
           const discountAmount = req.session.discountAmount || 0; // Default to 0 if undefined
-          const amountInPaise = req.session.finalAmount - (discountAmount * 100);
+          const amountInPaise = req.body.amount - (discountAmount * 100);
       
           if (amountInPaise <= 0) {
             return res.status(400).json({ error: 'Invalid amount after discount' });
@@ -1017,26 +1025,45 @@ const createRazorpayOrder = async (req, res) => {
 
 
           const options = {
-            amount: Number(req.session.finalAmount - (req.session.discountAmount * 100)),
+            amount: parseInt(req.body.amount - (discountAmount * 100)),
             currency: 'INR',
             receipt: 'order_' + Date.now(),
         };
 
-        console.log("Amount :",req.session);
+        console.log("options:",options);
+        
+
+        console.log("Amount :",options.amount);
         
 
         
         const order = await razorpay.orders.create(options);
-        
+
+            
+
         console.log("order :",order);
         
 
-        res.json(order);
+        //res.json(order);
+
+        res.json({
+            success: true,
+            key: process.env.RAZORPAY_KEY_ID,
+            order: order
+        });
+
     } catch (error) {
         console.error('Error creating Razorpay order:', error);
         res.status(500).json({ error: 'Error creating order' });
     }
 };
+
+//------------------------------------------------------
+
+
+
+
+//--------------------------------------------------
 
 
 
@@ -1082,7 +1109,67 @@ const createRazorpayOrder = async (req, res) => {
 
 
 
-const verifyPayment =  async(req,res)=>{
+// const verifyPayment =  async(req,res)=>{
+//     try {
+//         const {
+//             razorpay_payment_id,
+//             razorpay_order_id,
+//             razorpay_signature
+//         } = req.body;
+
+//         const sign = razorpay_order_id + "|" + razorpay_payment_id;
+//         const expectedSign = crypto
+//             .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+//             .update(sign.toString())
+//             .digest("hex");
+
+//             console.log("req.session :",req.session);
+
+
+//         if (razorpay_signature === expectedSign) {
+
+//             console.log("Payment verified successfully");
+//             await Order.findByIdAndUpdate(req.session.currentOrder._id, {
+                
+//                 paymentType: 'Razorpay',
+                
+//             });
+
+
+//         //     // //const orderData = await Order.findById(req.session.currentOrder._id).populate('orderedItems.product');
+
+//         //     // // Update totalSales for each category
+//         //     // // for (const item of orderData.orderedItems) {
+//         //     // //     const categoryId = item.product.category; // Assuming category is stored in productId
+//         //     // //     await Category.findByIdAndUpdate(categoryId, {
+//         //     // //         $inc: { totalSales: item.quantity } // Increment totalSales
+//         //     // //     });
+//         //     // // }
+
+//         //     res.json({ success: true });
+
+//         //     //req.session.paymentType = "Razorpay"
+//         } 
+//         else {
+//             await Order.findByIdAndUpdate(req.session.currentOrder._id, {
+//                 paymentStatus: 'Failed'
+//             });
+//              //req.session.paymentType = "Razorpay"
+
+//             res.json({ success: false });
+//         }
+//     } catch (error) {
+//         console.error('Error verifying payment:', error);
+//         res.status(500).json({ success: false });
+//     }
+// }
+
+
+
+
+
+
+const verifyPayment = async (req, res) => {
     try {
         const {
             razorpay_payment_id,
@@ -1090,53 +1177,75 @@ const verifyPayment =  async(req,res)=>{
             razorpay_signature
         } = req.body;
 
+        // Verify signature
         const sign = razorpay_order_id + "|" + razorpay_payment_id;
         const expectedSign = crypto
             .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
             .update(sign.toString())
             .digest("hex");
 
-            console.log("req.session :",req.session);
-
-            
-        
-            
-
         if (razorpay_signature === expectedSign) {
-            await Order.findByIdAndUpdate(req.session.currentOrder.id, {
+            const userId = req.session.user;
+            const cartData = await Cart.findOne({ userid: userId }).populate('items.productId');
+            const razorpayOrderData = req.session.razorpayOrder;
+
+            console.log("req.session.razorpayOrder",req.session);
+            
+
+            // Create order in your database
+            const order = await Order.create({
+                userId,
+                orderedItems: cartData.items.map(item => ({
+                    product: item.productId._id,
+                    quantity: item.quantity,
+                    price: item.productId.salePrice
+                })),
+                totalPrice: req.session.finalAmount,
+                discount: req.session.discountAmount || 0,
+                couponName: req.session.couponName || "No Coupon Applied",
+                finalAmount: req.session.finalAmount,
+                address: req.session.selectedAddress,
+                status: 'Pending',
                 
-                paymentType: 'Razorpay',
-                
+                paymentType: "Razorpay"
             });
 
+            req.session.razorpayOrder = order
 
-        //     // //const orderData = await Order.findById(req.session.currentOrder._id).populate('orderedItems.product');
+            // Clear cart and relevant session data
+            // await Cart.deleteOne({ userid: userId });
+            // delete req.session.razorpayOrder;
+            // delete req.session.couponApplied;
+            // delete req.session.couponName;
+            // delete req.session.discountAmount;
 
-        //     // // Update totalSales for each category
-        //     // // for (const item of orderData.orderedItems) {
-        //     // //     const categoryId = item.product.category; // Assuming category is stored in productId
-        //     // //     await Category.findByIdAndUpdate(categoryId, {
-        //     // //         $inc: { totalSales: item.quantity } // Increment totalSales
-        //     // //     });
-        //     // // }
+            // Store order in session for rendering success page
+            req.session.currentOrder = { _id: order._id };
 
-        //     res.json({ success: true });
+            
 
-        //     //req.session.paymentType = "Razorpay"
-        } 
-        else {
-            await Order.findByIdAndUpdate(req.session.currentOrder._id, {
-                paymentStatus: 'Failed'
+            // Redirect to order success page
+            res.json({
+                success: true,
+                redirectUrl: '/orderSuccess'
             });
-             //req.session.paymentType = "Razorpay"
-
-            res.json({ success: false });
+        } else {
+            res.json({
+                success: false,
+                error: 'Payment verification failed'
+            });
         }
     } catch (error) {
         console.error('Error verifying payment:', error);
-        res.status(500).json({ success: false });
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
     }
-}
+};
+
+
+
 
 
 

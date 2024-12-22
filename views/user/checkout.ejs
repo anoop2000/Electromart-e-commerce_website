@@ -1034,27 +1034,40 @@ document.getElementById('submitPayment').addEventListener('click', async (e) => 
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json'
-                                }
+                                },
+                                body: JSON.stringify({ amount: amountInPaise }) // Add amount in request body
                             });
 
                             const result = await response.json();
+
+                            console.log("Create Razorpay order response:", result);
+
                             if (!result.success) {
                                 throw new Error(result.error);
                             }
+
+                            
 
                             // Configure Razorpay
                             const options = {
                                 key: result.key,
                                 amount: result.order.amount,
-                                // amount : amountInPaise,
+                                //amount : amountInPaise,
                                 
                                 currency: 'INR',
                                 name: 'ElectroMart',
                                 description: 'Purchase Payment',
                                 order_id: result.order.id,
+
+                                
+                                
                             
                 handler: async function (response) {
+                  console.log("Before try...",options);
+                  console.log("Payment successful, verifying...", response); // Debug log
                     try {
+                      console.log("Inside handler ....");
+                      
                         const verifyResponse = await fetch('/verify-payment', {
                             method: 'POST',
                             headers: {
@@ -1094,10 +1107,13 @@ document.getElementById('submitPayment').addEventListener('click', async (e) => 
                     color: '#3399cc'
                 }
             };
-
+            console.log("Initializing Razorpay with options:", options); // Debug log
+            
             const rzp = new Razorpay(options);
             rzp.open();
         } catch (error) {
+          console.log("options in  ejs",options);
+          
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
