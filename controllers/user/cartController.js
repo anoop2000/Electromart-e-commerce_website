@@ -843,7 +843,7 @@ const orderPlaced = async (req, res) => {
         // Render the order success page
         res.render('orderSuccess', {
             user: req.session.currentUser,
-            order ,
+            order : req.session.currentOrder, // Pass the order from session ,
             cartData: cartData.items,
             addressData: selectedAddress,
         });
@@ -858,7 +858,16 @@ const orderPlaced = async (req, res) => {
 
 
 
+//--------------------------------------
 
+
+
+
+
+
+
+
+//--------------------------------------
 
 
 const applyCoupon = async (req, res) => {
@@ -1200,7 +1209,9 @@ const verifyPayment = async (req, res) => {
                     quantity: item.quantity,
                     price: item.productId.salePrice
                 })),
-                totalPrice: req.session.finalAmount,
+                // totalPrice: req.session.finalAmount,
+                totalPrice: cartData.items.reduce((total, item) =>
+                    total + (item.productId.salePrice || item.price) * item.quantity, 0),
                 discount: req.session.discountAmount || 0,
                 couponName: req.session.couponName || "No Coupon Applied",
                 finalAmount: req.session.finalAmount,
