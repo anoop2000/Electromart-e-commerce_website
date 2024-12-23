@@ -83,6 +83,7 @@ router.get('/deletecoupon',adminAuth,couponController.deleteCoupon)
 
 //sales report
 router.get('/generate-sales-report',adminAuth,salesController.getReport);
+router.post('/generate-sales-report',adminAuth,salesController.generateSalesReport)
 
 
 module.exports = router
