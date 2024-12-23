@@ -1,7 +1,7 @@
 
 
 
-<%- include("../../views/partials/user/header") %>
+
 
 
 
@@ -23,7 +23,7 @@
                         <div class="col-sm-12">
                             <div class="statusTop">
                                 <p><strong>Status:</strong> <%= orderData.status %></p>
-                                <p><strong>Order Date:</strong> <%= new Date(orderData.invoiceDate).toLocaleDateString('en-GB') %></p>
+                                <p><strong>Order Date:</strong> <%= new Date(orderData.createdOn).toLocaleDateString('en-GB') %></p>
                                 <p><strong>Order Number:</strong> #<%= orderData.orderId %></p>
                             </div>
                         </div>
@@ -238,7 +238,7 @@ async function returnOrder(orderId) {
     </script>
 
 
-    <%- include("../../views/partials/user/footer") %>
+    
 
 
 

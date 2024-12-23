@@ -47,8 +47,8 @@ const orderStatus = async (req, res) => {
   try {
       const orderId = req.params.id;
 
-      console.log("Inside the order success");
-      console.log("orderId:", orderId);
+      //console.log("Inside the order success");
+      //console.log("orderId:", orderId);
 
       
       const orderData = await Order
@@ -82,6 +82,8 @@ const orderStatus = async (req, res) => {
 
       //console.log("Delivery Address Details:", deliveryAddress);
 
+      orderData.finalAmount = orderData.totalPrice - orderData.discount;
+
       
       res.render("orderStatus", {
           orderData: {
@@ -95,15 +97,6 @@ const orderStatus = async (req, res) => {
       res.status(500).send("Internal Server Error");
   }
 };
-
-
-
-
-
-
-
-  
-
 
 
 
