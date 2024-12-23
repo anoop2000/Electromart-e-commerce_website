@@ -134,7 +134,7 @@
 
 <%- include("../../views/partials/admin/footer") %>
 
-<script>
+<!-- <script>
     // Toggle custom date range visibility
     document.getElementById('reportType').addEventListener('change', function () {
         const customDateRange = document.getElementById('customDateRange');
@@ -249,7 +249,138 @@
             alert('Error generating the report file.');
         }
     });
-}
+} -->
+
+
+
+
+<script>
+    // Toggle custom date range visibility
+    document.getElementById('reportType').addEventListener('change', function () {
+        const customDateRange = document.getElementById('customDateRange');
+        customDateRange.style.display = this.value === 'custom' ? 'block' : 'none';
+    });
+
+    // Handle report form submission
+    document.getElementById('reportForm').addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+
+        // Remove date range if not using custom report type
+        if (formData.get('reportType') !== 'custom') {
+            formData.delete('startDate');
+            formData.delete('endDate');
+        }
+
+        // Convert FormData to JSON object
+        const data = Object.fromEntries(formData);
+
+        console.log("data :",data);
+        
+
+        try {
+            const response = await fetch('/admin/generate-sales-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            console.log("Resopnse :",response);
+            
+
+            if (response.ok) {
+                const reportData = await response.json();
+
+                // Display the summary of the report
+                const summaryHTML = `
+                    <div class="report-heading">Sales Report</div>
+                    <div class="report-summary">
+                        <p><strong>Total Sales Count:</strong> ${reportData.totalSalesCount}</p>
+                        <p><strong>Total Order Amount:</strong> INR ${reportData.totalOrderAmount.toLocaleString('en-IN')}</p>
+                        <p><strong>Total Discount:</strong> INR ${reportData.totalDiscount.toLocaleString('en-IN')}</p>
+                        <p><strong>Total Coupon Deduction:</strong> INR ${reportData.totalCouponDeduction.toLocaleString('en-IN')}</p>
+                    </div>
+                `;
+
+                // Display the order details section
+                const ordersHTML = `
+                    <div class="order-details">
+                        <h4 class="h4order">Order Details:</h4>
+                        ${reportData.orders.map(order => `
+                            <div class="order-item">
+                                <p><strong>Order ID:</strong> ${order.orderId}</p>
+                                <p><strong>Order Date:</strong> ${new Date(order.createdOn).toLocaleString()}</p>
+                                <p><strong>Total Price:</strong> INR ${order.totalPrice.toLocaleString('en-IN')}</p>
+                                <p><strong>Discount:</strong> INR ${order.discount.toLocaleString('en-IN')}</p>
+                                <p><strong>Final Amount:</strong> INR ${order.finalAmount.toLocaleString('en-IN')}</p>
+                                <p><strong>Payment Type:</strong> ${order.paymentType}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                const dynamicBorderHTML = `
+                    <div class="report-container">
+                        ${summaryHTML}
+                        ${ordersHTML}
+                    </div>
+                `;
+
+                // Append the generated content to the container
+                document.getElementById('reportContainer').innerHTML = dynamicBorderHTML;
+
+                // Display download buttons
+                const downloadButtonsHTML = `
+                    <div class="download-buttons">
+                        <button onclick="downloadReport('pdf')">Download as PDF</button>
+                        <button onclick="downloadReport('excel')">Download as Excel</button>
+                    </div>
+                `;
+                document.getElementById('reportContainer').innerHTML += downloadButtonsHTML;
+            } else {
+                console.error('Error generating sales report');
+                alert('Failed to generate the report.');
+            }
+        } catch (error) {
+            console.error('Error generating sales report:', error);
+            alert('An unexpected error occurred while generating the report.');
+        }
+    });
+
+    // Download the report as PDF or Excel
+    function downloadReport(format) {
+        const formData = new FormData(document.getElementById('reportForm'));
+        formData.set('downloadFormat', format); // Set download format dynamically
+
+        fetch('/admin/generate-sales-report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(Object.fromEntries(formData))
+        }).then(response => {
+            if (response.ok) {
+                const contentDisposition = response.headers.get('Content-Disposition');
+                const filename = contentDisposition ? contentDisposition.split('filename=')[1].replace(/"/g, '') : 'sales_report';
+
+                response.blob().then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                });
+            } else {
+                alert('Error generating the report file.');
+            }
+        }).catch(error => {
+            console.error('Error downloading the report:', error);
+            alert('An unexpected error occurred while downloading the report.');
+        });
+    }
+</script>
+
 
 
 </script>
