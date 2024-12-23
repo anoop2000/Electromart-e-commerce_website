@@ -7,6 +7,7 @@ const brandController = require('../controllers/admin/brandController')
 const productController = require('../controllers/admin/productController')
 const orderDetailsController = require('../controllers/admin/orderDetailsController')
 const couponController = require('../controllers/admin/couponController')
+const salesController = require('../controllers/admin/salesController')
 
 const {userAuth,adminAuth} = require('../middlewares/auth') 
 const multer = require('multer')
@@ -78,6 +79,10 @@ router.post('/createCoupon',adminAuth,couponController.createCoupon)
 router.get('/editCoupon',adminAuth,couponController.editCoupon)
 router.post('/updatecoupon',adminAuth,couponController.updateCoupon)
 router.get('/deletecoupon',adminAuth,couponController.deleteCoupon)
+
+
+//sales report
+router.get('/generate-sales-report',adminAuth,salesController.getReport);
 
 
 module.exports = router

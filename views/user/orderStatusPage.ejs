@@ -1,7 +1,7 @@
 
 
-<%- include("../../views/partials/user/header") %>
 
+<%- include("../../views/partials/user/header") %>
 
 
 
@@ -38,11 +38,11 @@
                             <% } else if (isDelivered) { %>
                                 <div class="col-sm-6">
                                     <button id="returnBtn" class="btn btn-primary btn-lg btn-block"
-                                        onclick="cancelOrder('<%= orderData._id %>')">Return this order</button>
+                                        onclick="returnOrder('<%= orderData._id %>')">Return this order</button>
                                 </div>
                                 <% }  else if (isReturned) { %>
                                     <div class="col-sm-6">
-                                        <button class="btn btn-danger btn-lg btn-block">This order has been
+                                        <button class="btn btn-warning btn-lg btn-block">This order has been
                                             Returned</button>
                                     </div>
                                     <% } 
@@ -140,7 +140,7 @@
 
                                 <div class="col-sm-12">
                                     <div class="btn btn-info">
-                                        <a href="/profile/downloadInvoice/<%= orderData.orderId %>">Download Invoice</a>
+                                        <a href="/downloadInvoice/<%= orderData._id %>">Download Invoice</a>
                                     </div>
                                 </div>
                             </div>
@@ -159,7 +159,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
+     <script>
+
        async function cancelOrder(orderId) {
         console.log("orderId from cancel",orderId);
         
@@ -172,30 +173,72 @@
         cancelButtonColor: "#d33",
         confirmButtonText: "Yes, cancel it!"
     }).then(async (result) => { // Mark the function as async
-        window.location.reload();
+        
 
         if (result.isConfirmed) {
             try {
                 const response = await fetch(`/cancelOrder/${orderId}`, { method: 'POST' });
                 const data = await response.json();
-                console.log(data);
+                
                 if (data.success) {
-                    window.location.reload();
-                   
+                    Swal.fire('Cancelled!', data.message, 'success').then(() => {
+                        window.location.reload(); // Reload after user sees success message
+                    });
                 } else {
-                    throw new Error("Cancellation failed"); // Handle cancellation failure
+                    throw new Error(data.message || "Return of order failed");
                 }
             } catch (error) {
-                console.error(error); // Log the error
-                // Handle the error, e.g., show an error message to the user
+                Swal.fire('Error!', error.message, 'error');
             }
         } else {
-            console.log('Order cancellation cancelled');
+            console.log('Order cancelled');
         }
     });
 }
 
+
+
+
+
+
+async function returnOrder(orderId) {
+    console.log("orderId from cancel", orderId);
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, return it!"
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/returnOrder/${orderId}`, { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    Swal.fire('Returned!', data.message, 'success').then(() => {
+                        window.location.reload(); // Reload after user sees success message
+                    });
+                } else {
+                    throw new Error(data.message || "Return of order failed");
+                }
+            } catch (error) {
+                Swal.fire('Error!', error.message, 'error');
+            }
+        } else {
+            console.log('Return cancelled');
+        }
+    });
+}
+
+
     </script>
+
+
+    <%- include("../../views/partials/user/footer") %>
 
 
 
@@ -203,4 +246,4 @@
     
 
 
-<%- include("../../views/partials/user/footer") %>
+  

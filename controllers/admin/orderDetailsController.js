@@ -236,22 +236,61 @@ const changeStatusReturn = async (req, res) => {
 
 
 
+
+
   const changeStatusCancelled = async (req, res) => {
     try {
-      let orderData = await Order
-        .findOne({ _id: req.params.id })
-        .populate("userId");
-    //   await User.findByIdAndUpdate(
-    //     { _id: orderData.userId._id },
-    //     { wallet: orderData.grandTotalCost }
-    //   );
+      // Fetch the order and populate the userId field
+      const orderData = await Order.findOne({ _id: req.params.id }).populate("userId");
+      if (!orderData) {
+        throw new Error("Order not found");
+      }
+  
+      // Calculate the refund amount
+      const refundAmount = orderData.finalAmount - orderData.discount;
+  
+      // Fetch the user associated with the order
+      const user = await User.findById(orderData.userId._id);
+      if (user) {
+        // Ensure wallet is initialized, default to 0 if undefined
+        user.wallet = user.wallet || 0;
+  
+        // Add refund amount to user's wallet
+        user.wallet += refundAmount;
+  
+        // Create a wallet transaction for the refund
+        const transaction = new Wallet({
+          userId: user._id, // Associate transaction with user
+          amount: refundAmount,
+          status: "Refund",
+          description: `Refund for cancelled order #${orderData.orderid}`,
+        });
+  
+        // Save the wallet transaction
+        await transaction.save();
+  
+        // Add transaction to wallet history
+        user.walletHistory = user.walletHistory || [];
+        user.walletHistory.push(transaction._id);
+  
+        // Save the updated user data
+        await user.save();
+      } else {
+        throw new Error("User not found");
+      }
+  
+      // Update order status to "Cancelled"
       orderData.status = "Cancelled";
-      orderData.save();
+      await orderData.save();
+  
+      // Redirect to order management page
       res.redirect("/admin/orderList");
     } catch (error) {
-        console.error("Error in status change",error.message,error.stack);
+      console.error("Error in status change", error.message, error.stack);
+      res.status(500).send("An error occurred while processing the cancellation.");
     }
   };
+  
 
 
   

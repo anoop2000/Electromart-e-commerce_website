@@ -198,7 +198,7 @@ const cancelOrder = async (req, res) => {
       //console.log('Updated Wallet Balance:', user.wallet);
   
       // Send success response with a message
-      res.status(200).json({ message: 'Order successfully cancelled', reason: reason });
+      res.status(200).json({ success : true ,message: 'Order successfully cancelled', reason: reason });
     } catch (error) {
       console.error('Error cancelling order:', error);
       res.status(500).json({ message: 'An error occurred while processing the cancellation.' });
@@ -292,6 +292,67 @@ const orderStatusPage = async (req, res) => {
 };
 
 
+const returnOrder = async(req,res)=>{
+    try {
+        const orderId = req.params.id;
+    
+        console.log("req.params.id :", req.params.id);
+    
+        // Fetch the order and ensure it exists
+        const order = await Order.findById(orderId);
+        if (!order) {
+          return res.status(404).json({ message: 'Order not found' });
+        }
+    
+        // Update the order status to 'Cancelled' and save the reason
+       
+        order.status = 'Returned';
+        
+        await order.save();
+    
+        // Calculate refund amount based on finalAmount and discount
+        const refundAmount = order.finalAmount - order.discount;
+    
+        // Fetch the user associated with the order
+        const user = await User.findById(order.userId);
+        if (!user) {
+          return res.status(404).json({ message: 'User associated with the order not found' });
+        }
+    
+        // Ensure wallet is initialized
+        user.wallet = user.wallet || 0;
+    
+        // Add the refund amount to the user's wallet
+        user.wallet += refundAmount;
+    
+        // Create a wallet transaction for the refund
+        const transaction = new Wallet({
+          userId: user._id,
+          amount: refundAmount,
+          status: 'Refund',
+          description: `Refund for returned order #${order.orderid}`,
+        });
+    
+        // Save the wallet transaction
+        await transaction.save();
+    
+        // Add the transaction ID to the user's walletHistory
+        user.walletHistory = user.walletHistory || [];
+        user.walletHistory.push(transaction._id);
+    
+        // Save the updated user document
+        await user.save();
+    
+        //console.log(`Order #${order.orderid} has been cancelled. Refund processed.`);
+        //console.log('Updated Wallet Balance:', user.wallet);
+    
+        // Send success response with a message
+        res.status(200).json({ success: true, message: 'Order successfully returned and refund added.' });
+      } catch (error) {
+        console.error('Error in returning order:', error);
+        res.status(500).json({ message: 'An error occurred while processing the return of order.' });
+      }
+}
 
 
   
@@ -308,7 +369,8 @@ const orderStatusPage = async (req, res) => {
    ordersList,
    cancelOrder,
    viewDetails,
-   orderStatusPage
+   orderStatusPage,
+   returnOrder
    
   }
 

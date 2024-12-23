@@ -730,7 +730,7 @@ const selectPaymentType = async (req, res) => {
 
 const orderPlaced = async (req, res) => {
     try {
-        console.log("Starting orderPlaced controller...");
+        //console.log("Starting orderPlaced controller...");
 
         // Validate user session
         const userId = req.session.user;
@@ -776,7 +776,7 @@ const orderPlaced = async (req, res) => {
         //const finalAmount = totalPrice - discount;
        const finalAmount =  totalPrice - discount;
 
-       console.log("Coupon name :",couponName);
+       //console.log("Coupon name :",couponName);
        
 
         // Update product quantities
@@ -827,7 +827,7 @@ const orderPlaced = async (req, res) => {
         const newOrder = new Order(order)
         await newOrder.save();
 
-        console.log("new order",newOrder);
+        //console.log("new order",newOrder);
 
     }else if(paymentType === "Razorpay"){
         order = req.session.razorpayOrder;
@@ -889,7 +889,7 @@ const applyCoupon = async (req, res) => {
         const minimumPrice = parseFloat(couponData.minimumPrice);
         const isExpired = new Date() > new Date(couponData.expiredOn);
 
-        console.log("grandTotal :",grandTotal);
+        //console.log("grandTotal :",grandTotal);
         //console.log("Final amount :",finalAmount);
         
 
@@ -939,12 +939,12 @@ const applyCoupon = async (req, res) => {
             grandTotalAfterDiscount,
         });
 
-        console.log("Coupon applied:", {
-            couponName: name,
-            discountAmount,
-            grandTotalAfterDiscount,
-            originalTotal: grandTotal,
-        });
+        // console.log("Coupon applied:", {
+        //     couponName: name,
+        //     discountAmount,
+        //     grandTotalAfterDiscount,
+        //     originalTotal: grandTotal,
+        // });
 
     } catch (error) {
         console.error("Error in applyCoupon:", error);
@@ -992,7 +992,7 @@ const removeCoupon = async (req, res) => {
             });
         }
 
-        console.log("req.session.currentOrder :",req.session.currentOrder._id);
+        //console.log("req.session.currentOrder :",req.session.currentOrder._id);
         
 
         // Respond with success and the new grand total
@@ -1039,10 +1039,10 @@ const createRazorpayOrder = async (req, res) => {
             receipt: 'order_' + Date.now(),
         };
 
-        console.log("options:",options);
+        //console.log("options:",options);
         
 
-        console.log("Amount :",options.amount);
+        //console.log("Amount :",options.amount);
         
 
         
@@ -1050,7 +1050,7 @@ const createRazorpayOrder = async (req, res) => {
 
             
 
-        console.log("order :",order);
+        //console.log("order :",order);
         
 
         //res.json(order);
@@ -1198,7 +1198,7 @@ const verifyPayment = async (req, res) => {
             const cartData = await Cart.findOne({ userid: userId }).populate('items.productId');
             const razorpayOrderData = req.session.razorpayOrder;
 
-            console.log("req.session.razorpayOrder",req.session);
+            //console.log("req.session.razorpayOrder",req.session);
             
 
             // Create order in your database
@@ -1321,7 +1321,7 @@ const processWalletPayment = async (req, res) => {
         // Calculate the final amount after applying discount
         const finalAmount = totalPrice - discount;
 
-        console.log("Final Amount:", finalAmount, "Coupon Name:", couponName);
+        //console.log("Final Amount:", finalAmount, "Coupon Name:", couponName);
 
         // Update product quantities
         for (const item of cartData.items) {

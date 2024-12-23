@@ -65,6 +65,8 @@ router.get('/userProfile',blockUserCheck,userAuth,profileController.userProfile)
 router.get('/editProfile',blockUserCheck,userAuth,profileController.getEditProfile)
 router.post('/updateProfile',blockUserCheck,userAuth,profileController.updateProfile)
 
+router.get('/downloadInvoice/:id',blockUserCheck,userAuth,profileController.invoiceDownload)
+
 
 //order management
 
@@ -72,7 +74,7 @@ router.get('/orders',userAuth,orderController.ordersList)
 //router.get('/viewDetails',userAuth,orderController.viewDetails)
 router.get('/orderStatusPage/:id', orderController.orderStatusPage);
 router.post('/cancelOrder/:id', userAuth, orderController.cancelOrder);
-
+router.post('/returnOrder/:id',userAuth,orderController.returnOrder)
 
 
 

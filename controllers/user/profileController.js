@@ -6,7 +6,8 @@ const env = require('dotenv').config()
 const session = require('express-session')
 const Order = require('../../models/orderSchema')
 const Cart = require('../../models/cartSchema')
-
+const {generateInvoicePDF} = require('../../utils/invoiceUtils');
+ 
 
 function generateOtp(){
     const digits = "1234567890";  // A string containing all digits from 1 to 9 and 0
@@ -578,6 +579,69 @@ const updateProfile  =  async(req,res)=>{
 
 
 
+const invoiceDownload = async (req, res) => {
+    try {
+        console.log("req.params.id:", req.params.id);
+
+        const userId = req.session.user;
+
+        // Fetch order data using the order ID from params
+        let orderData = await Order.findOne({ _id: req.params.id })
+            .populate('userId')  // Populate user details
+            .populate('orderedItems.product'); // Populate product details
+
+        if (!orderData) {
+            return res.status(404).send("Order not found");
+        }
+
+        // Fetch user addresses
+        const userAddresses = await Address.findOne({ userId });
+        const orderObj = orderData.toObject(); // Convert to plain object
+
+        let chosenAddress = null;
+
+        if (userAddresses && userAddresses.address) {
+            chosenAddress = userAddresses.address.find(
+                addr => addr._id.toString() === orderData.address.toString()
+            );
+        }
+
+        if (chosenAddress) {
+            //console.log("Chosen address:", chosenAddress);
+            // Replace address in the plain object for PDF generation
+            orderObj.address = chosenAddress;
+        } else {
+            console.warn("No matching address found for this order.");
+        }
+
+        //console.log("Updated order object address:", orderObj.address);
+
+        // Set response headers for PDF download
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment;filename=invoice_${orderData._id}.pdf`);
+
+        // Generate the PDF using the modified plain object
+        generateInvoicePDF(
+            (chunk) => res.write(chunk), // Write chunks to response
+            () => res.end(),             // End the response when PDF generation is complete
+            orderObj                     // Pass the modified plain object to the PDF generator
+        );
+
+    } catch (error) {
+        console.error("Error generating invoice PDF:", error);
+        res.status(500).send("An error occurred while generating the invoice.");
+    }
+};
+
+
+
+  
+
+
+
+
+
+
 
 
 
@@ -607,6 +671,7 @@ module.exports = {
     postEditAddress,
     deleteAddress,
     getEditProfile,
-    updateProfile
+    updateProfile,
+    invoiceDownload
     
 }
