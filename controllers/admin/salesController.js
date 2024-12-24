@@ -15,7 +15,7 @@ const getReport = async(req,res)=>{
 
 const generateSalesReport = async (req, res) => {
     const { reportType, startDate, endDate, downloadFormat } = req.body;
-    console.log("req.body from salescontroller", req.body);
+    //console.log("req.body from salescontroller", req.body);
 
     try {
         // Base query for fetching orders with 'Delivered' status
@@ -47,7 +47,7 @@ const generateSalesReport = async (req, res) => {
             .populate('orderedItems.product', 'name price') // Include product details
             .populate('address', 'addressType name landMark city state pincode phone'); // Include address details
         
-        console.log("orders:", orders);
+        //console.log("orders:", orders);
 
         // Calculate total sales count, total order amount, discounts, and coupon deductions
         const totalSalesCount = orders.length;
