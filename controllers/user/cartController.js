@@ -533,17 +533,6 @@ const checkOutPage = async (req, res) => {
 
 
 
-// if (req.session.couponApplied && req.session.discountAmount) {
-//     const discountAmount = req.session.discountAmount; // Use only if valid
-//     if (grandTotal >= discountAmount) {
-//         finalAmount = grandTotal - discountAmount;
-//     } else {
-//         finalAmount = grandTotal; // Avoid negative values
-//         req.session.couponApplied = false; // Invalidate the coupon
-//         req.session.discountAmount = null;
-//         req.session.couponName = null;
-//     }
-// }
 
 
 
@@ -895,16 +884,34 @@ const orderPlaced = async (req, res) => {
 const applyCoupon = async (req, res) => {
     try {
         const { name } = req.body; // Coupon name provided by the user
-        const userId = req.session.userId; // Fetch userId from the session
-
+        const userId = req.session.user; // Fetch userId from the session
+        console.log("userId :",req.session.user);
+        
 
         // Get the current cart with latest values
-        // const cart = await Cart.findOne({ userid: userId }).populate('items.productId');
+         const cartData = await Cart.findOne({ userid: userId }).populate('items.productId');
+
+         console.log("cartData :",cartData);
+         
         
-        // // Calculate the current total before coupon
-        // const currentTotal = cart.items.reduce((total, item) => {
-        //     return total + (item.productId.salePrice * item.quantity);
-        // }, 0);
+         if (!cartData || !cartData.items.length) {
+            return res.json({
+                success: false,
+                message: "Your cart is empty. Add products to apply the coupon.",
+            });
+        }
+
+
+        // Recalculate the grand total from cart data
+        let newtotal = 0;
+        cartData.items.forEach(item => {
+            const product = item.productId;
+            if (product) {
+                const itemTotal = item.quantity * product.salePrice;
+                newtotal += itemTotal;
+            }
+        });
+        req.session.grandTotal = newtotal; // Update session with recalculated grand 
 
 
         // 1. Fetch coupon data from the database

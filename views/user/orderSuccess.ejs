@@ -232,49 +232,7 @@
                     </tr>
                     <% }); %>
         
-                    <!-- Order Summary Section -->
-                    <tr class="border-top">
-                        <td colspan="2" class="text-right"><strong>Subtotal:</strong></td>
-                        <td></td>
-                        <td class="text-center">₹<%= order.totalPrice %></td>
-                    </tr>
-        
-                    <% if (order.couponApplied) { %>
-                    <tr class="text-success">
-                        <td colspan="2" class="text-right">
-                            <strong>Coupon Applied :<%= order.couponName %></strong>
-                            <%= order.couponName %>
-                        </td>
-                        <td></td>
-                        <td class="text-center">-₹<%= order.discount %></td>
-                    </tr>
-                    <tr class="table-info">
-                        <td colspan="2" class="text-right">
-                            <strong>Total After Discount:</strong>
-                        </td>
-                        <td></td>
-                        <td class="text-center">
-                            <strong>₹<%= order.finalAmount %></strong>
-                        </td>
-                    </tr>
-                    <% } %>
-        
-                    <!-- Shipping Information -->
-                    <tr>
-                        <td colspan="2" class="text-right"><strong>Shipping:</strong></td>
-                        <td></td>
-                        <td class="text-center">Free</td>
-                    </tr>
-        
-                    <!-- Final Total -->
-                    <tr class="table-primary">
-                        <td colspan="2" class="text-right">
-                            <strong>Final Total:</strong>
-                        </td>
-                        <td></td>
-                        <td class="text-center">
-                            <strong>₹<%= order.finalAmount %></strong>
-                        </td>
+                    
                     </tr>
                 </tbody>
             </table>
