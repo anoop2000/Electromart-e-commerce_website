@@ -289,7 +289,7 @@ const signup = async (req, res) => {
 
       const {otp} = req.body
 
-      console.log(otp);
+      
 
       if(otp === req.session.userOtp){
           const user = req.session.userData

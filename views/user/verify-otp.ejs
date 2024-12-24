@@ -127,7 +127,7 @@
                     <label for="otp">Enter OTP:</label>
                     <input type="text" id="otp" name="otp" class="form-control" required maxlength="6" pattern="\d*" />
                 </div>
-                <button type="submit" class="btn btn-primary" onclick="window.location.href='/login'">Verify Email</button>
+                <button type="submit" class="btn btn-primary">Verify Email</button>
                 <div class="form-group text-center">
                     <div id="otpTimer" class="otp-timer">
                         <span id="timerValue">60</span>
@@ -165,12 +165,13 @@
         }, 1000);
     }
     startTimer();
+    
 
     function validateOTPForm(){
         const otpInput = document.getElementById('otp').value;
         $.ajax({
             type : "POST",
-            url :"verify-otp",
+            url :"/verify-otp",
             data  : {otp : otpInput},
             success : function(response){
                 if(response.success){
