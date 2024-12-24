@@ -525,13 +525,29 @@ const checkOutPage = async (req, res) => {
     let finalAmount = grandTotal + shippingCost;
 
 
-    if (req.session.couponApplied && req.session.discountAmount) {
-        finalAmount = finalAmount - req.session.discountAmount;
-    }
-
+    
     //--------------------------------------------------------------------------------
     //req.session.grandTotal= finalAmount
     req.session.finalAmount = finalAmount;
+//------------------------------
+
+
+
+// if (req.session.couponApplied && req.session.discountAmount) {
+//     const discountAmount = req.session.discountAmount; // Use only if valid
+//     if (grandTotal >= discountAmount) {
+//         finalAmount = grandTotal - discountAmount;
+//     } else {
+//         finalAmount = grandTotal; // Avoid negative values
+//         req.session.couponApplied = false; // Invalidate the coupon
+//         req.session.discountAmount = null;
+//         req.session.couponName = null;
+//     }
+// }
+
+
+
+
 //------------------------------
     res.render("checkout", {
         userId,
@@ -540,6 +556,7 @@ const checkOutPage = async (req, res) => {
         grandTotal,  // Subtotal
         finalAmount,  // Total price including shipping
         shippingCost: 0,  // Free shipping (as per your logic)
+        
         couponApplied: req.session.couponApplied,
         walletBalance : user.wallet,
         couponName: req.session.couponName,
@@ -777,6 +794,11 @@ const orderPlaced = async (req, res) => {
        const finalAmount =  totalPrice - discount;
 
        //console.log("Coupon name :",couponName);
+
+       //--------------------------------------
+
+       req.session.finalAmount = finalAmount
+       //--------------------------------------
        
 
         // Update product quantities
@@ -875,6 +897,16 @@ const applyCoupon = async (req, res) => {
         const { name } = req.body; // Coupon name provided by the user
         const userId = req.session.userId; // Fetch userId from the session
 
+
+        // Get the current cart with latest values
+        // const cart = await Cart.findOne({ userid: userId }).populate('items.productId');
+        
+        // // Calculate the current total before coupon
+        // const currentTotal = cart.items.reduce((total, item) => {
+        //     return total + (item.productId.salePrice * item.quantity);
+        // }, 0);
+
+
         // 1. Fetch coupon data from the database
         const couponData = await Coupon.findOne({ name, isList: true }); // Check if coupon is listed
         if (!couponData) {
@@ -917,10 +949,20 @@ const applyCoupon = async (req, res) => {
             });
         }
 
+       
         // 4. Apply coupon discount
-        const discountAmount = parseFloat(couponData.offerPrice);
-        const grandTotalAfterDiscount = grandTotal - discountAmount;
+        
+            const discountAmount = parseFloat(couponData.offerPrice);
+        const  grandTotalAfterDiscount = grandTotal - discountAmount;
 
+
+        //--------------------------------------------------
+
+        
+        //--------------------------------------------------
+        
+
+        
         // 5. Update session details
         // req.session.grandTotal = grandTotalAfterDiscount;
          req.session.couponApplied = true;
@@ -1076,104 +1118,6 @@ const createRazorpayOrder = async (req, res) => {
 
 
 
-// const createRazorpayOrder = async (req, res) => {
-//     try {
-//         // Ensure we have the final amount from session
-//         if (!req.session.finalAmount) {
-//             console.log('No final amount in session:', req.session);
-//             return res.status(400).json({ error: 'Amount is required' });
-//         }
-
-//         // Calculate amount in paise (multiply by 100)
-//         const amountInPaise = Math.round(req.session.finalAmount * 100);
-
-//         console.log('Creating Razorpay order with amount:', amountInPaise);
-
-//         // Validate the amount
-//         if (amountInPaise <= 0) {
-//             return res.status(400).json({ error: 'Invalid amount' });
-//         }
-
-//         const options = {
-//             amount: amountInPaise,
-//             currency: 'INR',
-//             receipt: 'order_' + Date.now(),
-//         };
-
-//         const order = await razorpay.orders.create(options);
-        
-//         // Send back the order details and key
-//         res.json({
-//             success: true,
-//             key: process.env.RAZORPAY_KEY_ID,
-//             order: order
-//         });
-
-//     } catch (error) {
-//         console.error('Error creating Razorpay order:', error);
-//         res.status(500).json({ error: 'Error creating order' });
-//     }
-// };
-
-
-
-
-// const verifyPayment =  async(req,res)=>{
-//     try {
-//         const {
-//             razorpay_payment_id,
-//             razorpay_order_id,
-//             razorpay_signature
-//         } = req.body;
-
-//         const sign = razorpay_order_id + "|" + razorpay_payment_id;
-//         const expectedSign = crypto
-//             .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-//             .update(sign.toString())
-//             .digest("hex");
-
-//             console.log("req.session :",req.session);
-
-
-//         if (razorpay_signature === expectedSign) {
-
-//             console.log("Payment verified successfully");
-//             await Order.findByIdAndUpdate(req.session.currentOrder._id, {
-                
-//                 paymentType: 'Razorpay',
-                
-//             });
-
-
-//         //     // //const orderData = await Order.findById(req.session.currentOrder._id).populate('orderedItems.product');
-
-//         //     // // Update totalSales for each category
-//         //     // // for (const item of orderData.orderedItems) {
-//         //     // //     const categoryId = item.product.category; // Assuming category is stored in productId
-//         //     // //     await Category.findByIdAndUpdate(categoryId, {
-//         //     // //         $inc: { totalSales: item.quantity } // Increment totalSales
-//         //     // //     });
-//         //     // // }
-
-//         //     res.json({ success: true });
-
-//         //     //req.session.paymentType = "Razorpay"
-//         } 
-//         else {
-//             await Order.findByIdAndUpdate(req.session.currentOrder._id, {
-//                 paymentStatus: 'Failed'
-//             });
-//              //req.session.paymentType = "Razorpay"
-
-//             res.json({ success: false });
-//         }
-//     } catch (error) {
-//         console.error('Error verifying payment:', error);
-//         res.status(500).json({ success: false });
-//     }
-// }
-
-
 
 
 
@@ -1214,7 +1158,8 @@ const verifyPayment = async (req, res) => {
                     total + (item.productId.salePrice || item.price) * item.quantity, 0),
                 discount: req.session.discountAmount || 0,
                 couponName: req.session.couponName || "No Coupon Applied",
-                finalAmount: req.session.finalAmount,
+                // finalAmount : totalPrice-discount,
+                 finalAmount: req.session.finalAmount,
                 address: req.session.selectedAddress,
                 status: 'Pending',
                 
