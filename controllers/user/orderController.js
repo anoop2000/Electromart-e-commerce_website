@@ -150,7 +150,7 @@ const cancelOrder = async (req, res) => {
       console.log("req.params.id :", req.params.id);
   
       // Fetch the order and ensure it exists
-      const order = await Order.findById(orderId);
+      const order = await Order.findById(orderId).populate("orderedItems.product");
       if (!order) {
         return res.status(404).json({ message: 'Order not found' });
       }
@@ -196,7 +196,20 @@ const cancelOrder = async (req, res) => {
   
       //console.log(`Order #${order.orderid} has been cancelled. Refund processed.`);
       //console.log('Updated Wallet Balance:', user.wallet);
+
+
+
+      // Update product stock for each item in the cancelled order
+    for (const item of order.orderedItems) {
+        const product = item.product;
+        if (product) {
+          product.quantity = (product.quantity || 0) + item.quantity; // Add the quantity back to stock
+          await product.save(); // Save the updated product
+        }
+      }
   
+
+
       // Send success response with a message
       res.status(200).json({ success : true ,message: 'Order successfully cancelled', reason: reason });
     } catch (error) {

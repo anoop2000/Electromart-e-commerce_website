@@ -271,6 +271,18 @@ const changeStatusReturn = async (req, res) => {
       } else {
         throw new Error("User not found");
       }
+
+
+       // Update product quantities in stock
+       for (const item of orderData.orderedItems) {
+        const product = await Product.findById(item.product._id);
+        if (product) {
+            product.quantity += item.quantity; // Add the ordered quantity back to stock
+            await product.save();
+        } else {
+            console.warn(`Product not found for ID: ${item.product._id}`);
+        }
+    }
   
       // Update order status to "Cancelled"
       orderData.status = "Cancelled";
