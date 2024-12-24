@@ -3,7 +3,7 @@ const app = express()
 const path = require('path')
 const dotenv= require('dotenv')
 const session = require('express-session')
-
+const flash = require('connect-flash');
 const passport = require('./config/passport')
 
 dotenv.config()
@@ -29,6 +29,8 @@ app.use(session({
         maxAge : 72*60*60*1000
     }
 }))
+
+app.use(flash());
 
 app.use(passport.initialize())
 app.use(passport.session())

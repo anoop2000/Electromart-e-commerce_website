@@ -15,37 +15,82 @@ const loadCoupon = async(req,res)=>{
 }
 
 
-const createCoupon = async(req,res)=>{
+// const createCoupon = async(req,res)=>{
+//     try {
+//         const data = {
+//             couponName : req.body.couponName,
+//             startDate : new Date(req.body.startDate + "T00:00:00"),
+//             endDate : new Date(req.body.endDate+ "T00:00:00"),
+//             offerPrice : parseInt(req.body.offerPrice),
+//             minimumPrice : parseInt(req.body.minimumPrice)
+
+
+//         }
+
+//         const newCoupon  = new Coupon({
+//             name : data.couponName,
+//             createdOn : data.startDate,
+//             expiredOn : data.endDate,
+//             offerPrice : data.offerPrice,
+//             minimumPrice : data.minimumPrice
+//         })
+
+//         await newCoupon.save()
+
+//         return res.redirect('/admin/coupon')
+        
+//     } catch (error) {
+//         console.error(error);
+//         res.redirect('/pageerror')
+        
+        
+//     }
+// }
+
+
+
+
+const createCoupon = async (req, res) => {
     try {
-        const data = {
-            couponName : req.body.couponName,
-            startDate : new Date(req.body.startDate + "T00:00:00"),
-            endDate : new Date(req.body.endDate+ "T00:00:00"),
-            offerPrice : parseInt(req.body.offerPrice),
-            minimumPrice : parseInt(req.body.minimumPrice)
-
-
-        }
-
-        const newCoupon  = new Coupon({
-            name : data.couponName,
-            createdOn : data.startDate,
-            expiredOn : data.endDate,
-            offerPrice : data.offerPrice,
-            minimumPrice : data.minimumPrice
-        })
-
-        await newCoupon.save()
-
-        return res.redirect('/admin/coupon')
-        
+      const data = {
+        couponName: req.body.couponName.trim(),
+        startDate: new Date(req.body.startDate + "T00:00:00"),
+        endDate: new Date(req.body.endDate + "T00:00:00"),
+        offerPrice: parseInt(req.body.offerPrice),
+        minimumPrice: parseInt(req.body.minimumPrice),
+      };
+  
+      // Check if a coupon with the same name (case-insensitive) already exists
+    const existingCoupon = await Coupon.findOne({
+        name: { $regex: new RegExp(`^${data.couponName}$`, 'i') }, // Case-insensitive match
+      });
+  
+      if (existingCoupon) {
+        // Store error message in flash
+        req.flash('error', 'Coupon already exists');
+        return res.redirect('/admin/coupon');
+      }
+  
+      // Create a new coupon if no duplicate exists
+      const newCoupon = new Coupon({
+        name: data.couponName,
+        createdOn: data.startDate,
+        expiredOn: data.endDate,
+        offerPrice: data.offerPrice,
+        minimumPrice: data.minimumPrice,
+      });
+  
+      await newCoupon.save();
+  
+      return res.redirect('/admin/coupon');
     } catch (error) {
-        console.error(error);
-        res.redirect('/pageerror')
-        
-        
+      console.error(error);
+      res.redirect('/pageerror');
     }
-}
+  };
+
+  
+
 
 
 

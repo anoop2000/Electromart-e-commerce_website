@@ -65,31 +65,64 @@ const adminAuth = (req, res, next) => {
 
 
 
-const blockUserCheck = async(req,res,next)=>{
+// const blockUserCheck = async(req,res,next)=>{
 
-    try {
+//     try {
         
-        const currentUser = await User.findOne({
-          _id: req.session?.currentUser?._id,
-        });
+//         const currentUser = await User.findOne({
+//           _id: req.session?.currentUser?._id,
+//         });
     
         
-        if (currentUser?.isBlocked) {
-          req.session.destroy(); 
-          return res.redirect('/pageNotFound'); 
-        }
+//         if (currentUser?.isBlocked) {
+//           req.session.destroy(); 
+//           return res.redirect('/pageNotFound'); 
+//         }
     
        
-        //console.log('User is not blocked, proceeding...');
-        next();
-      } catch (error) {
-        console.error("Error in blockUserMiddleware:", error.message,error.stack);
+//         //console.log('User is not blocked, proceeding...');
+//         next();
+//       } catch (error) {
+//         console.error("Error in blockUserMiddleware:", error.message,error.stack);
         
-        res.status(500).send("An error occurred while processing your request.");
-      }
+//         res.status(500).send("An error occurred while processing your request.");
+//       }
 
     
-}
+// }
+
+
+
+
+const blockUserCheck = async (req, res, next) => {
+    try {
+      
+      if (!req.session?.user?._id) {
+        return next(); 
+      }
+  
+      
+      const currentUser = await User.findOne({ _id: req.session.user._id });
+  
+      if (currentUser?.isBlocked) {
+        
+        req.session.destroy((err) => {
+          if (err) {
+            console.error("Error destroying session:", err);
+            return res.status(500).send("An error occurred during session destruction.");
+          }
+          return res.redirect('/login?blocked=true');
+        });
+      } else {
+        
+        next();
+      }
+    } catch (error) {
+      console.error("Error in blockUserMiddleware:", error.message, error.stack);
+      res.status(500).send("An error occurred while processing your request.");
+    }
+  };
+  
 
 
 

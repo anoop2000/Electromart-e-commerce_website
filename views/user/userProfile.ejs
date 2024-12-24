@@ -389,12 +389,21 @@
                     
                   </td>
                   <td>
-                    <button
+                    <!-- <button
                       class="cancel-order-button btn btn-danger"
                       data-order-id="<%= order._id %>"
                     >
                       Cancel
-                    </button>
+                    </button> -->
+
+                      <button
+                        class="cancel-order-button btn btn-danger"
+                        data-order-id="<%= order._id %>"
+                        <%= order.status === "Returned" ? "disabled" : "" %>
+                        style="<%= order.status === 'returned' ? 'cursor: not-allowed; opacity: 0.6;' : '' %>"
+                      >
+                        Cancel
+                      </button>
                   </td>
                 </tr>
 
