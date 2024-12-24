@@ -15,37 +15,8 @@ const loadCoupon = async(req,res)=>{
 }
 
 
-// const createCoupon = async(req,res)=>{
-//     try {
-//         const data = {
-//             couponName : req.body.couponName,
-//             startDate : new Date(req.body.startDate + "T00:00:00"),
-//             endDate : new Date(req.body.endDate+ "T00:00:00"),
-//             offerPrice : parseInt(req.body.offerPrice),
-//             minimumPrice : parseInt(req.body.minimumPrice)
 
 
-//         }
-
-//         const newCoupon  = new Coupon({
-//             name : data.couponName,
-//             createdOn : data.startDate,
-//             expiredOn : data.endDate,
-//             offerPrice : data.offerPrice,
-//             minimumPrice : data.minimumPrice
-//         })
-
-//         await newCoupon.save()
-
-//         return res.redirect('/admin/coupon')
-        
-//     } catch (error) {
-//         console.error(error);
-//         res.redirect('/pageerror')
-        
-        
-//     }
-// }
 
 
 
@@ -60,18 +31,18 @@ const createCoupon = async (req, res) => {
         minimumPrice: parseInt(req.body.minimumPrice),
       };
   
-      // Check if a coupon with the same name (case-insensitive) already exists
-    const existingCoupon = await Coupon.findOne({
-        name: { $regex: new RegExp(`^${data.couponName}$`, 'i') }, // Case-insensitive match
+      // Check if coupon name already exists (case-insensitive)
+      const existingCoupon = await Coupon.findOne({
+        name: { $regex: `^${data.couponName}$`, $options: "i" },
       });
   
       if (existingCoupon) {
-        // Store error message in flash
-        req.flash('error', 'Coupon already exists');
-        return res.redirect('/admin/coupon');
+        return res.json({
+          success: false,
+          message: "A coupon with this name already exists.",
+        });
       }
   
-      // Create a new coupon if no duplicate exists
       const newCoupon = new Coupon({
         name: data.couponName,
         createdOn: data.startDate,
@@ -82,12 +53,23 @@ const createCoupon = async (req, res) => {
   
       await newCoupon.save();
   
-      return res.redirect('/admin/coupon');
+      return res.json({
+        success: true,
+        message: "Coupon added successfully!",
+      });
     } catch (error) {
       console.error(error);
-      res.redirect('/pageerror');
+      res.json({
+        success: false,
+        message: "An error occurred while creating the coupon.",
+      });
     }
   };
+  
+
+
+
+  
 
   
 

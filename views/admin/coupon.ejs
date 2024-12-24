@@ -316,9 +316,57 @@ function setDefaultStartDate(){
 
 
 
+document.querySelector("form").addEventListener("submit", async function (event) {
+  event.preventDefault(); // Prevent form submission
+
+  const formData = new FormData(this);
+  const data = {
+    couponName: formData.get("couponName"),
+    startDate: formData.get("startDate"),
+    endDate: formData.get("endDate"),
+    offerPrice: formData.get("offerPrice"),
+    minimumPrice: formData.get("minimumPrice"),
+  };
+
+  try {
+    // Send the form data to the server
+    const response = await fetch("/admin/createCoupon", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+
+    // Handle the response
+    if (result.success) {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: result.message,
+      }).then(() => {
+        window.location.href = "/admin/coupon";
+      });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: result.message,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "An unexpected error occurred. Please try again.",
+    });
+  }
+});
 
 
 </script>
+
 
 
 
