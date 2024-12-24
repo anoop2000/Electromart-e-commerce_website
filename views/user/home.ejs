@@ -236,11 +236,13 @@
                           </a> -->
                       </div>
 
-                      <div class="product-action-1" style="position: relative;">
-                        <a aria-label="Add to Wishlist" class="wishlist-btn" href="/wishlist?id=<%=products[i]._id%>">
+                      <!-- <div class="product-action-1" style="position: relative;" data-product-id="<%= products[i]._id %>">
+                        <a aria-label="Add to Wishlist" class="wishlist-btn" href="/wishlist">
                             <i class="fas fa-heart"></i>
                         </a>
-                    </div>
+                       </div> -->
+
+                       
                     
                     
 
@@ -260,6 +262,51 @@
       </div>
   </div>
 </section>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".wishlist-btn").forEach(button => {
+      button.addEventListener("click", async (event) => {
+        event.preventDefault(); 
+
+        const productId = button.getAttribute("data-product-id");
+
+        try {
+          const response = await fetch('/addToWishlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId })
+          });
+
+          const result = await response.json();
+
+          if (result.status) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: result.message,
+            });
+          } else {
+            Swal.fire({
+              icon: 'info',
+              title: 'Oops!',
+              text: result.message,
+            });
+          }
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong! Please try again later.',
+          });
+        }
+      });
+    });
+  });
+
+  </script>
 <%- include("../../views/partials/user/footer") %>
 
 
