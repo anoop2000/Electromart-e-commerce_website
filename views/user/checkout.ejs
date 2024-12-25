@@ -1061,12 +1061,12 @@ document.getElementById('submitPayment').addEventListener('click', async (e) => 
 
                                 
                                 
-                            
+                          
                 handler: async function (response) {
-                  console.log("Before try...",options);
-                  console.log("Payment successful, verifying...", response); // Debug log
+                  //console.log("Before try...",options);
+                 // console.log("Payment successful, verifying...", response); // Debug log
                     try {
-                      console.log("Inside handler ....");
+                      //console.log("Inside handler ....");
                       
                         const verifyResponse = await fetch('/verify-payment', {
                             method: 'POST',
@@ -1107,7 +1107,7 @@ document.getElementById('submitPayment').addEventListener('click', async (e) => 
                     color: '#3399cc'
                 }
             };
-            console.log("Initializing Razorpay with options:", options); // Debug log
+            //console.log("Initializing Razorpay with options:", options); // Debug log
 
             const rzp = new Razorpay(options);
             rzp.open();

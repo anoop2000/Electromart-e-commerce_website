@@ -72,16 +72,16 @@ app.use('/admin',adminRouter)
 //app.use(errorHandler);
 
 
-// app.use("/*", async (req, res) => {
-//     try {
+app.use("/*", async (req, res) => {
+    try {
       
   
-//       res.render("page-404");
-//     } catch (error) {
-//       console.error("Error occurred while fetching cart data:", error);
+      res.render("page-404");
+    } catch (error) {
+      console.error("Error occurred while fetching cart data:", error);
      
-//     }
-//   });
+    }
+  });
 
 const PORT =  process.env.PORT || 3000;
 app.listen(PORT,()=> console.log(`Server running on ${PORT}`)
