@@ -34,7 +34,7 @@ const customerInfo = async(req,res)=>{
             ]
         }).countDocuments();
 
-        console.log(userData);
+        //console.log(userData);
 
 
         res.render('customers',{

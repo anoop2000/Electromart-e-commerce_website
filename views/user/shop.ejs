@@ -212,6 +212,29 @@
  .category-brand-container {
    text-align: center;
  }
+
+
+
+ .input-container {
+  position: relative;
+}
+
+.search-input {
+  width: 100%;
+  padding-right: 30px; /* Adjust for the clear button */
+}
+
+.clear-button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  display: none; /* Hidden by default */
+  color: gray;
+  font-size: 16px;
+}
+
  
  
 
@@ -277,14 +300,32 @@
 
 
  <section class="shop-page container">
+  
+
    <div class="shop-topbar">
-     <div class="search-bar">
-       <form action="/search" method="POST" class="search-form">
-         <input type="text" name="query" placeholder="Search items..." class="search-input" />
-         <button type="submit" class="search-button">Search</button>
-       </form>
-     </div>
-   </div>
+    <div class="search-bar">
+      <form action="/search" method="POST" class="search-form">
+        <div class="input-container">
+          <input 
+            type="text" 
+            name="query" 
+            placeholder="Search items..." 
+            class="search-input" 
+            id="searchInput" 
+            oninput="toggleClearButton()" 
+          />
+          <span 
+            class="clear-button" 
+            id="clearButton" 
+            onclick="clearSearchInput()"
+          >
+            x
+          </span>
+        </div>
+        <button type="submit" class="search-button">Search</button>
+      </form>
+    </div>
+  </div>
   
    <div class="product-list-container">
     
@@ -472,6 +513,28 @@
       });
     });
   });
+</script>
+
+<script>
+
+function toggleClearButton() {
+  const searchInput = document.getElementById('searchInput');
+  const clearButton = document.getElementById('clearButton');
+  if (searchInput.value.trim() !== '') {
+    clearButton.style.display = 'inline';
+  } else {
+    clearButton.style.display = 'none';
+  }
+}
+
+function clearSearchInput() {
+  const searchInput = document.getElementById('searchInput');
+  searchInput.value = '';
+  toggleClearButton(); // Hide the "X" button after clearing the input
+}
+
+
+
 </script>
 
 

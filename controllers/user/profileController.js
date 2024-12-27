@@ -326,37 +326,86 @@ const changePassword = async(req,res)=>{
 
 
 
-const changePasswordValid = async(req,res)=>{
+
+
+
+const changePasswordValid = async (req, res) => {
     try {
-        const {email}  = req.body;
-        const userExists = await User.findOne({email});
-        if(userExists){
-            const otp = generateOtp();
-            const emailSent  = await sendVerificationEmail(email,otp);
-            if(emailSent){
-                req.session.userOtp = otp;
-                req.session.userData = req.body;
-                req.session.email = email;
-                res.render('change-password-otp')
-                console.log("OTP :",otp);
-                
-            }else{
-                res.json({
-                    success : false,
-                    message :"Failed to send OTP,Please try again"
-                })
-            }
-        }else{
-            res.render('change-password',{
-                message :"User with this email does not exists"
-            })
+        const { email } = req.body;
+
+        // Get the logged-in user's ID from the session
+        const userId = req.session.user;
+
+        // Check if a user is logged in
+        if (!userId) {
+            return res.json({
+                success: false,
+                message: "User is not logged in. Please log in to continue."
+            });
         }
-        
+
+        // Fetch the logged-in user's details from the database
+        const loggedInUser = await User.findById(userId);
+
+        if (!loggedInUser) {
+            return res.json({
+                success: false,
+                message: "User not found. Please log in again."
+            });
+        }
+
+        console.log("Logged-in user email:", loggedInUser.email);
+
+        // Compare entered email with logged-in user's email
+        if (loggedInUser.email !== email) {
+            return res.json({
+                success: false,
+                emailMismatch: true,
+                message: "Entered email does not match the logged-in user's email."
+            });
+        }
+
+        // Proceed with OTP generation and email sending
+        const otp = generateOtp();
+        const emailSent = await sendVerificationEmail(email, otp);
+
+        if (emailSent) {
+            // Save OTP and user data in the session
+            req.session.userOtp = otp;
+            req.session.userData = req.body;
+            req.session.email = email;
+
+            console.log("OTP sent successfully:", otp);
+
+            // Respond with success message
+            return res.json({
+                success: true,
+                message: "OTP sent successfully! Please check your email.",
+                redirectTo: '/verify-changepassword-otp'
+            });
+        } else {
+            // Handle OTP email failure
+            return res.json({
+                success: false,
+                message: "Failed to send OTP. Please try again."
+            });
+        }
     } catch (error) {
-        console.log("Error in change password validation",error);
-        res.redirect('/pageNotFound')   
+        console.error("Error in changePasswordValid:", error);
+
+        // Respond with an error message
+        return res.json({
+            success: false,
+            message: "An unexpected error occurred. Please try again later."
+        });
     }
-}
+};
+
+
+
+
+
+
 
 
 
