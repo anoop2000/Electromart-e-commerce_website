@@ -34,9 +34,9 @@ async function generateCustomerInformation(doc, orderData) {
             .fontSize(12)
             .text(`Order ID: ${orderData.orderid}`, 50, 100)
             .text(`Order Date: ${new Date(orderData.createdOn).toLocaleDateString()}`, 50, 115)
-            .text(`Total Price: \u20B9${orderData.totalPrice}`, 50, 130)
-            .text(`Discount: \u20B9${orderData.discount}`, 50, 145)
-            .text(`Final Amount: \u20B9${orderData.finalAmount}`, 50, 160)
+            .text(`Total Price: INR${orderData.totalPrice}`, 50, 130)
+            .text(`Discount: INR${orderData.discount}`, 50, 145)
+            .text(`Final Amount: INR${orderData.finalAmount}`, 50, 160)
             .moveDown()
             .text("Shipping Address:", 50, 200)
             .text(
@@ -82,7 +82,7 @@ function generateBody(doc, orderData) {
             .fontSize(10)
             .text(item.product.productName, tableX + 10, currentY + 5)
             .text(item.quantity.toString(), tableX + 200, currentY + 5)
-            .text(`\u20B9${item.price}`, tableX + 400, currentY + 5, { align: "right" });
+            .text(`INR${item.price}`, tableX + 400, currentY + 5, { align: "right" });
     });
 
     // Total row
@@ -90,7 +90,7 @@ function generateBody(doc, orderData) {
         .font("Helvetica-Bold")
         .fontSize(12)
         .text("Total:", tableX + 300, startY + rowHeight * (orderData.orderedItems.length + 1) + 5)
-        .text(`\u20B9${orderData.totalPrice}`, tableX + 400, startY + rowHeight * (orderData.orderedItems.length + 1) + 5, { align: "right" });
+        .text(`INR${orderData.totalPrice}`, tableX + 400, startY + rowHeight * (orderData.orderedItems.length + 1) + 5, { align: "right" });
 }
 
 function generateInvoicePDF(writeStream, endStream, orderData) {

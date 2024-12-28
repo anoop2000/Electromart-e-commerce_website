@@ -105,6 +105,8 @@
  }
 
 
+
+ 
  .product-card {
    width: calc(33.333% - 20px);
    border: 1px solid #ddd;
@@ -113,6 +115,10 @@
    text-align: center;
    position: relative;
  }
+
+
+
+ 
 
 
  .product-card img {
@@ -449,22 +455,13 @@
 
 <!-- Pagination -->
    <div class="pagination">
-    <% if (currentPage > 1) { %>
-        <a class="btn" href="/shop?page=<%= currentPage - 1 %>">Prev</a>
-      <% } %>
- 
+    
  
       <% for (let i = 1; i <= totalPages; i++) { %>
         <a class="btn <%= currentPage === i ? 'active' : '' %>" href="/shop?page=<%= i %>"><%= i %></a>
       <% } %>
  
  
-      <% if (currentPage < totalPages) { %>
-        <a class="btn" href="/shop?page=<%= currentPage + 1 %>">Next</a>
-      <% } %>
- 
-
-
    </div>
   
  </section>

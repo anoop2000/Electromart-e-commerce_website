@@ -21,7 +21,7 @@ const orderList = async (req, res) => {
       const count = await Order.estimatedDocumentCount();
       const orderData = await Order.find()
         .populate("userId", "name")
-        .sort({ createdOn: -1 })
+        .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
   
