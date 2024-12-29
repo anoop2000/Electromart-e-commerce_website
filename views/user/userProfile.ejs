@@ -356,6 +356,7 @@
 
 
                 <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                  
   <div class="card">
     <div class="card-header">
       <h5 class="mb-0">Your Orders</h5>
@@ -513,6 +514,7 @@
       </div>
     </div>
   </div>
+  
 </div>
 
                               
@@ -620,23 +622,7 @@
 
 
 
-<section>
-  <% if (emailUpdated) { %>
-      <div id="success-alert" class="alert alert-success" role="alert">
-          Email updated successfully! Your email has been changed.
-      </div>
-      <script>
-          document.addEventListener('DOMContentLoaded', () => {
-              setTimeout(() => {
-                  const alertElement = document.getElementById('success-alert');
-                  if (alertElement) {
-                      alertElement.style.display = 'none'; 
-                  }
-              }, 2000); 
-          });
-      </script>
-  <% } %>
-</section>
+
 
 
 
@@ -996,6 +982,28 @@ Pincode: ${address.pincode}`;
 
  
 </script>
+
+
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      // Check if the activeTab variable is provided
+      const activeTab = '<%= activeTab %>';
+
+      // If an active tab is specified, activate it
+      if (activeTab) {
+          const targetTab = document.querySelector(`[href="#${activeTab}"]`);
+          if (targetTab) {
+              // Activate the tab using Bootstrap's tab API
+              const tabInstance = new bootstrap.Tab(targetTab);
+              tabInstance.show();
+          }
+      }
+  });
+</script>
+
 
 
 

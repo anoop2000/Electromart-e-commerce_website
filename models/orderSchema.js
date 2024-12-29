@@ -78,6 +78,12 @@ const orderSchema = new Schema({
         type: String, 
         enum: ["COD","Wallet","Razorpay"]
         // default : 'toBeChosen'
+    },
+    paymentStatus: {
+        type: String,
+        required: true,
+        enum: ['Pending', 'Completed', 'Failed', 'Refunded'],
+        default: 'Pending'
     }
     
 

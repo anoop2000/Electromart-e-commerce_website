@@ -36,16 +36,22 @@ const ordersList = async (req, res) => {
             }).sort({createdOn : -1})
             .lean();
 
-            console.log("Sorted Orders:", orders.map(order => order.createdOn));
+            //console.log("Sorted Orders:", orders.map(order => order.createdOn));
+
+            const userAddresses = await Address.findOne({ userId }).lean();
 
         // Map over the orders to structure the data appropriately
         const enrichedOrders = orders.map(order => {
             let selectedAddress = null;
 
             // Extract the address details from the address document
-            if (order.address && Array.isArray(order.address.address)) {
-                selectedAddress = order.address.address.find(addr => addr); // Get the first address or adjust logic as needed
+            if (order.address && userAddresses?.address) {
+                selectedAddress = userAddresses.address.find(
+                    addr => addr._id.toString() === order.address._id.toString()
+                );
             }
+
+            
 
             return {
                 ...order,
@@ -53,24 +59,25 @@ const ordersList = async (req, res) => {
             };
         });
 
+        
+        
+
         if (!enrichedOrders.length) {
             console.log("No orders found for the user.");
-            return res.render('user/userProfile', { orders: [], message: 'No orders found.' });
+            return res.render('user/userProfile', { orders: [], message: 'No orders found.',activeTab : "orders" });
         }
 
-        console.log("Final enriched orders:", enrichedOrders.map(order => order.createdOn));
-
-
-        console.log('Rendering userProfile with:', {
-            orders: enrichedOrders,
-            message: null,
-            activeTab: 'orders'
-        });
+        
         
 
 
         // Render the user profile with orders
-        res.redirect('user/userProfile', { orders: enrichedOrders, message: null}); // Specify the active tab
+        res.render('userProfile', {
+             orders: enrichedOrders,
+              message: null,
+            activeTab : 'orders',
+        userAddress : orders.address
+    }); // Specify the active tab
     } catch (error) {
         console.error('Error fetching orders:', error.message, error.stack);
         res.status(500).send('An error occurred while fetching orders.');

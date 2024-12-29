@@ -78,14 +78,15 @@ const userProfile = async(req,res)=>{
         const emailUpdated = req.session.emailUpdated || false;
         req.session.emailUpdated = null;
 
-        await 
+        //console.log("address data of the user :",addressData);
+        
        
         res.render('userProfile',{
             user :userData,
             userAddress : addressData,
             emailUpdated,
             orders, // Pass orders data to the view
-            
+            activeTab : 'dashboard'
         })
     } catch (error) {
 

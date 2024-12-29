@@ -70,11 +70,11 @@ router.get('/downloadInvoice/:id',blockUserCheck,userAuth,profileController.invo
 
 //order management
 
-router.get('/orders',userAuth,orderController.ordersList)
+router.get('/orders',blockUserCheck,userAuth,orderController.ordersList)
 //router.get('/viewDetails',userAuth,orderController.viewDetails)
-router.get('/orderStatusPage/:id', orderController.orderStatusPage);
-router.post('/cancelOrder/:id', userAuth, orderController.cancelOrder);
-router.post('/returnOrder/:id',userAuth,orderController.returnOrder)
+router.get('/orderStatusPage/:id',blockUserCheck,userAuth, orderController.orderStatusPage);
+router.post('/cancelOrder/:id',blockUserCheck, userAuth, orderController.cancelOrder);
+router.post('/returnOrder/:id',blockUserCheck,userAuth,orderController.returnOrder)
 
 
 
