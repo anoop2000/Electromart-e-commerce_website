@@ -773,22 +773,36 @@ img {
 
             <form id="paymentForm">
                 <div class="payment-method">
+                  
                   <div>
-                    <label>
-                      <input type="radio" name="paymentType" id="COD" value="COD"> Cash on Delivery
-                    </label>
-
+                    <% if (finalAmount >= 100000) { %>
+                      <P>No COD available for order above INR100000</P>
+                    <% } else { %>
+                      <label>
+                        <input 
+                          type="radio" 
+                          name="paymentType" 
+                          id="COD" 
+                          value="COD" 
+                           
+                        > 
+                        Cash on Delivery
+                      </label>
+                    <% } %>
                   </div>
+
                   <div>
                   <label>
                     <input type="radio" name="paymentType" id="Wallet" value="Wallet"> Wallet
                   </label>
                   </div>
+
                   <div>
-                  <label>
-                    <input type="radio" name="paymentType" id="Razorpay" value="Razorpay"> Razorpay
-                  </label>
+                    <label>
+                      <input type="radio" name="paymentType" id="Razorpay" value="Razorpay"> Razorpay
+                    </label>
                   </div>
+
                 </div>
                 <button type="button" id="submitPayment" class="btn btn-outline-primary-2 btn-order btn-block">
                   Place Order
@@ -1059,9 +1073,7 @@ document.getElementById('submitPayment').addEventListener('click', async (e) => 
                                 description: 'Purchase Payment',
                                 order_id: result.order.id,
 
-                                
-                                
-                          
+                                         
                 handler: async function (response) {
                   //console.log("Before try...",options);
                  // console.log("Payment successful, verifying...", response); // Debug log
@@ -1084,7 +1096,7 @@ document.getElementById('submitPayment').addEventListener('click', async (e) => 
 
                         if (verifyResult.success) {
                             // Redirect directly to the order success page with order details
-                            window.location.href = '/orderSuccess';
+                            window.location.href = '/orderSuccessRzpy';
                         } else {
                             throw new Error(verifyResult.message || 'Payment verification failed');
                         }
@@ -1111,6 +1123,20 @@ document.getElementById('submitPayment').addEventListener('click', async (e) => 
 
             const rzp = new Razorpay(options);
             rzp.open();
+//---------------------------------------------------------------------------------
+            // Step 4: Handle Payment Failure
+            rzp.on('payment.failed', async function (response) {
+                console.error('Payment Failed:', response);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Failed',
+                    text: 'Payment was unsuccessful, but your order has been placed with pending payment status. Please contact support.'
+                }).then(() => {
+                    window.location.href = `/orderSuccessRzpy`;
+                });
+            });
+
         } catch (error) {
           console.log("options in  ejs",options);
           
@@ -1121,6 +1147,8 @@ document.getElementById('submitPayment').addEventListener('click', async (e) => 
             });
         }
     } 
+
+    //------------------------------------------------------------------------------------------------
     else if (paymentType === 'Wallet') {
         
           // Check if the wallet balance is sufficient

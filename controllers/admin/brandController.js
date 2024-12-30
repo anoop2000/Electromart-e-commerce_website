@@ -33,7 +33,7 @@ const addBrand =async(req,res)=>{
             const image = req.file.filename;
             const newBrand = new Brand({
                 brandName : brand,
-                brandImage : image
+                brandImage : image,
             })
             await newBrand.save()
             res.redirect('/admin/brands')

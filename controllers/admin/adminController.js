@@ -1,7 +1,8 @@
 const User = require('../../models/userSchema');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-
+const salesService = require('../../utils/saleService');
+const Order = require("../../models/orderSchema")
 
 const pageerror = async(req,res)=>{
     res.render('admin-error')
@@ -43,15 +44,6 @@ const login = async (req,res)=>{
 }
 
 
-const loadDashboard = async(req,res)=>{
-    if(req.session.admin){
-        try {
-            res.render('dashboard')
-        } catch (error) {
-            res.redirect('/pageerror')
-        }
-    }
-}
 
 
 
@@ -72,10 +64,144 @@ const logout  = async(req,res)=>{
     }
 }
 
+
+
+// const loadDashboard = async(req,res)=>{
+//     if(req.session.admin){
+//         try {
+//             res.render('dashboard')
+//         } catch (error) {
+//             res.redirect('/pageerror')
+//         }
+//     }
+// }
+
+
+
+
+
+
+
+
+    const getDashboard = async (req,res)=>{
+        try {
+            const { filter, startDate, endDate } = req.query; 
+            //console.log("req.query",req.query);
+            
+            let aggregationPipeline = [];
+
+
+            if (startDate && endDate && filter === 'custom-date') {
+                // Custom date range
+                aggregationPipeline = [
+                    {
+                        $match: {
+                            orderDate: {
+                                $gte: new Date(startDate),
+                                $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999))
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: {
+                                day: { $dayOfMonth: "$orderDate" },
+                                month: { $month: "$orderDate" },
+                                year: { $year: "$orderDate" }
+                            },
+                            totalSales: {
+                                $sum: "$finalAmount"
+                            }
+                        }
+                    },
+                    { 
+                        $sort: { 
+                            "_id.year": 1, 
+                            "_id.month": 1, 
+                            "_id.day": 1 
+                        } 
+                    }
+                ];
+            }
+    
+           else if (filter === 'daily') {
+                aggregationPipeline = [
+    
+                    {
+                        $group: {
+                            _id: {
+                                day: { $dayOfMonth: "$orderDate" },
+                                month: { $month: "$orderDate" },
+                                year: { $year: "$orderDate" }
+                            },
+                            totalSales: {
+                                $sum: "$finalAmount" 
+                            }
+                        }
+                    },
+                    { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } } 
+                ];
+            } else if (filter === 'monthly') {
+                aggregationPipeline = [
+                    
+                    {
+                        $group: {
+                            _id: {
+                                month: { $month: "$orderDate" },
+                                year: { $year: "$orderDate" }
+                            },
+                            totalSales: {
+                                $sum: "$finalAmount" 
+                            }
+                        }
+                    },
+                    { $sort: { "_id.year": 1, "_id.month": 1 } } 
+                ];
+            } 
+            //-----------------------------------------------------------------------
+            
+            //----------------------------------------------------------------------
+            
+            else {
+    
+                return res.status(400).json({ success: false, message: "Invalid filter provided" });
+            }
+    
+            const salesData = await Order.aggregate(aggregationPipeline);
+    
+            res.status(200).json({ success: true, data: salesData });
+        } catch (error) {
+            console.error("Error fetching sales data:", error);
+            res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
+
+
+
+    const loadDashboard = async (req,res)=>{
+        try {
+            const topSellingProducts = await salesService.getTopSellingProducts();
+            const topSellingCategories = await salesService.getTopSellingCategories();
+            const topSellingBrands = await salesService.getTopSellingBrands();
+            res.render('dashboard', {
+                topSellingProducts,
+                topSellingCategories,
+                topSellingBrands
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Server error' });
+        }
+        }
+
+
+
+
 module.exports = {
     loadLogin,
     login,
     loadDashboard,
     pageerror,
-    logout
+    logout,
+    getDashboard
 }

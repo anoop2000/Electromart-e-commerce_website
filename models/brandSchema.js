@@ -5,6 +5,8 @@ const brandSchema = new Schema({
 
     brandName :{
         type : String,
+        unique : true,
+        index : true,
         required : true
     },
     brandImage : {
@@ -14,6 +16,11 @@ const brandSchema = new Schema({
     isBlocked :{
         type : Boolean,
         default : false
+    },
+    totalSales:{
+        type: Number,
+        required : true,
+        default: 0
     },
     createdAt : {
         type : Date,

@@ -111,7 +111,7 @@ router.post('/checkout/applyCoupon',blockUserCheck,userAuth,cartController.apply
 router.post('/create-razorpay-order',blockUserCheck, userAuth, cartController.createRazorpayOrder);
 router.post('/verify-payment',blockUserCheck, userAuth, cartController.verifyPayment);
 router.get('/checkout/processPayment',userAuth,cartController.processWalletPayment);
-
+router.get('/orderSuccessRzpy',blockUserCheck,userAuth,cartController.orderPlacedRzpy)
 
 //wishlist management
 router.get('/wishlist',blockUserCheck,userAuth,wishlistController.loadwishlist);

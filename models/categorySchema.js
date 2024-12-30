@@ -20,6 +20,10 @@ const categorySchema = new Schema({
         type : Number,
         default : 0
     },
+    totalSales:{
+        type: Number,
+        default: 0
+    },
     createdAt : {
         type :Date,
         default :Date.now

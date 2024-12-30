@@ -86,4 +86,8 @@ router.get('/generate-sales-report',adminAuth,salesController.getReport);
 router.post('/generate-sales-report',adminAuth,salesController.generateSalesReport)
 
 
+//dashboard
+router.get('/sales-data', adminAuth, adminController.getDashboard);
+router.get('/dashboard',adminAuth,adminController.loadDashboard);
+
 module.exports = router
