@@ -63,7 +63,7 @@
                     <div class="statusContent">
                         <div class="col-sm-12">
                             <div class="statusTop">
-                                <p><strong>Status:</strong> <%= orderData.status %></p>
+                                <p><strong>Order Status:</strong> <%= orderData.status %></p>
                                 <p><strong>Order Date:</strong> <%= new Date(orderData.createdOn).toLocaleDateString('en-GB') %></p>
                                 <p><strong>Order Number:</strong> #<%= orderData.orderId %></p>
                             </div>
@@ -86,8 +86,14 @@
                                         <button class="btn btn-warning btn-lg btn-block">This order has been
                                             Returned</button>
                                     </div>
-                                    <% } 
-                                else { %>
+                                    <% } else if(orderData.paymentStatus === 'Pending' && orderData.paymentType === 'Razorpay'){%>
+
+                                        <button onclick="retryPayment('<%= orderData._id %>', '<%= orderData.finalAmount %>')" class="btn btn-success me-2">
+                                            Retry Payment
+                                        </button>
+
+                                    <%}
+                                        else { %>
                                     <div class="col-sm-12 mt-3">
                                         <div id="cancelBtn" class="btn btn-danger"
                                             onclick="cancelOrder('<%= orderData._id %>')">Cancel this order</div>
@@ -123,6 +129,19 @@
                                 <div class="order-box-content">
                                     <div class="address">
                                         <p><%= orderData.paymentType %></p>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-sm-6">
+                            <div class="order-box">
+                                <div class="order-box-header"><strong>Payment Status :</strong>
+                                <div class="order-box-content">
+                                    <div class="address">
+                                        <p><%= orderData.paymentStatus %></p>
                                     </div>
                                 </div>
                             </div>
@@ -197,6 +216,7 @@
     </div>
 </main>
 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -275,6 +295,115 @@ async function returnOrder(orderId) {
     });
 }
 
+
+
+
+
+
+
+
+function retryPayment(orderId, amount) {
+    
+
+    fetch('/create-razorpay-order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            orderId: orderId, // Existing Order ID
+            amount: amount * 100 // Amount in paise
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errorData => {
+            console.error('Server Error:', errorData);
+            throw new Error(errorData.message || 'Failed to initiate Razorpay order for retry.');
+        }).catch(() => {
+            // If response isn't valid JSON, log the raw response
+            console.error('Failed to parse error response:', response.statusText);
+            throw new Error('Failed to initiate Razorpay order for retry.');
+        });
+            
+            // throw new Error('Failed to initiate Razorpay order for retry.');
+        }
+        return response.json();
+    })
+    .then(razorpayOrder => {
+        const options = {
+            key: '<%= process.env.RAZORPAY_KEY_ID %>',
+            amount: amount * 100,
+            currency: 'INR',
+            name: 'ElectroMart',
+            description: 'Order Payment Retry',
+            order_id: razorpayOrder.id, // Use the Razorpay order ID
+            handler: async function (response) {
+                // Verify the retried payment
+                const verifyResponse = await fetch('/verify-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_signature: response.razorpay_signature,
+                        orderId: orderId
+                    })
+                });
+
+                const verifyResult = await verifyResponse.json();
+
+                if (verifyResult.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Payment Successful',
+                        text: 'Your payment has been successfully retried!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        window.location.href = `/orderSuccessRzpy?orderId=${orderId}`;
+                    });
+                } else {
+                    throw new Error('Payment verification failed');
+                }
+            },
+            prefill: {
+                name: '',
+                email: ''
+            },
+            theme: {
+                color: '#3399cc'
+            }
+        };
+
+
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+
+
+        // Handle Razorpay payment failure during retry
+        rzp.on('payment.failed', function (response) {
+            console.error('Retry Payment Failed:', response);
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Payment Failed',
+                text: 'Retry payment failed. Please try again later.'
+            });
+        });
+    })
+    .catch(error => {
+        console.error('Error in retryPayment:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Retry Payment Failed',
+            text: error.message || 'An error occurred while retrying the payment.'
+        });
+    });
+}
 
     </script>
 

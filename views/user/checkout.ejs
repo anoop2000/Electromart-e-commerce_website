@@ -1123,19 +1123,47 @@ document.getElementById('submitPayment').addEventListener('click', async (e) => 
 
             const rzp = new Razorpay(options);
             rzp.open();
-//---------------------------------------------------------------------------------
+   //---------------------------------------------------------------------------------
             // Step 4: Handle Payment Failure
             rzp.on('payment.failed', async function (response) {
-                console.error('Payment Failed:', response);
+    console.error('Payment Failed:', response);
 
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Payment Failed',
-                    text: 'Payment was unsuccessful, but your order has been placed with pending payment status. Please contact support.'
-                }).then(() => {
-                    window.location.href = `/orderSuccessRzpy`;
-                });
+    // Fallback: Notify backend to create order with pending payment status
+    try {
+        const verifyResponse = await fetch('/verify-payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                razorpay_payment_id: null, // Pass null if no payment ID is available
+                razorpay_order_id: response.error.metadata.order_id,
+                razorpay_signature: null // No signature in case of failure
+            })
+        });
+
+        const verifyResult = await verifyResponse.json();
+
+        if (verifyResult.success || verifyResult.orderId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Payment Failed',
+                text: 'Payment was unsuccessful, but your order has been placed with pending payment status. Please contact support.'
+            }).then(() => {
+                window.location.href = `/orderSuccessRzpy?orderId=${verifyResult.orderId}`;
             });
+        } else {
+            throw new Error('Failed to create order. Please contact support.');
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Unable to create order. Please try again later.'
+        });
+    }
+ });
+
 
         } catch (error) {
           console.log("options in  ejs",options);
@@ -1146,6 +1174,8 @@ document.getElementById('submitPayment').addEventListener('click', async (e) => 
                 text: error.message
             });
         }
+
+        
     } 
 
     //------------------------------------------------------------------------------------------------

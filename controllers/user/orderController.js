@@ -279,6 +279,7 @@ const orderStatusPage = async (req, res) => {
             status: order.status,
             reason: order.cancellationReason || 'N/A',
             createdOn: order.createdOn,
+            paymentStatus : order.paymentStatus
         };
 
         // Determine the order status
