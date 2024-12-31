@@ -1532,7 +1532,7 @@ const createRazorpayOrder = async (req, res) => {
 //     }
 // };
 
-
+//-------------------------------------------------------------------------- almost correct
 
 const verifyPayment = async (req, res) => {
     try {
@@ -1548,6 +1548,10 @@ const verifyPayment = async (req, res) => {
         const isPaymentVerified = razorpay_signature === expectedSign;
 
         const existingOrder = await Order.findById(orderId);
+        // if(existingOrder && existingOrder.paymentStatus === "Pending"){
+        //     existingOrder.paymentStatus = "Completed";
+        //     await existingOrder.save();
+        // }
 
         
         // Fetch user, cart, and session data
@@ -1573,6 +1577,12 @@ const verifyPayment = async (req, res) => {
             total + (item.price * item.quantity), 0);
         const finalAmount = totalPrice - discountAmount;
 
+
+        if(existingOrder && existingOrder.paymentStatus === "Pending"){
+            existingOrder.paymentStatus = "Completed";
+            await existingOrder.save();
+        }else{
+
         // Create order in the database
         const order = await Order.create({
             userId,
@@ -1590,11 +1600,13 @@ const verifyPayment = async (req, res) => {
 
         req.session.currentOrder = order;
 
-        // Update stock only if payment is verified
-        if (isPaymentVerified && cartData) {
+    
+        
 
-            existingOrder.paymentStatus = "Completed";
-            await existingOrder.save();
+        // Update stock only if payment is verified
+        if (isPaymentVerified) {
+
+            
 
             for (const item of orderedItems) {
                 const product = await Product.findById(item.product);
@@ -1626,6 +1638,7 @@ const verifyPayment = async (req, res) => {
             message: isPaymentVerified ? 'Payment verified successfully' : 'Payment verification failed. Order created with Pending status.',
             orderId: order._id,
         });
+    }
     } catch (error) {
         console.error('Error verifying payment:', error);
         return res.status(500).json({ success: false, error: 'Internal server error' });
@@ -1635,6 +1648,8 @@ const verifyPayment = async (req, res) => {
 
 
 //---------------------------------------------------------------------------------------------------------------------
+
+
 
 
 const orderPlacedRzpy = async(req,res)=>{

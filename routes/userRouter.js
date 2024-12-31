@@ -40,7 +40,7 @@ router.get('/',userController.loadHomepage)
 router.get('/shop',userAuth,userController.loadShoppingPage)
 router.get('/filter',blockUserCheck,userAuth,userController.filterProduct)
 router.get('/filterPrice',blockUserCheck,userAuth,userController.filterByPrice)
-router.post('/search',blockUserCheck,userAuth,userController.searchProducts)
+router.get('/search',blockUserCheck,userAuth,userController.searchProducts)
 router.get('/sortByPrice', blockUserCheck,userAuth,userController.sortPrice);
 router.get('/sortByAlpha',blockUserCheck,userAuth,userController.sortByAlpha)
 router.get('/clearFilters',blockUserCheck,userAuth,userController.clearFilters)

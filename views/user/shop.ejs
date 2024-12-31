@@ -1,4 +1,7 @@
 <%- include("../../views/partials/user/header") %>
+<!-- Font Awesome CDN -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
 <style>
  .main-container {
    max-width: 1200px;
@@ -310,28 +313,58 @@
 
    <div class="shop-topbar">
     <div class="search-bar">
-      <form action="/search" method="POST" class="search-form">
-        <div class="input-container">
+      
+
+      <form action="/search" method="GET" class="search-form">
+        <div style="position: relative; display: inline-block;">
+          <!-- Search Input -->
           <input 
             type="text" 
-            name="query" 
-            placeholder="Search items..." 
-            class="search-input" 
             id="searchInput" 
-            oninput="toggleClearButton()" 
-          />
-          <span 
-            class="clear-button" 
+            name="search" 
+            class="search-input" 
+            placeholder="Search products..."
+            value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+            oninput="toggleClearButton()"
+            required
+          >
+          <!-- Clear Button -->
+          <button 
+            type="button" 
             id="clearButton" 
-            onclick="clearSearchInput()"
+            class="clear-button" 
+            onclick="clearSearchInput()" 
+            style="display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 16px; cursor: pointer;"
+            aria-label="Clear Search"
           >
             x
-          </span>
+          </button>
         </div>
-        <button type="submit" class="search-button">Search</button>
+      
+        <!-- Preserve current filters -->
+        <% if (typeof selectedCategory !== 'undefined' && selectedCategory) { %>
+          <input type="hidden" name="category" value="<%= selectedCategory %>">
+        <% } %>
+        <% if (typeof selectedBrand !== 'undefined' && selectedBrand) { %>
+          <input type="hidden" name="brand" value="<%= selectedBrand %>">
+        <% } %>
+        <% if (typeof sortBy !== 'undefined' && sortBy) { %>
+          <input type="hidden" name="sortBy" value="<%= sortBy %>">
+        <% } %>
+        <% if (typeof sortOrder !== 'undefined' && sortOrder) { %>
+          <input type="hidden" name="sortOrder" value="<%= sortOrder %>">
+        <% } %>
+      
+        <!-- Submit Button -->
+        <button type="submit" class="search-button">
+          <i class="fas fa-search"></i>
+        </button>
       </form>
+      
     </div>
   </div>
+  
+
   
    <div class="product-list-container">
     
@@ -370,60 +403,81 @@
 
 
 
-       <div class="filter-section">
-        <div class="filter-title">Sort By Price</div>
-        <div class="sort-container">
-          <ul>
-            <div class="filter-item">
-              <a href="/sortByPrice?sort=asc" >
-                Price: Low to High
-              </a>
-            </div>
-            <div class="filter-item">
-              <a href="/sortByPrice?sort=desc" >
-                Price: High to Low
-              </a>
-            </div>
-          </ul>
-        </div>
+       
+
+    <div class="filter-section">
+      <div class="filter-title">Sort By Price</div>
+      <div class="sort-container">
+        <ul>
+          <div class="filter-item">
+            <a href="/filter?<%= selectedCategory ? 'category=' + selectedCategory : '' %><%= selectedBrand ? 'brand=' + selectedBrand : '' %>&sortBy=price&sortOrder=asc&page=1">
+              Price: Low to High
+            </a>
+          </div>
+          <div class="filter-item">
+            <a href="/filter?<%= selectedCategory ? 'category=' + selectedCategory : '' %><%= selectedBrand ? 'brand=' + selectedBrand : '' %>&sortBy=price&sortOrder=desc&page=1">
+              Price: High to Low
+            </a>
+          </div>
+        </ul>
       </div>
-
-
-
-      <div class="filter-section">
-        <div class="filter-title">In Alphabetical Order</div>
-        <div class="sort-container">
-          <ul>
-
-            <div class="filter-item">
-                <a href="/sortByAlpha?sort=az">
-                  Name: A-Z
-                </a>
-            </div>
-              <div class="filter-item">
-                <a href="/sortByAlpha?sort=za">
-                  Name: Z-A
-                </a>
-              </div>
-
-          </ul>
-        </div>
-    </div>  
+    </div>
+    
+    <div class="filter-section">
+      <div class="filter-title">In Alphabetical Order</div>
+      <div class="sort-container">
+        <ul>
+          <div class="filter-item">
+            <a href="/filter?<%= selectedCategory ? 'category=' + selectedCategory : '' %><%= selectedBrand ? 'brand=' + selectedBrand : '' %>&sortBy=name&sortOrder=asc&page=1">
+              Name: A-Z
+            </a>
+          </div>
+          <div class="filter-item">
+            <a href="/filter?<%= selectedCategory ? 'category=' + selectedCategory : '' %><%= selectedBrand ? 'brand=' + selectedBrand : '' %>&sortBy=name&sortOrder=desc&page=1">
+              Name: Z-A
+            </a>
+          </div>
+        </ul>
+      </div>
+    </div>
+    
+    
       
       
 
       
-       <div class="price-filter">
-         <div class="filter-title">Filter by Price</div>
-         <form id="price-filter-form">
-           <div class="price-options">
-             <a href="/filterPrice?gt=0&lt=25000"><button type="button" class="price-button">Under ₹25000</button></a>
-             <a href="/filterPrice?gt=25000&lt=50000"><button type="button" class="price-button">₹25000 - ₹50000</button></a>
-             <a href="/filterPrice?gt=50000&lt=75000"><button type="button" class="price-button">₹50000- ₹75000</button></a>
-             <a href="/filterPrice?gt=75000&lt=500000"><button type="button" class="price-button">Above ₹75000</button></a>
-           </div>
-         </form>
-       </div>
+    <div class="price-filter">
+      <div class="filter-title">Filter by Price</div>
+      <div class="price-options">
+          <a href="/filterPrice?gt=0&lt=25000<%= typeof selectedCategory !== 'undefined' && selectedCategory ? '&category=' + selectedCategory : '' %><%= typeof selectedBrand !== 'undefined' && selectedBrand ? '&brand=' + selectedBrand : '' %><%= typeof sortBy !== 'undefined' && sortBy ? '&sortBy=' + sortBy : '' %><%= typeof sortOrder !== 'undefined' && sortOrder ? '&sortOrder=' + sortOrder : '' %>">
+              <button type="button" class="price-button <%= typeof priceRange !== 'undefined' && priceRange.max === 25000 ? 'active' : '' %>">
+                  Under ₹25000
+              </button>
+          </a>
+          
+          <a href="/filterPrice?gt=25000&lt=50000<%= typeof selectedCategory !== 'undefined' && selectedCategory ? '&category=' + selectedCategory : '' %><%= typeof selectedBrand !== 'undefined' && selectedBrand ? '&brand=' + selectedBrand : '' %><%= typeof sortBy !== 'undefined' && sortBy ? '&sortBy=' + sortBy : '' %><%= typeof sortOrder !== 'undefined' && sortOrder ? '&sortOrder=' + sortOrder : '' %>">
+              <button type="button" class="price-button <%= typeof priceRange !== 'undefined' && priceRange.min === 25000 && priceRange.max === 50000 ? 'active' : '' %>">
+                  ₹25000 - ₹50000
+              </button>
+          </a>
+          
+          <a href="/filterPrice?gt=50000&lt=75000<%= typeof selectedCategory !== 'undefined' && selectedCategory ? '&category=' + selectedCategory : '' %><%= typeof selectedBrand !== 'undefined' && selectedBrand ? '&brand=' + selectedBrand : '' %><%= typeof sortBy !== 'undefined' && sortBy ? '&sortBy=' + sortBy : '' %><%= typeof sortOrder !== 'undefined' && sortOrder ? '&sortOrder=' + sortOrder : '' %>">
+              <button type="button" class="price-button <%= typeof priceRange !== 'undefined' && priceRange.min === 50000 && priceRange.max === 75000 ? 'active' : '' %>">
+                  ₹50000 - ₹75000
+              </button>
+          </a>
+          
+          <a href="/filterPrice?gt=75000&lt=500000<%= typeof selectedCategory !== 'undefined' && selectedCategory ? '&category=' + selectedCategory : '' %><%= typeof selectedBrand !== 'undefined' && selectedBrand ? '&brand=' + selectedBrand : '' %><%= typeof sortBy !== 'undefined' && sortBy ? '&sortBy=' + sortBy : '' %><%= typeof sortOrder !== 'undefined' && sortOrder ? '&sortOrder=' + sortOrder : '' %>">
+              <button type="button" class="price-button <%= typeof priceRange !== 'undefined' && priceRange.min === 75000 ? 'active' : '' %>">
+                  Above ₹75000
+              </button>
+          </a>
+      </div>
+  </div>
+
+
+
+
      </aside>
 
 
@@ -454,16 +508,22 @@
 
 
 <!-- Pagination -->
-   <div class="pagination">
+   
     
  
-      <% for (let i = 1; i <= totalPages; i++) { %>
-        <a class="btn <%= currentPage === i ? 'active' : '' %>" href="/shop?page=<%= i %>"><%= i %></a>
-      <% } %>
- 
- 
-   </div>
-  
+      
+
+
+
+   <!-- Update pagination links to maintain filters and sort -->
+<div class="pagination">
+  <% for (let i = 1; i <= totalPages; i++) { %>
+    <a class="btn <%= currentPage === i ? 'active' : '' %>" 
+       href="/filter?page=<%= i %><%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %><%= sortBy ? '&sortBy=' + sortBy : '' %><%= sortOrder ? '&sortOrder=' + sortOrder : '' %>">
+      <%= i %>
+    </a>
+  <% } %>
+</div>
  </section>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
@@ -513,25 +573,28 @@
 </script>
 
 <script>
-
-function toggleClearButton() {
-  const searchInput = document.getElementById('searchInput');
-  const clearButton = document.getElementById('clearButton');
-  if (searchInput.value.trim() !== '') {
-    clearButton.style.display = 'inline';
-  } else {
-    clearButton.style.display = 'none';
+  // Show or hide the "clear" button based on input value
+  function toggleClearButton() {
+    const searchInput = document.getElementById('searchInput');
+    const clearButton = document.getElementById('clearButton');
+    if (searchInput.value.trim() !== '') {
+      clearButton.style.display = 'inline';
+    } else {
+      clearButton.style.display = 'none';
+    }
   }
-}
 
-function clearSearchInput() {
-  const searchInput = document.getElementById('searchInput');
-  searchInput.value = '';
-  toggleClearButton(); // Hide the "X" button after clearing the input
-}
+  // Clear the search input field and hide the "clear" button
+  function clearSearchInput() {
+    const searchInput = document.getElementById('searchInput');
+    searchInput.value = '';
+    toggleClearButton(); // Hide the "X" button after clearing the input
+  }
 
-
-
+  // Initialize the clear button visibility on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    toggleClearButton();
+  });
 </script>
 
 
