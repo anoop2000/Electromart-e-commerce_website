@@ -1,3 +1,255 @@
+<style>
+    /* Add this to your header styles */
+.header {
+    background-color: #ffffff;
+    padding: 25px 0;
+    position: relative;
+    width: 100%;
+    top: 0;
+    z-index: 999;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.header__logo {
+    padding: 10px 0;
+    margin-top: -18px;
+}
+
+.logo-img {
+    max-height: 40px;
+    width: auto;
+}
+
+.header__menu {
+    text-align: center;
+}
+
+.header__menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.header__menu ul li {
+    display: inline-block;
+    margin: 0 20px;
+    position: relative;
+}
+
+.header__menu ul li a {
+    font-size: 16px;
+    color: #333333;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 5px 0;
+    transition: all 0.3s ease;
+}
+
+.header__menu ul li.active a,
+.header__menu ul li a:hover {
+    color: #007bff;
+}
+
+/* Dropdown styles */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ffffff;
+    min-width: 160px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    z-index: 1;
+    border-radius: 4px;
+    right: 0;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content a {
+    color: #333333;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown-content a:hover {
+    background-color: #f8f9fa;
+    color: #007bff;
+}
+
+.header__nav__option {
+    text-align: right;
+    padding-top: 10px;
+}
+
+.header__nav__option a {
+    display: inline-block;
+    margin-left: 20px;
+    color: #333333;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.header__nav__option a:hover {
+    color: #007bff;
+}
+
+.header__nav__option img {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.sign-in-link {
+    font-weight: 500;
+    color: #333333;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    margin-left: 20px;
+}
+
+.sign-in-link:hover {
+    color: #007bff;
+}
+
+/* Mobile menu styles */
+.canvas__open {
+    display: none;
+    cursor: pointer;
+}
+
+.header__logo img {
+    width: 52px;
+    height: 45px;
+    border-radius: 42%;
+   
+    margin-left: -95px;
+}
+
+@media (max-width: 991px) {
+    .header__menu {
+        display: none;
+    }
+
+    .canvas__open {
+        display: block;
+        font-size: 22px;
+        color: #333333;
+        height: 35px;
+        width: 35px;
+        line-height: 35px;
+        text-align: center;
+        border: 1px solid #333333;
+        border-radius: 2px;
+        cursor: pointer;
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .header__nav__option {
+        text-align: center;
+        padding-top: 15px;
+    }
+
+    .mobile-menu {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        width: 300px;
+        height: 100vh;
+        background: #ffffff;
+        padding: 50px 30px 30px;
+        transition: all 0.5s;
+        z-index: 9999;
+    }
+
+    .mobile-menu.active {
+        left: 0;
+    }
+
+    .mobile-menu ul li {
+        display: block;
+        margin: 0;
+        padding: 10px 0;
+        border-bottom: 1px solid #ebebeb;
+    }
+
+    .mobile-menu ul li:last-child {
+        border-bottom: none;
+    }
+}
+
+/* Add margin to main content to account for fixed header */
+main {
+    margin-top: 80px; /* Adjust this value based on your header height */
+}
+</style>
+<header class="header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-3">
+                <div class="header__logo">
+                    <a href="/"><img src="/img/logo.png" alt="Logo" class="logo-img"></a>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+                <nav class="header__menu mobile-menu">
+                    <ul>
+                        
+                        <li class="active"><a href="/">Home</a></li>
+                        <li><a href="/shop">Shop</a></li>
+                        <li><a href="/getCart">Cart</a></li>
+                        <li><a href="/aboutUs">About</a></li>
+                        
+                           
+                    </ul>
+                </nav>
+            </div>
+            <div class="col-lg-3 col-md-3">
+                <div class="header__nav__option">
+                    <!-- on line 100 -->
+                    <% if(locals.user){ %>
+                        <div class="dropdown">
+                            <a href="#" class="sign-in-link"> <%= locals.user.name %> </a>
+
+                            <div class="dropdown-content">
+                                <a href="/userProfile">Profile</a>
+                                <a href="/logout">Logout</a>
+
+                            </div>
+                        </div>
+
+                    <% }else { %>
+                        <a href="/signup" class="sign-in-link">Sign Up</a> 
+                        <a href="/login" class="sign-in-link">Log In</a>
+
+                    <% } %>
+
+                    
+                    <!-- <a href="#" class="search-switch"><img src="img/icon/search.png" alt=""></a> -->
+                    <a href="/wishlist"><img src="/img/icon/heart.png" alt=""></a>
+                    <a href="/getCart"><img src="/img/icon/cart.png" alt=""> <span></span></a>
+                    <!-- <div class="price">$0.00</div> -->
+                </div>
+            </div>
+        </div>
+        <div class="canvas__open"><i class="fa fa-bars"></i></div>
+    </div>
+</header>
+
+
 
 
 
@@ -12,14 +264,19 @@
   font-size: 16px;
   margin-bottom: 20px;
   font-family: 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  margin-top: 20px;
-  margin-left: 20px;
+  margin-top: -70px;
+  margin-left: 200px;
+  background-color: rgb(205, 205, 223);
+    margin-right: 200px;
+    height: 40px;
+    align-items: center;
 }
 
 .breadcrumb-item {
   text-decoration: none;
   color: #17a2b8; 
   transition: color 0.3s ease;
+  padding-left: 10px;
 }
 
 .breadcrumb-item:hover {
@@ -215,6 +472,267 @@
         <a href="/shop" class="btn btn-info"><i class="fa fa-home"></i> Go to Shop</a>
     </div>
 </main>
+
+
+<style>
+
+.footer {
+    background-color: #111111;
+    color: #fff;
+    padding: 70px 0 20px;
+    margin-top: 100px;
+}
+
+/* Footer About Section */
+.footer__about {
+    margin-bottom: 30px;
+}
+
+.footer__logo {
+    margin-bottom: 20px;
+}
+
+.footer__logo img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+.footer__about p {
+    color: #666666;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.footer__about img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Footer Widget Section */
+.footer__widget {
+    margin-bottom: 30px;
+}
+
+.footer__widget h6 {
+    color: #fff;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.footer__widget ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer__widget ul li {
+    margin-bottom: 10px;
+}
+
+.footer__widget ul li a {
+    color: #fff;
+    font-size: 14px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+
+
+/* Newsletter Section */
+.footer__newslatter {
+    margin-bottom: 30px;
+}
+
+.footer__newslatter p {
+    color: #666666;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.footer__newslatter form {
+    position: relative;
+    display: flex;
+    margin-bottom: 30px;
+}
+
+.footer__newslatter input {
+    width: 100%;
+    height: 46px;
+    padding: 0 15px;
+    border: 1px solid #e1e1e1;
+    border-radius: 4px;
+    margin-right: 5px;
+    font-size: 14px;
+    color: #666666;
+}
+
+.footer__newslatter button {
+    background: #4c4848;
+    border: none;
+    padding: 0 15px;
+    height: 46px;
+    border-radius: 4px;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+
+
+/* Copyright Section */
+.footer__copyright__text {
+    border-top: 1px solid #e1e1e1;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+.footer__copyright__text p {
+    color: #666666;
+    font-size: 14px;
+    margin: 0;
+}
+
+.footer__copyright__text i {
+    color: #007bff;
+    margin: 0 3px;
+}
+
+.footer__copyright__text a {
+    color: #1a2b3c;
+    text-decoration: none;
+}
+
+.footer__copyright__text a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 991px) {
+    .footer {
+        padding: 50px 0 20px;
+    }
+
+    .footer__widget {
+        margin-bottom: 40px;
+    }
+}
+
+@media (max-width: 767px) {
+    .footer__about,
+    .footer__widget,
+    .footer__newslatter {
+        text-align: center;
+    }
+
+    .footer__logo {
+        display: flex;
+        justify-content: center;
+    }
+
+    .footer__newslatter form {
+        max-width: 300px;
+        margin: 0 auto 30px;
+    }
+}
+
+/* Payment Icons */
+.footer__payment {
+    margin-top: 20px;
+}
+
+.footer__payment img {
+    max-width: 200px;
+    height: auto;
+}
+
+/* Social Media Icons (if needed) */
+.footer__social {
+    margin-top: 20px;
+}
+
+.footer__social a {
+    display: inline-block;
+    margin-right: 10px;
+    color: #666666;
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+.footer__social a:hover {
+    color: #007bff;
+}
+</style>
+
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="footer__about">
+                    <div class="footer__logo">
+                        <a href="#"><img src="/img/logo.png" alt="" style="width: 50px; height: 50px;"></a>
+                    </div>
+                    <p>The customer is at the heart of our unique business model, which includes design.</p>
+                    <a href="#"><img src="/img/payment.png" alt=""></a>
+                </div>
+            </div>
+            <div class="col-lg-2 offset-lg-1 col-md-3 col-sm-6">
+                <div class="footer__widget">
+                    <h6>Shopping</h6>
+                    <ul>
+                        <li><a href="#">Clothing Store</a></li>
+                        <li><a href="#">Trending Shoes</a></li>
+                        <li><a href="#">Accessories</a></li>
+                        <li><a href="#">Sale</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-3 col-sm-6">
+                <div class="footer__widget">
+                    <h6>Shopping</h6>
+                    <ul>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Payment Methods</a></li>
+                        <li><a href="#">Delivary</a></li>
+                        <li><a href="#">Return & Exchanges</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-3 offset-lg-1 col-md-6 col-sm-6">
+                <div class="footer__widget">
+                    <h6>NewLetter</h6>
+                    <div class="footer__newslatter">
+                        <p>Be the first to know about new arrivals, look books, sales & promos!</p>
+                        <form action="#">
+                            <input type="text" placeholder="Your email">
+                            <button type="submit"><span class="icon_mail_alt"></span></button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="footer__copyright__text">
+                    
+                    <p>Copyright ©
+                        <script>
+                            document.write(new Date().getFullYear());
+                        </script>2020
+                        All rights reserved | This template is made with <i class="fa fa-heart-o"
+                        aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank"><span style="color:red;">Colorlib</span></a>
+                    </p>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
