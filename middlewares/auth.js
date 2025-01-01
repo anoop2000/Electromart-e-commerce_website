@@ -95,34 +95,34 @@ const adminAuth = (req, res, next) => {
 
 
 const blockUserCheck = async (req, res, next) => {
-    try {
-      
-      if (!req.session?.user?._id) {
-        return next(); 
-      }
-  
-      
-      const currentUser = await User.findOne({ _id: req.session.user._id });
-  
-      if (currentUser?.isBlocked) {
-        
-        req.session.destroy((err) => {
-          if (err) {
-            console.error("Error destroying session:", err);
-            return res.status(500).send("An error occurred during session destruction.");
-          }
-          return res.redirect('/login?blocked=true');
-        });
-      } else {
-        
-        next();
-      }
-    } catch (error) {
-      console.error("Error in blockUserMiddleware:", error.message, error.stack);
-      res.status(500).send("An error occurred while processing your request.");
+  try {
+    // Ensure session exists and user is logged in
+    if (!req.session?.user?._id) {
+      return next(); // Proceed if no user session (e.g., public routes)
     }
-  };
-  
+
+    // Fetch the latest user data from the database
+    const currentUser = await User.findById(req.session.user._id);
+
+    // If user is not found or is blocked, terminate the session and redirect
+    if (!currentUser || currentUser.isBlocked) {
+      req.session.destroy((err) => {
+        if (err) {
+          console.error("Error destroying session:", err);
+          return res.status(500).send("An error occurred during session destruction.");
+        }
+        res.redirect('/login?blocked=true'); // Optionally, show a "You are blocked" message
+      });
+      return; // Stop further processing
+    }
+
+    // User is valid and not blocked, proceed to the next middleware
+    next();
+  } catch (error) {
+    console.error("Error in blockUserCheck middleware:", error.message, error.stack);
+    res.status(500).send("An error occurred while processing your request.");
+  }
+};
 
 
 

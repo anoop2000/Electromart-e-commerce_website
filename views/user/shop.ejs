@@ -110,37 +110,7 @@
 
 
  
- .product-card {
-   width: calc(33.333% - 20px);
-   border: 1px solid #ddd;
-   padding: 15px;
-   border-radius: 8px;
-   text-align: center;
-   position: relative;
- }
-
-
-
  
-
-
- .product-card img {
-   max-width: 100%;
-   height: auto;
-   border-radius: 5px;
- }
-
-
- .wishlist-btn {
-   position: absolute;
-   top: 8px;
-   right: 8px;
-   background-color: rgba(237, 247, 247, 0.8);
-   color: #fff;
-   padding: 8px;
-   border-radius: 50%;
-   cursor: pointer;
- }
 
 
  .add-to-cart-btn {
@@ -246,6 +216,83 @@
 
  
  
+
+ /*-----------------------------------*/
+
+ .product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Fixed 3-column layout */
+  gap: 20px; /* Space between cards */
+  padding: 20px;
+  min-height: 600px; /* Ensure consistent grid height */
+  box-sizing: border-box;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  height: 350px; /* Fixed height for consistent layout */
+  box-sizing: border-box;
+  position: relative; /* Add this */
+}
+
+.product-card img {
+  max-width: 100%;
+  max-height: 150px; /* Restrict image height */
+  object-fit: cover; /* Keep aspect ratio */
+  border-radius: 4px;
+}
+
+.product-card h4 {
+  margin: 10px 0;
+  font-size: 1rem;
+  text-align: center;
+  color: #333;
+  min-height: 40px; /* To align text in all cards */
+}
+
+.product-card p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  color: #555;
+  text-align: center;
+}
+
+.wishlist-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.product-grid .no-products-message {
+  grid-column: span 3; /* Center the message */
+  text-align: center;
+  padding: 20px;
+}
+
+/* Ensure consistent page structure */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+main {
+  min-height: calc(100vh - 200px); /* Adjust for header/footer if needed */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
 
  /*-----------------------------------*/
 
