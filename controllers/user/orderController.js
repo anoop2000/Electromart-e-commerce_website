@@ -13,77 +13,64 @@ const Wallet = require('../../models/walletSchema')
 
 
 
-
-
 const ordersList = async (req, res) => {
     try {
         console.log("Fetching orders for the user.");
 
-        const userId = req.session.user; // Retrieve the logged-in user's ID
+        const userId = req.session.user;
         if (!userId) {
-            return res.redirect('/login'); // Redirect to login if the user is not authenticated
+            return res.redirect('/login');
         }
 
+        const limit = 8; // Keep consistent with profileController
+        const page = parseInt(req.query.page) || 1;
+        const skip = (page - 1) * limit;
+
+        // Fetch orders with pagination
         const orders = await Order.find({ userId })
             .populate({
                 path: 'orderedItems.product',
-                select: 'productName salePrice description brand color productImage', // Fetch all required product fields
+                select: 'productName salePrice description brand color productImage',
             })
             .populate({
                 path: 'address',
-                select: 'address', // Populate the entire address array
+                select: 'address',
                 model: 'Address',
-            }).sort({createdOn : -1})
+            })
+            .sort({ createdAt: -1 }) // Use createdAt instead of createdOn for consistency
+            .skip(skip)
+            .limit(limit)
             .lean();
 
-            //console.log("Sorted Orders:", orders.map(order => order.createdOn));
+        const totalOrders = await Order.countDocuments({ userId });
+        const totalPages = Math.ceil(totalOrders / limit);
 
-            const userAddresses = await Address.findOne({ userId }).lean();
+        const userAddresses = await Address.findOne({ userId }).lean();
 
-        // Map over the orders to structure the data appropriately
-        const enrichedOrders = orders.map(order => {
-            let selectedAddress = null;
+        // Map orders with addresses
+        const enrichedOrders = orders.map(order => ({
+            ...order,
+            address: userAddresses?.address?.find(
+                addr => addr._id.toString() === order.address?._id?.toString()
+            ) || null
+        }));
 
-            // Extract the address details from the address document
-            if (order.address && userAddresses?.address) {
-                selectedAddress = userAddresses.address.find(
-                    addr => addr._id.toString() === order.address._id.toString()
-                );
-            }
-
-            
-
-            return {
-                ...order,
-                address: selectedAddress || null, // Replace with null if no address is found
-            };
+        // Render with consistent parameters
+        res.render('user/userProfile', {
+            orders: enrichedOrders,
+            message: enrichedOrders.length ? null : 'No orders found.',
+            activeTab: 'orders',
+            totalPages,
+            currentPage: page,
+            limit,
+            userAddress: userAddresses
         });
 
-        
-        
-
-        if (!enrichedOrders.length) {
-            console.log("No orders found for the user.");
-            return res.render('user/userProfile', { orders: [], message: 'No orders found.',activeTab : "orders" });
-        }
-
-        
-        
-
-
-        // Render the user profile with orders
-        res.render('userProfile', {
-             orders: enrichedOrders,
-              message: null,
-            activeTab : 'orders',
-        userAddress : orders.address
-    }); // Specify the active tab
     } catch (error) {
-        console.error('Error fetching orders:', error.message, error.stack);
+        console.error('Error fetching orders:', error);
         res.status(500).send('An error occurred while fetching orders.');
     }
 };
-
 
 
 

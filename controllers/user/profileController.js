@@ -70,28 +70,43 @@ const securePassword = async(password)=>{
 
 const userProfile = async(req,res)=>{   
     try {
-        const userId=  req.session.user;
+        const userId = req.session.user;
         const userData = await User.findById(userId).populate('walletHistory');
-        const addressData = await Address.findOne({userId : userId})
-        const orders = await Order.find({ userId }).lean(); 
+        const addressData = await Address.findOne({ userId: userId });
+        
+        // Add pagination parameters
+        const limit = 8; // Match the limit from orderController
+        const page = parseInt(req.query.page) || 1;
+        const skip = (page - 1) * limit;
+
+        // Fetch orders with pagination and sorting
+        const orders = await Order.find({ userId })
+            .populate('orderedItems.product')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
+        // Get total orders count for pagination
+        const totalOrders = await Order.countDocuments({ userId });
+        const totalPages = Math.ceil(totalOrders / limit);
 
         const emailUpdated = req.session.emailUpdated || false;
         req.session.emailUpdated = null;
 
-        //console.log("address data of the user :",addressData);
-        
-       
-        res.render('userProfile',{
-            user :userData,
-            userAddress : addressData,
+        res.render('userProfile', {
+            user: userData,
+            userAddress: addressData,
             emailUpdated,
-            orders, // Pass orders data to the view
-            activeTab : 'dashboard'
-        })
+            orders,
+            activeTab: req.query.tab || 'dashboard',
+            totalPages,
+            currentPage: page,
+            limit
+        });
     } catch (error) {
-
-        console.log('Error for retrieve profile data',error)
-        res.redirect('/pageNotFound')
+        console.log('Error retrieving profile data', error);
+        res.redirect('/pageNotFound');
     }
 }
 
@@ -330,14 +345,13 @@ const changePassword = async(req,res)=>{
 
 
 
+
 const changePasswordValid = async (req, res) => {
     try {
         const { email } = req.body;
-
-        // Get the logged-in user's ID from the session
         const userId = req.session.user;
 
-        // Check if a user is logged in
+        // Check if user is logged in
         if (!userId) {
             return res.json({
                 success: false,
@@ -345,7 +359,7 @@ const changePasswordValid = async (req, res) => {
             });
         }
 
-        // Fetch the logged-in user's details from the database
+        // Fetch logged-in user's details
         const loggedInUser = await User.findById(userId);
 
         if (!loggedInUser) {
@@ -355,49 +369,42 @@ const changePasswordValid = async (req, res) => {
             });
         }
 
-        console.log("Logged-in user email:", loggedInUser.email);
-
         // Compare entered email with logged-in user's email
         if (loggedInUser.email !== email) {
             return res.json({
                 success: false,
-                emailMismatch: true,
                 message: "Entered email does not match the logged-in user's email."
             });
         }
 
-        // Proceed with OTP generation and email sending
+        // Generate and send OTP
         const otp = generateOtp();
         const emailSent = await sendVerificationEmail(email, otp);
 
         if (emailSent) {
-            // Save OTP and user data in the session
+            // Store OTP and email in session
             req.session.userOtp = otp;
             req.session.userData = req.body;
             req.session.email = email;
+            console.log("OTP sent:", otp);
 
-            console.log("OTP sent successfully:", otp);
-
-            // Respond with success message
+            // Respond with success and redirect URL
             return res.json({
                 success: true,
-                message: "OTP sent successfully! Please check your email.",
-                redirectTo: '/verify-changepassword-otp'
+                redirectUrl: '/verify-changepassword-otp'
             });
         } else {
-            // Handle OTP email failure
             return res.json({
                 success: false,
                 message: "Failed to send OTP. Please try again."
             });
         }
+
     } catch (error) {
         console.error("Error in changePasswordValid:", error);
-
-        // Respond with an error message
-        return res.json({
+        return res.status(500).json({
             success: false,
-            message: "An unexpected error occurred. Please try again later."
+            message: "An unexpected error occurred. Please try again."
         });
     }
 };
@@ -406,8 +413,15 @@ const changePasswordValid = async (req, res) => {
 
 
 
-
-
+const getchangePassOtp = async(req,res)=>{
+    try {
+        res.render('change-password-otp')
+        
+    } catch (error) {
+        res.redirect('/pageNotFound')
+        
+    }
+}  
 
 
 
@@ -722,6 +736,7 @@ module.exports = {
     deleteAddress,
     getEditProfile,
     updateProfile,
-    invoiceDownload
+    invoiceDownload,
+    getchangePassOtp
     
 }

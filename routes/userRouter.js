@@ -60,6 +60,7 @@ router.post('/verify-email-otp',blockUserCheck,userAuth,profileController.verify
 router.post('/update-email',blockUserCheck,userAuth,profileController.updateEmail)
 router.get('/change-password',blockUserCheck,userAuth,profileController.changePassword)
 router.post('/change-password',blockUserCheck,userAuth,profileController.changePasswordValid)
+router.get('/verify-changepassword-otp',blockUserCheck,userAuth,profileController.getchangePassOtp)
 router.post('/verify-changepassword-otp',blockUserCheck,userAuth,profileController.verifyChangePassOtp)
 router.get('/userProfile',blockUserCheck,userAuth,profileController.userProfile)
 router.get('/editProfile',blockUserCheck,userAuth,profileController.getEditProfile)

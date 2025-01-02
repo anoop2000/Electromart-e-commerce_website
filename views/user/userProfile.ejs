@@ -366,7 +366,7 @@
         <table class="table">
           <thead>
             <tr>
-              <th>No.</th>
+              <!-- <th>No.</th> -->
               <th>No. of Items</th>
               <th>Payment Method</th>
               <th>Total Amount</th>
@@ -379,7 +379,7 @@
             <% if (orders && orders.length > 0) { %>
               <% orders.forEach((order, index) => { %>
                 <tr id="order-row-<%= order.orderid %>">
-                  <td>(<%= index+1 %>)</td>
+                  
                   <td><%= order.orderedItems.length %></td>
                   <td><%= order.paymentType %></td>
                   <td>₹<%= order.finalAmount %></td>
@@ -397,16 +397,22 @@
                       Cancel
                     </button> -->
 
-                      <button
-                        class="cancel-order-button btn btn-danger"
-                        data-order-id="<%= order._id %>"
-                        <%= order.status === "Returned" ? "disabled" : "" %>
-                        style="<%= order.status === 'returned' ? 'cursor: not-allowed; opacity: 0.6;' : '' %>"
-                      >
-                        Cancel
-                      </button>
+                    <button
+                    class="cancel-order-button btn btn-danger"
+                    data-order-id="<%= order._id %>"
+                    <%= (order.status === "Returned" || order.status === "Cancelled") ? "disabled" : "" %>
+                    style="<%= (order.status === 'Returned' || order.status === 'Cancelled') ? 'cursor: not-allowed; opacity: 0.6;' : '' %>"
+                  >
+                    Cancel
+                  </button>
                   </td>
                 </tr>
+
+
+
+
+
+                
 
                 
 
@@ -512,10 +518,38 @@
           </tbody>
         </table>
       </div>
+
+
+
+      <% if (totalPages > 1) { %>
+        <div class="pagination-wrapper">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <% for(let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= currentPage == i ? 'active' : '' %>">
+                            <a class="page-link" 
+                               href="?page=<%= i %>&tab=<%= activeTab %>">
+                                <%= i %>
+                            </a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+        </div>
+      <% } %>
+
+
+
+
+
+
     </div>
   </div>
   
 </div>
+
+
+
 
                               
 

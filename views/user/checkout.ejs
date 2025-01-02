@@ -775,8 +775,8 @@ img {
                 <div class="payment-method">
                   
                   <div>
-                    <% if (finalAmount >= 100000) { %>
-                      <P>No COD available for order above INR100000</P>
+                    <% if (finalAmount >= 10000) { %>
+                      <P style="color: red;">- No COD available for order above INR10,000/-</P>
                     <% } else { %>
                       <label>
                         <input 
