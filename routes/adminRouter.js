@@ -8,7 +8,7 @@ const productController = require('../controllers/admin/productController')
 const orderDetailsController = require('../controllers/admin/orderDetailsController')
 const couponController = require('../controllers/admin/couponController')
 const salesController = require('../controllers/admin/salesController')
-
+const bannerController = require('../controllers/admin/bannerController')
 const {userAuth,adminAuth} = require('../middlewares/auth') 
 const multer = require('multer')
 const storage = require('../helpers/multer')
@@ -89,5 +89,14 @@ router.post('/generate-sales-report',adminAuth,salesController.generateSalesRepo
 //dashboard
 router.get('/sales-data', adminAuth, adminController.getDashboard);
 router.get('/dashboard',adminAuth,adminController.loadDashboard);
+
+
+//banner management
+router.get('/banner',adminAuth,bannerController.getBannerPage)
+router.get('/addBanner',adminAuth,bannerController.getAddBannerPage)
+router.post('/addBanner',adminAuth,uploads.single("images"),bannerController.addBanner)
+router.get('/deleteBanner',adminAuth,bannerController.deleteBanner)
+
+
 
 module.exports = router

@@ -35,7 +35,17 @@ const generatePDF = (data, reportType) => {
         const reportDate = new Date().toLocaleDateString();
         doc.fontSize(12).font('Helvetica').text(`Report Type: ${reportType} | Date: ${reportDate}`, { align: 'center' });
 
+        doc.moveDown(1);
+
+        // Add Order Status section with conditional rendering
+        if (data.orderStatus && data.orderStatus !== 'all') {
+            doc.text(`Order Status: ${data.orderStatus}`, { align: 'center' });
+        } else {
+            doc.text('All Orders', { align: 'center' });
+        }
+
         doc.moveDown(2);
+
 
         // Totals Section
         doc.fontSize(12).font('Helvetica');

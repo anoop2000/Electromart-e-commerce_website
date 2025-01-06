@@ -11,6 +11,8 @@ const cartController = require('../controllers/user/cartController')
 const orderController = require('../controllers/user/orderController')
 const wishlistController = require('../controllers/user/wishlistController')
 
+const Cart  = require('../models/cartSchema')
+const User = require('../models/userSchema')
 
 router.get('/pageNotFound',userController.pageNotFound)
 router.get('/aboutUs',userController.aboutUs)
@@ -116,7 +118,7 @@ router.get('/orderSuccessRzpy',blockUserCheck,userAuth,cartController.orderPlace
 
 //wishlist management
 router.get('/wishlist',blockUserCheck,userAuth,wishlistController.loadwishlist);
-router.post('/addToWishlist',blockUserCheck,userAuth,wishlistController.addToWishlist)
+router.post('/toggleWishlist',blockUserCheck,userAuth,wishlistController.toggleWishlist)
 router.get('/removeFromWishlist',blockUserCheck,userAuth,wishlistController.removeProduct)
 router.post('/moveToCart/:id',blockUserCheck,userAuth,wishlistController.moveToCart)
 
@@ -129,6 +131,26 @@ router.post('/moveToCart/:id',blockUserCheck,userAuth,wishlistController.moveToC
 //         next(err); // Passing the error to the error-handling middleware
 //     }
 // });
+
+router.get('/get-counts', async (req, res) => {
+    try {
+        const userId = req.session.user;
+        if (!userId) {
+            return res.json({ cartCount: 0, wishlistCount: 0 });
+        }
+
+        const cart = await Cart.findOne({ userid : userId });
+        const user = await User.findById(userId);
+
+        res.json({
+            cartCount: cart ? cart.items.length : 0,
+            wishlistCount: user ? user.wishlist.length : 0
+        });
+    } catch (error) {
+        console.error('Error getting counts:', error);
+        res.json({ cartCount: 0, wishlistCount: 0 });
+    }
+});
 
 
 

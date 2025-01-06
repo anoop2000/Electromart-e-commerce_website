@@ -1,5 +1,8 @@
 <%- include("../../views/partials/user/header") %>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css">
+
 <style>
   .btn {
       display: inline-block;
@@ -128,84 +131,161 @@
   }
 
 
+
+
+  /* General Reset */
+img {
+    max-width:80%;
+    height: auto;
+    display: block;
+}
+
+/* Hero Slider Section */
+.hero-slider .single-slider-img img {
+    width: 980px; /* Full width of the container */
+    height: 402px; /* Maintain aspect ratio */
+    
+    object-fit: cover; /* Ensure the image fills the area without distortion */
+}
+
+.hero-slider .swiper-container {
+    width: 100%; /* Full-width container */
+    max-width: 1200px; /* Limit the maximum width */
+    margin: 0 auto; /* Center the slider */
+}
+
+.hero-slider .swiper-pagination,
+.hero-slider .swiper-button-next,
+.hero-slider .swiper-button-prev {
+    /* Add styles for navigation elements if needed */
+}
+
+/* Banner Section */
+.banner-area .single-banner img {
+    width: 100%; /* Full width of the column */
+    height: auto; /* Maintain aspect ratio */
+    max-height: 300px; /* Limit banner height */
+    object-fit: cover; /* Crop image gracefully if dimensions vary */
+}
+
+.banner-area .col-lg-4 {
+    margin-bottom: 15px; /* Add spacing between banners */
+}
+
+.banner-area {
+    text-align: center; /* Center-align banners */
+    max-width: 1200px; /* Limit overall section width */
+    margin: 0 auto; /* Center the content */
+}
+
+
+
+
+.bannerBox {
+    padding: 10px; /* Space between the box and the image */
+    border: 2px solid #ccc; /* Light gray border for the box */
+    border-radius: 8px; /* Rounded corners */
+    background-color: #f9f9f9; /* Subtle background color */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for a lifted effect */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effects */
+
+}
+
+.bannerBox:hover {
+    transform: scale(1.05); /* Slight zoom effect on hover */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+}
+
+.single-banner img {
+    border-radius: 6px; /* Ensure the image corners align with the box */
+}
+
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .hero-slider .single-slider-img img {
+        max-height: 300px; /* Adjust slider height for smaller screens */
+    }
+
+    .banner-area .single-banner img {
+        max-height: 200px; /* Adjust banner height for smaller screens */
+    }
+}
+
+@media (max-width: 576px) {
+    .banner-area .col-lg-4,
+    .banner-area .col-md-6 {
+        flex: 0 0 100%; /* Stack banners on small screens */
+        max-width: 100%;
+    }
+}
+
+
     
   
 </style>
-<section class="hero">
-  <div class="hero__slider owl-carousel">
-      <div class="hero__items set-bg" data-setbg="img/hero/hero-1.jpg">
-          <div class="container">
-              <div class="row">
-                  <div class="col-xl-5 col-lg-7 col-md-8">
-                      <div class="hero__text">
-                          <h6>Summer Collection</h6>
-                          <h2>Fall - Winter Collections 2030</h2>
-                          <p>A specialist label creating luxury essentials. Ethically created.</p>
-                          <a href="#" class="primary-btn">Shop now <span class="arrow_right"></span></a>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-      <div class="hero__items set-bg" data-setbg="img/hero/hero-2.jpg">
-          <div class="container">
-              <div class="row">
-                  <div class="col-xl-5 col-lg-7 col-md-8">
-                      <div class="hero__text">
-                          <h6>Summer Collection</h6>
-                          <h2>Fall - Winter Collections 2030</h2>
-                          <p>A specialist label creating luxury essentials.</p>
-                          <a href="#" class="primary-btn">Shop now <span class="arrow_right"></span></a>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </div>
+
+
+
+
+<!-- Hero Slider Section -->
+<!-- Replace your existing hero section HTML -->
+<section class="hero-slider">
+    <!-- Full-width container -->
+    <div class="banner-container">
+        <div class="swiper-container hero-swiper">
+            <div class="swiper-wrapper">
+                <% banner.slice(0, 2).forEach(bannerItem => { %>
+                    <div class="swiper-slide">
+                        <div class="single-slider-img">
+                            <img src="/uploads/re-image/<%= bannerItem.image %>" 
+                                 alt="<%= bannerItem.title %>">
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+            <!-- Navigation arrows inside -->
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
+    </div>
+    
+    <!-- Content and pagination outside -->
+    <div class="banner-content-container">
+        <div class="banner-content">
+            <h4 class="banner-title"></h4>
+            <p class="banner-description"></p>
+        </div>
+        <!-- Pagination dots outside -->
+        <div class="swiper-pagination"></div>
+    </div>
 </section>
 
+<!-- Banner Section -->
+<section class="banner-area pt-5 pb-5">
+    <div class="container">
+        <div class="row">
+            <% banner.slice(2).forEach(bannerItem => { %>
+                <div class="col-lg-4 col-md-6 bannerBox">
+                    <div class="single-banner">
+                        <a href="<%= bannerItem.link %>">
+                            <img src="/uploads/re-image/<%= bannerItem.image %>" alt="<%= bannerItem.title %>" style="width: 100%; height: auto;">
+                        </a>
+                        <h3><%= bannerItem.title%></h3>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+  </section>
 
 
-<section class="banner spad">
-  <div class="container">
-      <div class="row">
-          <div class="col-lg-7 offset-lg-4">
-              <div class="banner__item">
-                  <div class="banner__item__pic">
-                      <img src="img/banner/banner-1.jpg" alt="Clothing Collections 2030">
-                  </div>
-                  <div class="banner__item__text">
-                      <h2>Clothing Collections 2035</h2>
-                      <a href="#">Shop now</a>
-                  </div>
-              </div>
-          </div>
-          <div class="col-lg-5">
-              <div class="banner__item banner__item--middle">
-                  <div class="banner__item__pic">
-                      <img src="img/banner/banner-2.jpg" alt="Accessories">
-                  </div>
-                  <div class="banner__item__text">
-                      <h2>Accessories</h2>
-                      <a href="#">Shop now</a>
-                  </div>
-              </div>
-          </div>
-          <div class="col-lg-7">
-              <div class="banner__item banner__item--last">
-                  <div class="banner__item__pic">
-                      <img src="img/banner/banner-3.jpg" alt="Shoes Spring 2030">
-                  </div>
-                  <div class="banner__item__text">
-                      <h2>Shoes Spring 2030</h2>
-                      <a href="#">Shop now</a>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </div>
-</section>
 
+
+
+
+
+  
 
 
 
@@ -263,6 +343,7 @@
   </div>
 </section>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -307,6 +388,193 @@
   });
 
   </script>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const heroSwiper = new Swiper('.hero-swiper', {
+            // Enable loop mode
+            loop: true,
+            
+            // Enable auto play
+            autoplay: {
+                delay: 3000,
+                disableOnInteraction: false,
+            },
+            
+            // Add effects
+            effect: 'fade',
+            fadeEffect: {
+                crossFade: true
+            },
+            
+            // Configure navigation
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            
+            // Configure pagination
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            
+            // Responsive breakpoints
+            breakpoints: {
+                320: {
+                    slidesPerView: 1
+                },
+                768: {
+                    slidesPerView: 1
+                },
+                1024: {
+                    slidesPerView: 1
+                },
+            },
+            
+            // Additional options
+            speed: 1000,
+            grabCursor: true,
+            watchOverflow: true,
+            centeredSlides: true,
+            
+            // Events
+            on: {
+                init: function () {
+                    console.log('Swiper initialized');
+                },
+            }
+        });
+    });
+    </script>
+
+
+    
+    
+    <!-- Add these styles -->
+    <style>
+        /* Full-width banner styles */
+        .hero-slider {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .banner-container {
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Swiper container styles */
+        .hero-swiper {
+            width: 100%;
+        }
+        
+        .single-slider-img {
+            width: 100%;
+            height: auto;
+        }
+        
+        .single-slider-img img {
+            width: 100%;
+            height: auto;
+            max-height: 777px;
+            object-fit: cover;
+        }
+        
+        /* Navigation arrows inside image */
+        .swiper-button-next,
+        .swiper-button-prev {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            color: #000;
+            z-index: 10;
+        }
+        
+        .swiper-button-next {
+            right: 20px;
+        }
+        
+        .swiper-button-prev {
+            left: 20px;
+        }
+        
+        .swiper-button-next:hover,
+        .swiper-button-prev:hover {
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Content container outside carousel */
+        .banner-content-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+            text-align: center;
+        }
+        
+        .banner-content {
+            margin-bottom: 20px;
+        }
+        
+        .banner-title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .banner-description {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        /* Pagination styles - outside carousel */
+        .swiper-pagination {
+            position: static !important;
+            margin-top: 15px;
+        }
+        
+        .swiper-pagination-bullet {
+            width: 12px;
+            height: 12px;
+            background: #333;
+            opacity: 0.5;
+            margin: 0 5px;
+        }
+        
+        .swiper-pagination-bullet-active {
+            opacity: 1;
+            background: #000;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .banner-title {
+                font-size: 1.8rem;
+            }
+            
+            .banner-description {
+                font-size: 1rem;
+            }
+        
+            .swiper-button-next,
+            .swiper-button-prev {
+                width: 30px;
+                height: 30px;
+            }
+        }
+        </style>
+
+
 <%- include("../../views/partials/user/footer") %>
 
 

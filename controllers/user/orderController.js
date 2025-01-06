@@ -56,7 +56,7 @@ const ordersList = async (req, res) => {
         }));
 
         // Render with consistent parameters
-        res.render('user/userProfile', {
+        res.render('userProfile', {
             orders: enrichedOrders,
             message: enrichedOrders.length ? null : 'No orders found.',
             activeTab: 'orders',
@@ -156,7 +156,7 @@ const cancelOrder = async (req, res) => {
         await order.save();
 
         // Check if the payment type is not 'COD'
-        if (order.paymentType !== "COD") {
+        if (order.paymentStatus === "Completed") {
             // Calculate refund amount based on finalAmount and discount
             const refundAmount = order.finalAmount - order.discount;
 

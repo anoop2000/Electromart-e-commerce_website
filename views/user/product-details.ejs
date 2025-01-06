@@ -373,24 +373,19 @@
             </div>
 
             <!-- Add to Cart -->
-             <!-- <button onclick="addToCart('<%= product._id %>')">Add to Cart</button> -->
-            
-            <!-- <button type="submit" class="button button-add-to-cart"
-                 <% if (product.quantity === 0 || product.quantity === 1) { %> 
-                                    disabled 
-                             style="cursor: not-allowed;" 
-                <% } else { %> 
-                    onclick="addToCart('<%= product._id %>')" 
-                <% } %>>Add to Cart</button> -->
+             
 
 
 
-                <button
+            <button
                     id="add-to-cart-btn"
                     class="button button-add-to-cart"
                     onclick="checkStockAndAddToCart('<%= product._id %>', '<%= product.quantity %>')">
-                    Add to Cart
+                    <%= isInCart ? 'Go to Cart' : 'Add to Cart' %>
                 </button>
+
+
+                
 
 
         </div>
@@ -423,6 +418,7 @@
     </div>
     <% } %>
 </div>
+
 
 
 
@@ -474,12 +470,10 @@
 
 
 
-
-
+    
 
 
     
-
 
 
 
@@ -499,6 +493,10 @@ async function checkStockAndAddToCart(productId) {
         const data = await response.json();
 
         if (data.success) {
+
+            // Update the cart count in the header dynamically
+            updateCartCounter();
+
             Swal.fire({
                 icon: 'success',
                 title: 'Added to Cart',
@@ -529,7 +527,25 @@ async function checkStockAndAddToCart(productId) {
 }
 
 
+//------------------------------
 
+// Function to fetch and update cart count dynamically
+async function updateCartCounter() {
+    try {
+        const response = await fetch('/get-counts'); // Endpoint to get updated counts
+        if (!response.ok) {
+            throw new Error('Failed to fetch counts');
+        }
+
+        const data = await response.json();
+        const cartCounter = document.getElementById('cartCounter');
+        cartCounter.textContent = data.cartCount || 0; // Update the cart count in the header
+    } catch (error) {
+        console.error('Error updating cart counter:', error);
+    }
+}
+
+//----------------------------
 
 
 
@@ -540,6 +556,9 @@ async function addToCart(productId) {
 
         if (data.success) {
             // Redirect to the cart page using the URL returned from the backend
+
+            
+
             window.location.href = data.redirectUrl;
         } else {
             // If there is an error, display the message

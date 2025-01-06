@@ -14,12 +14,16 @@ const getReport = async(req,res)=>{
 
 
 const generateSalesReport = async (req, res) => {
-    const { reportType, startDate, endDate, downloadFormat } = req.body;
+    const { reportType, startDate, endDate, downloadFormat,orderStatus } = req.body;
     //console.log("req.body from salescontroller", req.body);
 
     try {
         // Base query for fetching orders with 'Delivered' status
-        let query = { status: 'Delivered' };
+        let query = {};
+        if (orderStatus && orderStatus !== 'all') {
+            query.status = orderStatus;
+        }
+
 
         // Apply date filters based on the selected report type
         if (reportType === 'custom') {
@@ -60,6 +64,7 @@ const generateSalesReport = async (req, res) => {
             totalSalesCount,
             totalOrderAmount,
             totalDiscount,
+            orderStatus,
             totalCouponDeduction,
             orders: orders.map(order => ({
                 orderId: order.orderid,

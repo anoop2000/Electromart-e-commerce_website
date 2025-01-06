@@ -110,6 +110,7 @@
 <h3 class="text-center"><strong>Sales Report</strong></h3>
 <div class="box-main">
     <form id="reportForm" class="main">
+        
         <label for="reportType">Select Report Type:</label>
         <select id="reportType" name="reportType">
             <option value="daily">Daily</option>
@@ -118,14 +119,28 @@
             <option value="yearly">Yearly</option>
             <option value="custom">Custom Date Range</option>
         </select>
-
         <div id="customDateRange" style="display: none;">
             <label for="startDate">Start Date:</label>
             <input type="date" id="startDate" name="startDate">
             <label for="endDate">End Date:</label>
             <input type="date" id="endDate" name="endDate">
         </div>
-
+        
+        <br><br>
+        <label for="orderStatus">Select Order Status:</label>
+        <select id="orderStatus" name="orderStatus">
+            <option value="all">All Orders</option>
+            <option value="Pending">Pending</option>
+            
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
+            <option value="Returned">Returned</option>
+        </select>
+        <br>
+        
+        
+        
         <button type="submit" class="btn btn-success mybtn">Generate Report</button>
     </form>
 </div>

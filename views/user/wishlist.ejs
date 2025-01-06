@@ -103,6 +103,7 @@
                <div class="col-12">
                    <div class="table-responsive">
                        <table class="table shopping-summery text-center clean">
+                        <% if(wishlist.length>0) {%>
                            <thead>
                                <tr class="main-heading">
                                    <th scope="col">Image</th>
@@ -113,7 +114,7 @@
                                </tr>
                            </thead>
                            <tbody>
-                             <% if(wishlist.length>0) {%>
+                            
                                 <% for(let product of wishlist){%>
                                        <tr>
                                            <td class="image product-thumbnail" style="width:100px;height: 100px;">
@@ -135,8 +136,11 @@
                                           <%= product.salePrice%>
                                            </span></td>
                                            <td class="text-center" data-title="Add to Cart">
-                                            <button onclick="moveToCart('<%= product._id %>')" class="btn btn-sm btn-success">Add to Cart</button>
-                                           </td>
+                                            
+                                                <button onclick="moveToCart('<%= product._id %>')" class="btn btn-sm btn-success">Add to Cart</button>
+                                               </td>
+                                        </td>
+                                        
                                            <td class="action" data-title="Remove">
                                                <a class="btn btn-sm" href="#" onclick="confirmRemove('<%= product._id%>')">
                                                 <i class="ri-delete-bin-line" id="trash"></i>
@@ -147,7 +151,8 @@
                                        <% }else{ %>
                                    <tr>
                                        <td colspan="5" class="text-center">
-                                           <p class="lead mb-4">No items found in Wishlist</p>
+                                           <h2>Empty Wishlist</h2>
+                                           <p class="lead mb-4">You have no items in your wishlist. Start adding!</p>
                                        </td>
                                    </tr>
                                 <%}%>
@@ -187,56 +192,6 @@
 
 
 
-    document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('removed') === 'true') {
-      Swal.fire({
-        icon: 'success',
-        title: 'Removed!',
-        text: 'Product removed successfully.',
-        confirmButtonColor: '#388566'
-      });
-    }
-  });
-
-
-
-
-  
-    // function moveToCart(productId) {
-    //     fetch(`/moveToCart/${productId}`, {
-    //         method: 'POST',
-    //     })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         if (data.success) {
-    //             Swal.fire({
-    //                 icon: 'success',
-    //                 title: 'Moved to Cart!',
-    //                 text: data.message,
-    //                 confirmButtonColor: '#388566',
-    //             }).then(() => {
-    //                 location.reload(); // Reload the page to reflect changes
-    //             });
-    //         } else {
-    //             Swal.fire({
-    //                 icon: 'error',
-    //                 title: 'Oops!',
-    //                 text: data.message,
-    //                 confirmButtonColor: '#d33',
-    //             });
-    //         }
-    //     })
-    //     .catch(error => {
-    //         console.error("Error in moveToCart:", error);
-    //         Swal.fire({
-    //             icon: 'error',
-    //             title: 'Error',
-    //             text: 'An unexpected error occurred',
-    //             confirmButtonColor: '#d33',
-    //         });
-    //     });
-    // }
 
 
 
@@ -248,13 +203,22 @@
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+
+
+           // Update cart counter
+           const cartCount = document.getElementById('cartCounter');
+            if (cartCount) {
+                cartCount.textContent = data.cartCount;
+            }
+
+
             Swal.fire({
                 icon: 'success',
                 title: 'Moved to Cart!',
                 text: data.message,
                 confirmButtonColor: '#388566',
             }).then(() => {
-                location.reload(); // Only reload if necessary
+                location.reload(); 
             });
         } else {
             Swal.fire({

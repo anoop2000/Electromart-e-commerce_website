@@ -10,50 +10,92 @@ const {generateInvoicePDF} = require('../../utils/invoiceUtils');
  
 
 function generateOtp(){
-    const digits = "1234567890";  // A string containing all digits from 1 to 9 and 0
-    let otp = "";  // Initialize an empty string to store the OTP
-    for (let i = 0; i < 6; i++) {  // Loop 6 times to generate a 6-digit OTP
-        otp += digits[Math.floor(Math.random() * 10)];  // Randomly pick a digit from 'digits' string and append it to otp
+    const digits = "1234567890"; 
+    let otp = "";  
+    for (let i = 0; i < 6; i++) {  
+        otp += digits[Math.floor(Math.random() * 10)];  
     }
-    return otp;  // Return the generated OTP
+    return otp;  
 }
 
-const sendVerificationEmail  = async(email,otp)=>{
-    try {
 
+
+
+//---------------------------------------------------------------
+
+
+
+
+
+const sendVerificationEmail = async(email, otp, type = 'reset-password') => {
+    try {
         const transporter = nodemailer.createTransport({
-            service :"gmail",
-            port :587,
-            secure : false,
-            requireTLS : true,
+            service: "gmail",
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false,
+            requireTLS: true,
             auth: {
-                user : process.env.NODEMAILER_EMAIL,
-                pass : process.env.NODEMAILER_PASSWORD 
+                user: process.env.NODEMAILER_EMAIL,
+                pass: process.env.NODEMAILER_PASSWORD
             }
-        })
+        });
+
+        // Different subject and title based on type
+        let subject, headerTitle;
+        if (type === 'change-password') {
+            subject = "Your OTP for Password Reset";
+            headerTitle = "Password Reset Request";
+        } else {
+            subject = "Your OTP for New Password Reset";
+            headerTitle = "New Password Reset Request";
+        }
+
+        const htmlContent = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
+                    <h2 style="color: #333;">${headerTitle}</h2>
+                </div>
+                <div style="padding: 20px; border: 1px solid #ddd; border-radius: 5px; margin-top: 20px;">
+                    <p>Hello,</p>
+                    <p>We received a request to reset your password. Here is your OTP:</p>
+                    <div style="background-color: #f8f9fa; padding: 15px; text-align: center; margin: 20px 0;">
+                        <h1 style="color: #007bff; margin: 0; letter-spacing: 5px;">${otp}</h1>
+                    </div>
+                    
+                    <p>If you didn't request this password reset, please ignore this email.</p>
+                    <p style="margin-top: 20px; color: #666; font-size: 14px;">
+                        For security reasons, please do not share this OTP with anyone.
+                    </p>
+                </div>
+                <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
+                    <p>This is an automated email, please do not reply.</p>
+                    <p>© ${new Date().getFullYear()} ElectroMart. All rights reserved.</p>
+                </div>
+            </div>
+        `;
 
         const mailOptions = {
             from: process.env.NODEMAILER_EMAIL,
-            to : email,
-            subject :"Your OTP for password reset",
-            text : `Your OTP is ${otp}`,
-            html : `<b><h4>Your OTP : ${otp}</h4></b>`
-        }
+            to: email,
+            subject: subject,
+            html: htmlContent
+        };
 
-        const info = await transporter.sendMail(mailOptions)
-        console.log("Email Sent :",info.messageId);
+        const info = await transporter.sendMail(mailOptions);
+        //console.log("Email sent successfully:", info.messageId);
         return true;
-        
 
-        
     } catch (error) {
-        console.error("Error sending email",error);
+        console.error("Error sending email:", error);
         return false;
-        
-        
     }
-}
+};
 
+
+
+
+//---------------------------------------------------------------
 
 const securePassword = async(password)=>{
     try {
@@ -125,7 +167,7 @@ const forgotEmailValid = async(req,res)=>{
             req.session.userOtp = otp;
             req.session.email = email;
             res.render('forgot-pass-otp')
-            console.log("Generated OTP :",otp);
+            //console.log("Generated OTP :",otp);
             
         }else{
             res.json({success :false,message : "Failed to send OTP, Please try again"})
@@ -196,7 +238,7 @@ const resendOtp = async(req,res)=>{
         const otp = generateOtp();
         req.session.userOtp = otp;
         const email = req.session.email;
-        console.log("Resending OTP to email:",email);
+        //console.log("Resending OTP to email:",email);
         const emailSent = await sendVerificationEmail(email,otp);
         if(emailSent){
             console.log("Resend OTp :",otp);
@@ -386,7 +428,7 @@ const changePasswordValid = async (req, res) => {
             req.session.userOtp = otp;
             req.session.userData = req.body;
             req.session.email = email;
-            console.log("OTP sent:", otp);
+            //console.log("OTP sent:", otp);
 
             // Respond with success and redirect URL
             return res.json({
@@ -728,6 +770,7 @@ module.exports = {
     updateEmail,
     changePassword,
     changePasswordValid,
+    getchangePassOtp,
     verifyChangePassOtp,
     addAddress,
     postAddAddress,
@@ -737,6 +780,6 @@ module.exports = {
     getEditProfile,
     updateProfile,
     invoiceDownload,
-    getchangePassOtp
+    
     
 }

@@ -1,7 +1,7 @@
 const Product = require('../../models/productSchema')
 const Category = require('../../models/categorySchema')
 const User  =  require('../../models/userSchema')
-
+const Cart  = require('../../models/cartSchema')
 
 
 //----------------------------------------------------------------
@@ -21,6 +21,16 @@ const productDetails = async (req, res) => {
         const productOffer = product.productOffer || 0;
         const totalOffer = Number(categoryOffer) + Number(productOffer);
 
+        let isInCart = false;
+        if (userId) {
+            const cartItem = await Cart.findOne({
+                userid: userId,
+                'items.productId': productId
+            });
+            isInCart = cartItem ? true : false;
+        }
+        
+
         // Fetch related products based on the category
         const relatedProducts = await Product.find({
             category: findCategory, // Match the same category
@@ -33,7 +43,8 @@ const productDetails = async (req, res) => {
             quantity: product.quantity,
             totalOffer: totalOffer,
             category: findCategory,
-            relatedProducts: relatedProducts // Pass related products to the view
+            relatedProducts: relatedProducts, // Pass related products to the view
+            isInCart 
         });
 
     } catch (error) {

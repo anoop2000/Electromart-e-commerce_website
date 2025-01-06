@@ -10,6 +10,7 @@ dotenv.config()
 const db = require('./config/db')
 const userRouter = require('./routes/userRouter')
 const adminRouter = require('./routes/adminRouter')
+const updateCounts = require('./middlewares/countMiddleware');
 
 //const {errorHandler} = require('./middlewares/auth');
 
@@ -66,7 +67,7 @@ app.use(express.static(path.join(__dirname,'public')))
 
 app.use('/',userRouter)
 app.use('/admin',adminRouter)
-
+app.use(updateCounts);
 
 
 //app.use(errorHandler);

@@ -267,8 +267,8 @@
 
 .wishlist-btn {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: 5px;
+  right: 3px;
   cursor: pointer;
   z-index: 10;
 }
@@ -340,6 +340,27 @@ main {
   .breadcrumb-item:hover {
   color: red; 
 }
+
+
+    .wishlist-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+       
+    }
+
+    .wishlist-btn i {
+        font-size: 20px;
+    }
+    .wishlist-active {
+        color: red;
+    }
+    .wishlist-inactive {
+        color: grey;
+    }
+
+
 
 </style>
 
@@ -538,7 +559,17 @@ main {
 
         <%for(let i=0;i<products.length;i++) {%>
          <div class="product-card">
-           <span class="wishlist-btn " data-product-id="<%= products[i]._id %>"><a href="/wishlist">❤️</a></span>
+           <span class="wishlist-btn " data-product-id="<%= products[i]._id %>">
+
+                                      <button 
+                              class="wishlist-btn" 
+                              onclick="addToWishlist('<%= products[i]._id %>')"
+                              id="wishlist-btn-<%= products[i]._id %>"
+                    >
+                    <%= userWishlist.includes(products[i]._id) ? '❤️' : '🤍' %>
+                    </button>
+
+           </a></span>
            <a href="/product-details?id=<%=products[i]._id%>">
              <img src="/uploads/re-image/<%=products[i].productImage[0]%>" alt="<%=products[i].productName%>" />
              <h4><%=products[i].productName%></h4>
@@ -578,46 +609,70 @@ main {
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".wishlist-btn").forEach(button => {
-      button.addEventListener("click", async (event) => {
-        event.preventDefault(); 
+ 
 
-        const productId = button.getAttribute("data-product-id");
 
-        try {
-          const response = await fetch('/addToWishlist', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ productId })
-          });
 
-          const result = await response.json();
 
-          if (result.status) {
+async function addToWishlist(productId) {
+    $.ajax({
+        url: '/toggleWishlist',  // Updated to use the toggleWishlist route
+        method: 'POST',
+        data: { productId: productId },
+        success: function (response) {
+            if (response.status) {
+                // Update the heart icon based on whether it was added or removed
+                const newIcon = response.added ? '❤️' : '🤍';
+                $('#wishlist-btn-' + productId).html(newIcon);
+
+                // Optionally show a success message
+                Swal.fire({
+                    title: response.added ? 'Added to Wishlist' : 'Removed from Wishlist',
+                    text: response.message,
+                    icon: 'success',
+                    timer: 2000
+                }).then(()=>{
+                  location.reload();
+                })
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'There was an error processing your request',
+                    icon: 'error',
+                    timer: 2000
+                });
+            }
+        },
+        error: function (error) {
             Swal.fire({
-              icon: 'success',
-              title: 'Success',
-              text: result.message,
+                title: 'Error',
+                text: 'There was an error processing your request',
+                icon: 'error',
+                timer: 2000
             });
-          } else {
-            Swal.fire({
-              icon: 'info',
-              title: 'Oops!',
-              text: result.message,
-            });
-          }
-        } catch (error) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Something went wrong! Please try again later.',
-          });
         }
-      });
     });
-  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 </script>
+
+
+
+
+
+
 
 <script>
   // Show or hide the "clear" button based on input value

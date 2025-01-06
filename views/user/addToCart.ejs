@@ -575,6 +575,10 @@ function confirmRemoveProduct(productId, productName) {
                 .then((response) => {
                     if (response.ok) {
                         // Display success message after deletion
+
+
+                      
+
                         Swal.fire({
                             title: 'Removed!',
                             text: `${productName} has been removed from your cart.`,
@@ -585,7 +589,7 @@ function confirmRemoveProduct(productId, productName) {
 
                         // Reload the page after a short delay to update the cart view
                         setTimeout(() => {
-                            window.location.reload();
+                            window.location.href = "/getCart";
                         }, 1500);
                     } else {
                         // Handle failure response

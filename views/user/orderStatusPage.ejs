@@ -136,6 +136,43 @@
     margin-left: -95px;
 }
 
+
+
+
+
+
+.icon-with-counter {
+        position: relative;
+        display: inline-block;
+    }
+
+    .counter {
+        position: absolute;
+        top: 27px;
+        right: 240px;
+        background-color: #e53637;
+        color: white;
+        border-radius: 50%;
+        padding: 2px 6px;
+        font-size: 12px;
+        min-width: 18px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .wishlist-counter {
+        background-color: #e53637;
+    }
+
+    .cart-counter {
+        background-color: #3498db;
+    }
+    #cartCounter{
+        top :27px;
+        right: 190px;
+    }
+
+
 @media (max-width: 991px) {
     .header__menu {
         display: none;
@@ -239,8 +276,16 @@ main {
 
                     
                     <!-- <a href="#" class="search-switch"><img src="img/icon/search.png" alt=""></a> -->
-                    <a href="/wishlist"><img src="/img/icon/heart.png" alt=""></a>
-                    <a href="/getCart"><img src="/img/icon/cart.png" alt=""> <span></span></a>
+                    <a href="/wishlist"><img src="/img/icon/heart.png" alt="">
+                        <span class="counter wishlist-counter" id="wishlistCounter">
+                            <%= locals.wishlistCount || 0 %>
+                        </span>
+                    </a>
+                    <a href="/getCart"><img src="/img/icon/cart.png" alt=""> 
+                        <span class="counter cart-counter" id="cartCounter">
+                            <%= locals.cartCount || 0 %>
+                        </span>
+                    </a>
                     <!-- <div class="price">$0.00</div> -->
                 </div>
             </div>
@@ -923,6 +968,47 @@ function retryPayment(orderId, amount) {
     });
 }
 
+
+
+
+
+
+
+
+
+
+
+        function updateCounters() {
+            fetch('/get-counts')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('wishlistCounter').textContent = data.wishlistCount;
+                    document.getElementById('cartCounter').textContent = data.cartCount;
+                })
+                .catch(error => console.error('Error updating counters:', error));
+        }
+        
+        function updateWishlistCounter(increment = true) {
+            const counter = document.getElementById('wishlistCounter');
+            let count = parseInt(counter.textContent);
+            counter.textContent = increment ? count + 1 : count - 1;
+        }
+        
+        function updateCartCounter(increment = true) {
+            const counter = document.getElementById('cartCounter');
+            let count = parseInt(counter.textContent);
+            counter.textContent = increment ? count + 1 : count - 1;
+        }
+        
+        // Update counters when page loads
+        document.addEventListener('DOMContentLoaded', updateCounters);
+
+        // Make functions globally available
+        window.updateCounters = updateCounters;
+        window.updateWishlistCounter = updateWishlistCounter;
+        window.updateCartCounter = updateCartCounter;
+
+    
     </script>
 
 
