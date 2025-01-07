@@ -201,6 +201,34 @@ img {
 }
 
 
+
+
+
+
+
+
+
+
+.banner-title {
+    font-size: 2rem;
+    margin: 0;
+    font-weight: bold;
+}
+
+.banner-description {
+    font-size: 1rem;
+    margin: 0;
+    margin-top: 5px;
+}
+
+
+
+
+
+
+
+
+
 /* Media Queries for Responsiveness */
 @media (max-width: 768px) {
     .hero-slider .single-slider-img img {
@@ -237,9 +265,17 @@ img {
             <div class="swiper-wrapper">
                 <% banner.slice(0, 2).forEach(bannerItem => { %>
                     <div class="swiper-slide">
-                        <div class="single-slider-img">
-                            <img src="/uploads/re-image/<%= bannerItem.image %>" 
-                                 alt="<%= bannerItem.title %>">
+                        <!-- Single Slide -->
+                        <div class="single-slider">
+                            <div class="single-slider-img">
+                                <img src="/uploads/re-image/<%= bannerItem.image %>" 
+                                     alt="<%= bannerItem.title %>">
+                            </div>
+                            <!-- Title and Description below the image -->
+                            <div class="banner-content">
+                                <h4 class="banner-title"><%= bannerItem.title %></h4>
+                                <p class="banner-description"><%= bannerItem.description %></p>
+                            </div>
                         </div>
                     </div>
                 <% }) %>
@@ -250,16 +286,10 @@ img {
         </div>
     </div>
     
-    <!-- Content and pagination outside -->
-    <div class="banner-content-container">
-        <div class="banner-content">
-            <h4 class="banner-title"></h4>
-            <p class="banner-description"></p>
-        </div>
-        <!-- Pagination dots outside -->
-        <div class="swiper-pagination"></div>
-    </div>
+    <!-- Pagination dots outside -->
+    <div class="swiper-pagination"></div>
 </section>
+
 
 <!-- Banner Section -->
 <section class="banner-area pt-5 pb-5">
@@ -272,6 +302,7 @@ img {
                             <img src="/uploads/re-image/<%= bannerItem.image %>" alt="<%= bannerItem.title %>" style="width: 100%; height: auto;">
                         </a>
                         <h3><%= bannerItem.title%></h3>
+                        <p><%= bannerItem.description%></p>
                     </div>
                 </div>
             <% }) %>
@@ -444,7 +475,7 @@ img {
             // Events
             on: {
                 init: function () {
-                    console.log('Swiper initialized');
+                    //console.log('Swiper initialized');
                 },
             }
         });

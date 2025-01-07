@@ -19,6 +19,7 @@ router.get('/aboutUs',userController.aboutUs)
 
 router.get('/signup',userController.loadSignup)
 router.post('/signup',userController.signup)
+
 router.post('/verify-otp',userController.verifyOtp)
 router.post('/resend-otp',userController.resendOtp)
 

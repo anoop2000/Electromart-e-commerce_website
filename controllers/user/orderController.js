@@ -60,6 +60,7 @@ const ordersList = async (req, res) => {
             orders: enrichedOrders,
             message: enrichedOrders.length ? null : 'No orders found.',
             activeTab: 'orders',
+            totalOrders,
             totalPages,
             currentPage: page,
             limit,

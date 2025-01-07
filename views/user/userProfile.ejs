@@ -521,14 +521,13 @@
 
 
 
-      <% if (totalPages > 1) { %>
+      <% if (totalOrders > 0) { %>
         <div class="pagination-wrapper">
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
-                    <% for(let i = 1; i <= totalPages; i++) { %>
+                    <% for (let i = 1; i <= totalPages.orders; i++) { %>
                         <li class="page-item <%= currentPage == i ? 'active' : '' %>">
-                            <a class="page-link" 
-                               href="?page=<%= i %>&tab=<%= activeTab %>">
+                            <a class="page-link" href="?page=<%= i %>&tab=orders">
                                 <%= i %>
                             </a>
                         </li>
@@ -536,7 +535,8 @@
                 </ul>
             </nav>
         </div>
-      <% } %>
+    <% } %>
+    
 
 
 
@@ -629,11 +629,43 @@
                       </tbody>
                     </table>
                   </div>
+
+
+
+                  <% if (totalWalletHistory > 0) { %>
+                    <div class="pagination-wrapper">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center">
+                                <% for (let i = 1; i <= totalPages.walletHistory; i++) { %>
+                                    <li class="page-item <%= currentPage == i ? 'active' : '' %>">
+                                        <a class="page-link" href="?page=<%= i %>&tab=wallet-history">
+                                            <%= i %>
+                                        </a>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </nav>
+                    </div>
+                <% } %>
+                
+                  
+                  
+    
                 </div>
               </div>
 
             </div>
 
+
+
+
+
+
+           
+
+
+
+            <!----------------------------------------------------------------->
 
 
                <div class="tab-pane fade" id="referal" role="tabpanel" aria-labelledby="track-orders-tab">

@@ -106,48 +106,122 @@ const orderStatus = async (req, res) => {
 
 
   // pending
+  // const changeStatusPending = async (req, res) => {
+  //   try {
+  //     await Order.findOneAndUpdate(
+  //       { _id: req.params.id },
+  //       { $set: { status: "Pending" } }
+  //     );
+  //     res.redirect("/admin/orderList");
+  //   } catch (error) {
+  //     console.error("Error in status change",error.message,error.stack);
+  //   }
+  // };
+
+
+
   const changeStatusPending = async (req, res) => {
     try {
-      await Order.findOneAndUpdate(
-        { _id: req.params.id },
-        { $set: { status: "Pending" } }
-      );
-      res.redirect("/admin/orderList");
+        const orderId = req.params.id;
+        // Find and populate order with user details
+        const order = await Order.findById(orderId).populate('userId');
+        
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Update status and save (this will trigger the pre-save middleware)
+        order.status = 'Pending';
+        await order.save();
+
+        res.redirect('/admin/orderList');
     } catch (error) {
-      console.error("Error in status change",error.message,error.stack);
+        console.error('Error updating to pending:', error);
+        res.status(500).redirect('/admin/orderList');
     }
-  };
+};
 
 
 
 //shipped
+  // const changeStatusShipped = async (req, res) => {
+  //   try {
+  //     await Order.findOneAndUpdate(
+  //       { _id: req.params.id },
+  //       { $set: { status: "Shipped" } }
+  //     );
+  //     res.redirect("/admin/orderList");
+  //   } catch (error) {
+  //       console.error("Error in status change",error.message,error.stack);
+  //   }
+  // };
+
+
+
+
+
   const changeStatusShipped = async (req, res) => {
     try {
-      await Order.findOneAndUpdate(
-        { _id: req.params.id },
-        { $set: { status: "Shipped" } }
-      );
-      res.redirect("/admin/orderList");
+        const orderId = req.params.id;
+        const order = await Order.findById(orderId).populate('userId');
+        
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        order.status = 'Shipped';
+        await order.save();
+
+        res.redirect('/admin/orderList');
     } catch (error) {
-        console.error("Error in status change",error.message,error.stack);
+        console.error('Error updating to shipped:', error);
+        res.status(500).redirect('/admin/orderList');
     }
-  };
+};
+
+
 
 
 
   //deliverd
-const changeStatusDelivered = async (req, res) => {
-    try {
-      await Order.findOneAndUpdate(
-        { _id: req.params.id },
-        { $set: { status: "Delivered" } }
-      );
-    res.redirect("/admin/orderList");
+// const changeStatusDelivered = async (req, res) => {
+//     try {
+//       await Order.findOneAndUpdate(
+//         { _id: req.params.id },
+//         { $set: { status: "Delivered" } }
+//       );
+//     res.redirect("/admin/orderList");
     
-    } catch (error) {
-        console.error("Error in status change",error.message,error.stack);
-    }
-  };
+//     } catch (error) {
+//         console.error("Error in status change",error.message,error.stack);
+//     }
+//   };
+
+
+
+
+
+
+const changeStatusDelivered = async (req, res) => {
+  try {
+      const orderId = req.params.id;
+      const order = await Order.findById(orderId).populate('userId');
+      
+      if (!order) {
+          return res.status(404).json({ message: 'Order not found' });
+      }
+
+      order.status = 'Delivered';
+      await order.save();
+
+      res.redirect('/admin/orderList');
+  } catch (error) {
+      console.error('Error updating to delivered:', error);
+      res.status(500).redirect('/admin/orderList');
+  }
+};
+
+
 
 
 

@@ -42,6 +42,7 @@ const loadHomepage = async (req,res) => {
         endDate : {$gt : new Date(today)},
       })
     const user = req.session.user
+    
     const categories = await Category.find({ isListed: true });
     const categoryIds = categories.map(category => category._id);
     let productData = await Product.find({
@@ -252,7 +253,7 @@ async function sendVerificationEmail(email, otp) {
           }
       });
 
-      console.log("Transporter created...");
+      //console.log("Transporter created...");
 
       const info = await transporter.sendMail({
           from: process.env.NODEMAILER_EMAIL,
@@ -262,7 +263,7 @@ async function sendVerificationEmail(email, otp) {
           html: `<b>Your OTP: ${otp}</b>`,
       });
 
-      console.log("Email sent:", info);
+      //console.log("Email sent:", info);
       return info.accepted.length > 0;
 
   } catch (error) {
@@ -348,7 +349,9 @@ const signup = async (req, res) => {
 
           await saveUserData.save();
 
-          req.session.user= saveUserData._id;
+          //req.session.user= saveUserData._id;
+
+          req.session.user = null;
 
           res.json({success: true,redirectUrl :"/login"})
 
@@ -379,7 +382,7 @@ const signup = async (req, res) => {
 
       const emailSent = await sendVerificationEmail(email,otp)
       if(emailSent){
-        console.log("Resend OTP :",otp);
+        //console.log("Resend OTP :",otp);
         res.status(200).json({success: true,message : "OTP Resend Successfully"})
 
         
@@ -694,6 +697,10 @@ const filterByPrice = async (req, res) => {
       // Get pagination parameters
       const page = parseInt(req.query.page) || 1;
       const limit = 6;
+
+      // Get price range from query
+    const minPrice = parseFloat(req.query.gt) || 0;
+    const maxPrice = parseFloat(req.query.lt) || Infinity;
   
       // Get categories and brands for filtering
       const categories = await Category.find({ isListed: true });
@@ -704,6 +711,7 @@ const filterByPrice = async (req, res) => {
         isBlocked: false,
         quantity: { $gt: 0 },
         productName: { $regex: searchQuery, $options: 'i' }, // Case-insensitive partial match
+        salePrice: { $gt: minPrice, $lt: maxPrice },
       };
   
       // Apply active category filter if present
@@ -750,6 +758,10 @@ const filterByPrice = async (req, res) => {
         selectedBrand: activeBrand || '',
         sortBy: req.query.sortBy || '',
         sortOrder: req.query.sortOrder || '',
+        priceRange: {
+          min: minPrice,
+          max: maxPrice,
+        },
         userWishlist
       });
   

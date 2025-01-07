@@ -7,7 +7,7 @@ const session = require('express-session')
 const Order = require('../../models/orderSchema')
 const Cart = require('../../models/cartSchema')
 const {generateInvoicePDF} = require('../../utils/invoiceUtils');
- 
+const Wallet  = require('../../models/walletSchema') 
 
 function generateOtp(){
     const digits = "1234567890"; 
@@ -110,18 +110,65 @@ const securePassword = async(password)=>{
 
 
 
-const userProfile = async(req,res)=>{   
+// const userProfile = async(req,res)=>{   
+//     try {
+//         const userId = req.session.user;
+//         const userData = await User.findById(userId).populate('walletHistory');
+//         const addressData = await Address.findOne({ userId: userId });
+        
+//         // Add pagination parameters
+//         const limit = 8; // Match the limit from orderController
+//         const page = parseInt(req.query.page) || 1;
+//         const skip = (page - 1) * limit;
+
+//         // Fetch orders with pagination and sorting
+//         const orders = await Order.find({ userId })
+//             .populate('orderedItems.product')
+//             .sort({ createdAt: -1 })
+//             .skip(skip)
+//             .limit(limit)
+//             .lean();
+
+//         // Get total orders count for pagination
+//         const totalOrders = await Order.countDocuments({ userId });
+//         const totalPages = Math.ceil(totalOrders / limit);
+
+//         const emailUpdated = req.session.emailUpdated || false;
+//         req.session.emailUpdated = null;
+
+//         res.render('userProfile', {
+//             user: userData,
+//             userAddress: addressData,
+//             emailUpdated,
+//             orders,
+//             activeTab: req.query.tab || 'dashboard',
+//             totalPages,
+//             currentPage: page,
+//             totalOrders,
+//             limit
+//         });
+//     } catch (error) {
+//         console.log('Error retrieving profile data', error);
+//         res.redirect('/pageNotFound');
+//     }
+// }
+
+
+
+
+
+const userProfile = async (req, res) => {
     try {
         const userId = req.session.user;
         const userData = await User.findById(userId).populate('walletHistory');
         const addressData = await Address.findOne({ userId: userId });
-        
+
         // Add pagination parameters
-        const limit = 8; // Match the limit from orderController
+        const limit = 8; // Set limit for both orders and wallet history
         const page = parseInt(req.query.page) || 1;
         const skip = (page - 1) * limit;
 
-        // Fetch orders with pagination and sorting
+        // Fetch orders with pagination and sorting (latest first)
         const orders = await Order.find({ userId })
             .populate('orderedItems.product')
             .sort({ createdAt: -1 })
@@ -131,7 +178,18 @@ const userProfile = async(req,res)=>{
 
         // Get total orders count for pagination
         const totalOrders = await Order.countDocuments({ userId });
-        const totalPages = Math.ceil(totalOrders / limit);
+        const totalOrderPages = Math.ceil(totalOrders / limit);
+
+        // Fetch wallet history with pagination and sorting (latest first)
+        const walletHistory = await Wallet.find({ userId })
+            .sort({ date: -1 }) // Sort by date, latest first
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
+        // Get total wallet transactions count for pagination
+        const totalWalletHistory = await Wallet.countDocuments({ userId });
+        const totalWalletPages = Math.ceil(totalWalletHistory / limit);
 
         const emailUpdated = req.session.emailUpdated || false;
         req.session.emailUpdated = null;
@@ -141,16 +199,32 @@ const userProfile = async(req,res)=>{
             userAddress: addressData,
             emailUpdated,
             orders,
+            walletHistory,
             activeTab: req.query.tab || 'dashboard',
-            totalPages,
+            totalPages: {
+                orders: totalOrderPages,
+                walletHistory: totalWalletPages
+            },
             currentPage: page,
+            totalOrders,  // Make sure totalOrders is included
+            totalWalletHistory,  // Include totalWalletHistory
             limit
         });
     } catch (error) {
         console.log('Error retrieving profile data', error);
         res.redirect('/pageNotFound');
     }
-}
+};
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -159,29 +233,28 @@ const forgotEmailValid = async(req,res)=>{
     try {
 
         const {email} = req.body
-    const findUser =  await User.findOne({email : email})
-    if(findUser){
-        const otp = generateOtp();
-        const emailSent = await sendVerificationEmail(email,otp)
-        if(emailSent){
-            req.session.userOtp = otp;
-            req.session.email = email;
-            res.render('forgot-pass-otp')
-            //console.log("Generated OTP :",otp);
-            
-        }else{
-            res.json({success :false,message : "Failed to send OTP, Please try again"})
+        const findUser =  await User.findOne({email : email})
+        if(findUser){
+            const otp = generateOtp();
+            const emailSent = await sendVerificationEmail(email,otp)
+            if(emailSent){
+                req.session.userOtp = otp;
+                req.session.email = email;
+                res.render('forgot-pass-otp')
+                //console.log("Generated OTP :",otp);
+                
+            }else{
+                res.json({success :false,message : "Failed to send OTP, Please try again"})
+            }
+        }else {
+            res.render("forgot-password",{
+                message : "User with this email does not exist"
+            })
         }
-    }else {
-        res.render("forgot-password",{
-            message : "User with this email does not exist"
-        })
-    }
-
-
- }
+    
+    
         
-    catch (error) {
+   }   catch (error) {
         res.redirect('/pageNotFound')
         
     }

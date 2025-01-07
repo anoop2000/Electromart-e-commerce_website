@@ -418,177 +418,180 @@ img {
             <!--body end -->
   
             <!-- Address Section -->
-             <div class="col-lg-2">
-                <form action="/confirm-address" method="POST">
+            <div class="col-lg-2">
+              <form action="/confirm-address" method="POST">
                 <div class="address-dropdown">
-                    <h4 class="address-title">Select Your Address</h4>
-                    
-                    <ul class="list-group" style="width: 400px;">
-                      <% addressData.forEach((address) => { %>
-                        <li class="list-group-item">
-                          <div class="d-flex justify-content-between align-items-center">
-                            <div class="form-check">
-                              <!-- Radio Button for Selecting Address -->
-                              <input
-                                type="radio"
-                                class="form-check-input"
-                                id="selectAddress<%= address._id %>"
-                                name="selectedAddress"
-                                value="<%= address._id %>"
-                                required
-                              />
-                              <label class="form-check-label" for="selectAddress<%= address._id %>">
-                                <strong><%= address.addressType %></strong> - <%= address.city %>, <%= address.state %>
-                              </label>
-                            </div>
-                            <div>
-                              <!-- Edit Button -->
-                              <button
-                                class="btn btn-sm btn-outline-primary"
-                                data-bs-toggle="modal"
-                                data-bs-target="#editAddressModal<%= address._id %>"
-                              ><a href="/checkout/editAddress?id=<%=address._id%>"></a>
-                              Edit
-                              </button>
-                  
-                              <!-- Delete Button -->
-                              <button
-                                class="btn btn-sm btn-outline-danger"
-                                data-bs-toggle="modal"
-                                data-bs-target="#deleteAddressModal<%= address._id %>"
-                              >
-                                Delete
-                              </button>
-                            </div>
+                  <h4 class="address-title">Select Your Address</h4>
+                  <ul class="list-group" style="width: 400px;">
+                    <% addressData.forEach((address,index) => { %>
+                      <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div class="form-check">
+                            <!-- Radio Button for Selecting Address -->
+                            <input
+                              type="radio"
+                              class="form-check-input"
+                              id="selectAddress<%= address._id %>"
+                              name="selectedAddress"
+                              value="<%= address._id %>"
+                              required
+                            />
+                            <label class="form-check-label" for="selectAddress<%= address._id %>">
+                              <strong><%= address.addressType %></strong> - <%= address.city %>, <%= address.state %>
+                            </label>
                           </div>
-                        </li>
-
-                        
-                  
-                        <!-- Edit Modal -->
-                        <div
-                          class="modal fade"
-                          id="editAddressModal<%= address._id %>"
-                          tabindex="-1"
-                          aria-labelledby="editModalLabel"
-                          aria-hidden="true"
-                        >
-                          <div class="modal-dialog">
-                            <div class="modal-content">
-                              <form action="/checkout/editAddress?id=<%= address._id %>" method="POST">
-                                <div class="modal-header">
-                                  <h5 class="modal-title" id="editModalLabel">Edit Address</h5>
-                                  <button
-                                    type="button"
-                                    class="btn-close"
-                                    data-bs-dismiss="modal"
-                                    aria-label="Close"
-                                  ></button>
-                                </div>
-                                <div class="modal-body">
-                                  <!-- Updated Fields -->
-                                  <div class="form-group">
-                                    <label for="name">Address Type:</label>
-                                    <input
-                                      type="text"
-                                      name="addressType"
-                                      class="form-control"
-                                      value="<%= address.addressType %>"
-                                      required
-                                    />
-                                  </div>
-                                  <div class="form-group">
-                                    <label for="name">Name:</label>
-                                    <input
-                                      type="text"
-                                      name="name"
-                                      class="form-control"
-                                      value="<%= address.name %>"
-                                      required
-                                    />
-                                  </div>
-
-                                  <div class="form-group">
-                                    <label for="city">City:</label>
-                                        <input
-                                        type="text"
-                                        name="city"
-                                        class="form-control"
-                                        value="<%= address.city %>"
-                                        required
-                                        />
-                                  </div>
-
-                                  <div class="form-group">
-                                    <label for="street">Landmark:</label>
-                                    <input
-                                      type="text"
-                                      name="landMark"
-                                      class="form-control"
-                                      value="<%= address.landMark %>"
-                                      required
-                                    />
-                                  </div>
-                                  <div class="form-group">
-                                    <label for="state">State:</label>
-                                    <input
-                                      type="text"
-                                      name="state"
-                                      class="form-control"
-                                      value="<%= address.state %>"
-                                      required
-                                    />
-                                  </div>
-
-                                  <div class="form-group">
-                                    <label for="pinCode">PinCode:</label>
-                                    <input
-                                      type="text"
-                                      name="pinCode"
-                                      class="form-control"
-                                      value="<%= address.pincode %>"
-                                      required
-                                    />
-                                  </div>
-
-                                  
-                                  <div class="form-group">
-                                    <label for="phoneNumber">Phone Number:</label>
-                                    <input
-                                      type="text"
-                                      name="phoneNumber"
-                                      class="form-control"
-                                      value="<%= address.phone %>"
-                                      required
-                                    />
-                                  </div>
-
-                                  <div class="form-group">
-                                    <label for="country">Alternate Phone:</label>
-                                    <input
-                                      type="text"
-                                      name="altPhone"
-                                      class="form-control"
-                                      value="<%= address.altPhone %>"
-                                      required
-                                    />
-                                  </div>
-
-                                </div>
-                                <div class="modal-footer">
-                                  <button
-                                    type="button"
-                                    class="btn btn-secondary"
-                                    data-bs-dismiss="modal"
-                                  >
-                                    Cancel
-                                  </button>
-                                  <button type="submit" class="btn btn-primary" id="updateId">Update</button>
-                                </div>
-                              </form>
-                            </div>
+                          <div>
+                            <!-- Edit Button -->
+                            <button
+                              type="button"
+                              class="btn btn-sm btn-outline-primary"
+                              data-bs-toggle="modal"
+                              data-bs-target="#editAddressModal<%= address._id %>"
+                              data-address-id="<%= address._id %>"
+                               data-index="<%= index %>"
+                            >
+                              Edit
+                            </button>
+            
+                            <!-- Delete Button -->
+                            <button
+                              class="btn btn-sm btn-outline-danger"
+                              data-bs-toggle="modal"
+                              data-bs-target="#deleteAddressModal<%= address._id %>"
+                            >
+                              Delete
+                            </button>
                           </div>
                         </div>
+                      </li>
+            
+                      <!-- Edit Modal -->
+                      <div
+                        class="modal fade"
+                        id="editAddressModal<%= address._id %>"
+                        tabindex="-1"
+                        aria-labelledby="editModalLabel<%= address._id %>"
+                        aria-hidden="true"
+                      >
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <form action="/checkout/editAddress?id=<%= address._id %>" method="POST">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="editModalLabel<%= address._id %>">Edit Address</h5>
+                                <button
+                                  type="button"
+                                  class="btn-close"
+                                  data-bs-dismiss="modal"
+                                  aria-label="Close"
+                                ></button>
+                              </div>
+                              <div class="modal-body">
+                                <!-- Updated Fields -->
+                                <div class="form-group">
+                                  <label for="addressType<%= address._id %>">Address Type:</label>
+                                  <input
+                                    type="text"
+                                    id="addressType<%= address._id %>"
+                                    name="addressType"
+                                    class="form-control"
+                                    value="<%= address.addressType %>"
+                                    required
+                                  />
+                                </div>
+                                <div class="form-group">
+                                  <label for="name<%= address._id %>">Name:</label>
+                                  <input
+                                    type="text"
+                                    id="name<%= address._id %>"
+                                    name="name"
+                                    class="form-control"
+                                    value="<%= address.name %>"
+                                    required
+                                  />
+                                </div>
+                                <div class="form-group">
+                                  <label for="city<%= address._id %>">City:</label>
+                                  <input
+                                    type="text"
+                                    id="city<%= address._id %>"
+                                    name="city"
+                                    class="form-control"
+                                    value="<%= address.city %>"
+                                    required
+                                  />
+                                </div>
+                                <div class="form-group">
+                                  <label for="landMark<%= address._id %>">Landmark:</label>
+                                  <input
+                                    type="text"
+                                    id="landMark<%= address._id %>"
+                                    name="landMark"
+                                    class="form-control"
+                                    value="<%= address.landMark %>"
+                                    required
+                                  />
+                                </div>
+                                <div class="form-group">
+                                  <label for="state<%= address._id %>">State:</label>
+                                  <input
+                                    type="text"
+                                    id="state<%= address._id %>"
+                                    name="state"
+                                    class="form-control"
+                                    value="<%= address.state %>"
+                                    required
+                                  />
+                                </div>
+                                <div class="form-group">
+                                  <label for="pinCode<%= address._id %>">PinCode:</label>
+                                  <input
+                                    type="text"
+                                    id="pinCode<%= address._id %>"
+                                    name="pinCode"
+                                    class="form-control"
+                                    value="<%= address.pincode %>"
+                                    required
+                                  />
+                                </div>
+                                <div class="form-group">
+                                  <label for="phoneNumber<%= address._id %>">Phone Number:</label>
+                                  <input
+                                    type="text"
+                                    id="phoneNumber<%= address._id %>"
+                                    name="phoneNumber"
+                                    class="form-control"
+                                    value="<%= address.phone %>"
+                                    required
+                                  />
+                                </div>
+                                <div class="form-group">
+                                  <label for="altPhone<%= address._id %>">Alternate Phone:</label>
+                                  <input
+                                    type="text"
+                                    id="altPhone<%= address._id %>"
+                                    name="altPhone"
+                                    class="form-control"
+                                    value="<%= address.altPhone %>"
+                                    required
+                                  />
+                                </div>
+                              </div>
+                              <div class="modal-footer">
+                                <button
+                                  type="button"
+                                  class="btn btn-secondary"
+                                  data-bs-dismiss="modal"
+                                >
+                                  Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary">Update</button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+
+
                   
                         <!-- Delete Modal -->
                         <div
@@ -653,94 +656,7 @@ img {
               
               
               <!-- Edit Address Modal -->
-              <div 
-                class="modal fade" 
-                id="editAddressModal" 
-                tabindex="-1" 
-                aria-labelledby="editAddressLabel" 
-                aria-hidden="true"
-              >
-                <div class="modal-dialog">
-                  <div class="modal-content">
-                    <form id="editAddressForm">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="editAddressLabel">Edit Address</h5>
-                        <button 
-                          type="button" 
-                          class="btn-close" 
-                          data-bs-dismiss="modal" 
-                          aria-label="Close"
-                        ></button>
-                      </div>
-                      <div class="modal-body">
-                        <input type="hidden" id="editAddressId" />
-                        <div class="form-group mb-3">
-                          <label for="editAddressType">Address Type</label>
-                          <input 
-                            type="text" 
-                            id="editAddressType" 
-                            class="form-control" 
-                            required
-                          />
-                        </div>
-                        <div class="form-group mb-3">
-                          <label for="editName">Name</label>
-                          <input 
-                            type="text" 
-                            id="editName" 
-                            class="form-control" 
-                            required
-                          />
-                        </div>
-                        <div class="form-group mb-3">
-                          <label for="editCity">City</label>
-                          <input 
-                            type="text" 
-                            id="editCity" 
-                            class="form-control" 
-                            required
-                          />
-                        </div>
-                        <div class="form-group mb-3">
-                          <label for="editState">State</label>
-                          <input 
-                            type="text" 
-                            id="editState" 
-                            class="form-control" 
-                            required
-                          />
-                        </div>
-                        <div class="form-group mb-3">
-                          <label for="editPhone">Phone Number</label>
-                          <input 
-                            type="text" 
-                            id="editPhone" 
-                            class="form-control" 
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div class="modal-footer">
-                        <button 
-                          type="button" 
-                          class="btn btn-secondary" 
-                          data-bs-dismiss="modal"
-                        >
-                          Cancel
-                        </button>
-                        <button type="submit" class="btn btn-primary">Update</button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-              
-
-
-
-
-
-
+              <!--here-->
 
             <!--new address adding section end-->
 

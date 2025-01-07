@@ -528,9 +528,10 @@ const updateAddress = async (req, res) => {
       const userId = req.session.user; // Assuming user ID is available from authentication middleware
       const addressId = req.query.id; // Get the address ID from the query parameters
   
-      console.log("UserId :",userId);
-      console.log("addressId :",addressId);
+      //console.log("UserId :",userId);
+      //console.log("addressId :",addressId);
       
+      console.log("Address ID from query:", addressId);
       const updatedData = {
         "address.$.addressType": req.body.addressType,
         "address.$.name": req.body.name,
@@ -549,7 +550,9 @@ const updateAddress = async (req, res) => {
         { new: true, runValidators: true } // Return the updated document and validate input
       );
 
-      console.log("Address ID from query:", addressId);
+      
+
+      
 
   
       if (!updatedUser) {
@@ -1127,7 +1130,7 @@ const removeCoupon = async (req, res) => {
 //original 
 
 const createRazorpayOrder = async (req, res) => {
-    console.log("req.body from razorpay",req.body);
+    //console.log("req.body from razorpay",req.body);
     
     try {
 
@@ -1281,6 +1284,10 @@ const verifyPayment = async (req, res) => {
             }
         }
 
+        delete req.session.couponApplied;
+delete req.session.discountAmount;
+delete req.session.couponName;
+
         // Send appropriate response
         return res.status(200).json({
             success: isPaymentVerified,
@@ -1325,14 +1332,16 @@ const orderPlacedRzpy = async(req,res)=>{
                 order: currentOrder,
             });
 
-
+            await Cart.deleteOne({ userid: userId });
+            delete req.session.currentOrder;
+            
             // Clear cart and session data
-        await Cart.deleteOne({ userid: userId });
+        
         delete req.session.discountAmount;
         delete req.session.couponName;
         delete req.session.selectedAddress;
-        
-            delete req.session.currentOrder;
+            
+            
     } catch (error) {
         console.error("error message:",error);
         
@@ -1520,10 +1529,11 @@ const processWalletPayment = async (req, res) => {
             },
         });
 
+        
             delete req.session.couponApplied;
             delete req.session.discountAmount;
             delete req.session.couponName;
-
+        
 
     } catch (error) {
         console.error("Error processing wallet payment:", error);

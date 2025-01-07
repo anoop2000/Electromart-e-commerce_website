@@ -2,6 +2,7 @@ const mongoose  = require('mongoose')
 const {Schema} = mongoose
 
 const {v4:uuidv4} = require('uuid')
+const { sendOrderStatusEmail } = require('../utils/sendOrderEmail'); 
 
 const orderSchema = new Schema({
     orderid : {
@@ -90,6 +91,26 @@ const orderSchema = new Schema({
 
     
 },{timestamps : true})
+
+
+
+
+orderSchema.pre('save', async function(next) {
+    try {
+        // Only send email if status is changed
+        if (this.isModified('status')) {
+            // Populate user details
+            await this.populate('userId');
+            
+            // Send status email
+            await sendOrderStatusEmail(this, this.userId);
+        }
+        next();
+    } catch (error) {
+        console.error('Error in order pre-save middleware:', error);
+        next(error);
+    }
+});
 
 const Order = mongoose.model("Order",orderSchema)
 
