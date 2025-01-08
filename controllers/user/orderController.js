@@ -68,7 +68,7 @@ const ordersList = async (req, res) => {
             limit,
             userAddress: userAddresses,
             walletHistory,
-            totalWalletHistory
+            totalWallet
         });
 
     } catch (error) {
@@ -146,7 +146,7 @@ const cancelOrder = async (req, res) => {
     try {
         const orderId = req.params.id;
 
-        console.log("req.params.id :", req.params.id);
+        //console.log("req.params.id :", req.params.id);
 
         // Fetch the order and ensure it exists
         const order = await Order.findById(orderId).populate("orderedItems.product");
@@ -163,7 +163,8 @@ const cancelOrder = async (req, res) => {
         // Check if the payment type is not 'COD'
         if (order.paymentStatus === "Completed") {
             // Calculate refund amount based on finalAmount and discount
-            const refundAmount = order.finalAmount - order.discount;
+            const refundAmount = order.finalAmount ;
+            //- order.discount
 
             // Fetch the user associated with the order
             const user = await User.findById(order.userId);
@@ -316,7 +317,8 @@ const returnOrder = async (req, res) => {
         await order.save();
 
         // Calculate refund amount based on finalAmount and discount
-        const refundAmount = order.finalAmount - order.discount;
+        const refundAmount = order.finalAmount ;
+        //- order.discount;
 
         // Fetch the user associated with the order
         const user = await User.findById(order.userId);
