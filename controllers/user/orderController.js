@@ -68,7 +68,7 @@ const ordersList = async (req, res) => {
             limit,
             userAddress: userAddresses,
             walletHistory,
-            totalWallet
+            totalWalletHistory
         });
 
     } catch (error) {
