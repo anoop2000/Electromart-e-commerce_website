@@ -15,13 +15,15 @@ const Wallet = require('../../models/walletSchema')
 
 const ordersList = async (req, res) => {
     try {
-        console.log("Fetching orders for the user.");
+        //console.log("Fetching orders for the user.");
 
         const userId = req.session.user;
         if (!userId) {
             return res.redirect('/login');
         }
 
+        const walletHistory = await Wallet.find({ userId }).sort({ date: -1 });
+        const totalWalletHistory = await Wallet.countDocuments({ userId });
         const limit = 8; // Keep consistent with profileController
         const page = parseInt(req.query.page) || 1;
         const skip = (page - 1) * limit;
@@ -64,7 +66,9 @@ const ordersList = async (req, res) => {
             totalPages,
             currentPage: page,
             limit,
-            userAddress: userAddresses
+            userAddress: userAddresses,
+            walletHistory,
+            totalWalletHistory
         });
 
     } catch (error) {
@@ -218,7 +222,7 @@ const cancelOrder = async (req, res) => {
 
 const orderStatusPage = async (req, res) => {
     try {
-        console.log("Rendering order status page...");
+        //console.log("Rendering order status page...");
 
         // Check if the user is logged in
         if (!req.session.user || !req.session.user._id) {
@@ -228,7 +232,7 @@ const orderStatusPage = async (req, res) => {
         const userId = req.session.user._id;
         const orderId = req.params.id;
 
-        console.log("Order Id",orderId);
+        //console.log("Order Id",orderId);
         
 
         // Fetch the order data
@@ -299,7 +303,7 @@ const returnOrder = async (req, res) => {
     try {
         const orderId = req.params.id;
 
-        console.log("req.params.id :", req.params.id);
+        //console.log("req.params.id :", req.params.id);
 
         // Fetch the order and ensure it exists
         const order = await Order.findById(orderId).populate("orderedItems.product");

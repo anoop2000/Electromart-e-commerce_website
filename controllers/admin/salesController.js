@@ -115,6 +115,33 @@ const generateSalesReport = async (req, res) => {
 
 
 
+
+
+
+
+//-----------------------------------------1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 module.exports = {
     getReport,
     generateSalesReport

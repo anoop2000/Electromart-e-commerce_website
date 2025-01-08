@@ -110,48 +110,6 @@ const securePassword = async(password)=>{
 
 
 
-// const userProfile = async(req,res)=>{   
-//     try {
-//         const userId = req.session.user;
-//         const userData = await User.findById(userId).populate('walletHistory');
-//         const addressData = await Address.findOne({ userId: userId });
-        
-//         // Add pagination parameters
-//         const limit = 8; // Match the limit from orderController
-//         const page = parseInt(req.query.page) || 1;
-//         const skip = (page - 1) * limit;
-
-//         // Fetch orders with pagination and sorting
-//         const orders = await Order.find({ userId })
-//             .populate('orderedItems.product')
-//             .sort({ createdAt: -1 })
-//             .skip(skip)
-//             .limit(limit)
-//             .lean();
-
-//         // Get total orders count for pagination
-//         const totalOrders = await Order.countDocuments({ userId });
-//         const totalPages = Math.ceil(totalOrders / limit);
-
-//         const emailUpdated = req.session.emailUpdated || false;
-//         req.session.emailUpdated = null;
-
-//         res.render('userProfile', {
-//             user: userData,
-//             userAddress: addressData,
-//             emailUpdated,
-//             orders,
-//             activeTab: req.query.tab || 'dashboard',
-//             totalPages,
-//             currentPage: page,
-//             totalOrders,
-//             limit
-//         });
-//     } catch (error) {
-//         console.log('Error retrieving profile data', error);
-//         res.redirect('/pageNotFound');
-//     }
-// }
 
 
 
@@ -163,31 +121,32 @@ const userProfile = async (req, res) => {
         const userData = await User.findById(userId).populate('walletHistory');
         const addressData = await Address.findOne({ userId: userId });
 
-        // Add pagination parameters
         const limit = 8; // Set limit for both orders and wallet history
-        const page = parseInt(req.query.page) || 1;
-        const skip = (page - 1) * limit;
 
-        // Fetch orders with pagination and sorting (latest first)
+        // Handle order pagination
+        const ordersPage = parseInt(req.query.ordersPage) || 1;
+        const ordersSkip = (ordersPage - 1) * limit;
+
         const orders = await Order.find({ userId })
             .populate('orderedItems.product')
             .sort({ createdAt: -1 })
-            .skip(skip)
+            .skip(ordersSkip)
             .limit(limit)
             .lean();
 
-        // Get total orders count for pagination
         const totalOrders = await Order.countDocuments({ userId });
         const totalOrderPages = Math.ceil(totalOrders / limit);
 
-        // Fetch wallet history with pagination and sorting (latest first)
+        // Handle wallet history pagination
+        const walletPage = parseInt(req.query.walletPage) || 1;
+        const walletSkip = (walletPage - 1) * limit;
+
         const walletHistory = await Wallet.find({ userId })
-            .sort({ date: -1 }) // Sort by date, latest first
-            .skip(skip)
+            .sort({ date: -1 })
+            .skip(walletSkip)
             .limit(limit)
             .lean();
 
-        // Get total wallet transactions count for pagination
         const totalWalletHistory = await Wallet.countDocuments({ userId });
         const totalWalletPages = Math.ceil(totalWalletHistory / limit);
 
@@ -205,9 +164,12 @@ const userProfile = async (req, res) => {
                 orders: totalOrderPages,
                 walletHistory: totalWalletPages
             },
-            currentPage: page,
-            totalOrders,  // Make sure totalOrders is included
-            totalWalletHistory,  // Include totalWalletHistory
+            currentPages: {
+                orders: ordersPage,
+                walletHistory: walletPage
+            },
+            totalOrders,
+            totalWalletHistory,
             limit
         });
     } catch (error) {
@@ -215,7 +177,6 @@ const userProfile = async (req, res) => {
         res.redirect('/pageNotFound');
     }
 };
-
 
 
 

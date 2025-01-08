@@ -30,7 +30,7 @@ const sendOrderStatusEmail = async (order, user) => {
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log("Order status email sent successfully:", info.messageId);
+        //console.log("Order status email sent successfully:", info.messageId);
         return true;
 
     } catch (error) {

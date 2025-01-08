@@ -925,7 +925,7 @@ const orderPlaced = async (req, res) => {
             });
 
             
-
+            //delete  req.session.currentOrder;
 
 
         } else {
@@ -1074,56 +1074,111 @@ const applyCoupon = async (req, res) => {
 
 
 
+// const removeCoupon = async (req, res) => {
+//     try {
+//         // Reset session values related to the coupon
+//         req.session.couponApplied = false;
+//         req.session.couponName = null;
+//         req.session.discountAmount = 0;
+
+//         // Get user ID from the session
+//         const userId = req.session.user._id || req.session.user;
+
+//         // Fetch the cart data to recalculate the grand total
+//         const cartData = await Cart.find({ userId }).populate('productId');
+
+//         let grandTotal = 0;
+//         cartData.forEach(item => {
+//             grandTotal += item.productId.salePrice * item.productQty;
+//         });
+
+//         // Update session with the recalculated grand total
+//         req.session.grandTotal = grandTotal;
+
+//         // If there's a current order, update it to reflect coupon removal
+//         if (req.session.currentOrder && req.session.currentOrder._id) {
+//             await Order.findByIdAndUpdate(req.session.currentOrder._id, {
+//                 $set: {
+//                     couponApplied: false,
+//                     couponName: null,
+//                     discountAmount: 0,
+//                     finalAmount: grandTotal, // Ensure `finalAmount` is reverted
+//                 }
+//             });
+//         }
+
+//         //console.log("req.session.currentOrder :",req.session.currentOrder._id);
+        
+
+//         // Respond with success and the new grand total
+//         res.json({
+//             success: true,
+//             message: 'Coupon removed successfully',
+//             newTotal: grandTotal
+//         });
+//     } catch (error) {
+//         console.error('Error removing coupon:', error);
+//         res.status(500).json({
+//             success: false,
+//             message: 'Error removing coupon'
+//         });
+//     }
+// };
+
+
+
 const removeCoupon = async (req, res) => {
     try {
-        // Reset session values related to the coupon
-        req.session.couponApplied = false;
-        req.session.couponName = null;
-        req.session.discountAmount = 0;
-
-        // Get user ID from the session
-        const userId = req.session.user._id || req.session.user;
-
-        // Fetch the cart data to recalculate the grand total
-        const cartData = await Cart.find({ userId }).populate('productId');
-
-        let grandTotal = 0;
-        cartData.forEach(item => {
-            grandTotal += item.productId.salePrice * item.productQty;
-        });
-
-        // Update session with the recalculated grand total
-        req.session.grandTotal = grandTotal;
-
-        // If there's a current order, update it to reflect coupon removal
-        if (req.session.currentOrder && req.session.currentOrder._id) {
-            await Order.findByIdAndUpdate(req.session.currentOrder._id, {
-                $set: {
-                    couponApplied: false,
-                    couponName: null,
-                    discountAmount: 0,
-                    finalAmount: grandTotal, // Ensure `finalAmount` is reverted
-                }
+        // Check if a coupon is applied
+        if (!req.session.couponApplied) {
+            return res.json({
+                success: false,
+                message: "No coupon is applied to remove.",
             });
         }
 
-        //console.log("req.session.currentOrder :",req.session.currentOrder._id);
-        
+        // Clear all coupon-related data from the session
+        delete req.session.couponApplied;
+        delete req.session.couponName;
+        delete req.session.discountAmount;
 
-        // Respond with success and the new grand total
+        // Recalculate the grand total without the discount
+        const userId = req.session.user;
+        const cartData = await Cart.findOne({ userid: userId }).populate('items.productId');
+
+        if (!cartData || !cartData.items.length) {
+            req.session.grandTotal = 0; // Set grand total to 0 if the cart is empty
+        } else {
+            let newTotal = 0;
+            cartData.items.forEach(item => {
+                const product = item.productId;
+                if (product) {
+                    const itemTotal = item.quantity * product.salePrice;
+                    newTotal += itemTotal;
+                }
+            });
+            req.session.grandTotal = newTotal; // Update grand total in the session
+        }
+
+        // Send a success response
         res.json({
             success: true,
-            message: 'Coupon removed successfully',
-            newTotal: grandTotal
+            message: "Coupon removed successfully.",
+            grandTotal: req.session.grandTotal,
         });
+
     } catch (error) {
-        console.error('Error removing coupon:', error);
+        console.error("Error in removeCoupon:", error);
         res.status(500).json({
             success: false,
-            message: 'Error removing coupon'
+            message: "Internal Server Error. Please try again later.",
         });
     }
 };
+
+
+
+
 
 //---------------------------------------------------------------
 
@@ -1361,7 +1416,7 @@ const orderPlacedRzpy = async(req,res)=>{
 
 const processWalletPayment = async (req, res) => {
     try {
-        console.log("Starting process wallet controller...");
+        //console.log("Starting process wallet controller...");
 
         // Validate user session
         const userId = req.session.user;
@@ -1440,7 +1495,7 @@ const processWalletPayment = async (req, res) => {
             const categoryId = product.category;
             const brand  = product.brand;
 
-            console.log("sales count :"+product.salesCount+", "+"categoryId :"+categoryId+", "+"brand :"+brand);
+            //console.log("sales count :"+product.salesCount+", "+"categoryId :"+categoryId+", "+"brand :"+brand);
             
             await Category.findByIdAndUpdate(categoryId ,{
                 $inc :{totalSales : item.quantity}

@@ -110,7 +110,7 @@ router.post('/selectPaymentType',blockUserCheck,userAuth,cartController.selectPa
 router.get('/orderSuccess',blockUserCheck,userAuth,cartController.orderPlaced)
 
 router.post('/checkout/applyCoupon',blockUserCheck,userAuth,cartController.applyCoupon)
-//router.post('/checkout/removeCoupon',blockUserCheck,userAuth,cartController.removeCoupon)
+router.post('/checkout/removeCoupon',blockUserCheck,userAuth,cartController.removeCoupon)
 
 router.post('/create-razorpay-order',blockUserCheck, userAuth, cartController.createRazorpayOrder);
 router.post('/verify-payment',blockUserCheck, userAuth, cartController.verifyPayment);
