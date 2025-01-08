@@ -150,6 +150,13 @@ const userProfile = async (req, res) => {
         const totalWalletHistory = await Wallet.countDocuments({ userId });
         const totalWalletPages = Math.ceil(totalWalletHistory / limit);
 
+
+        const totalReferralEarnings = userData.walletHistory
+        .filter(transaction => transaction.description === 'Referral Bonus')
+        .reduce((total, transaction) => total + transaction.amount, 0);
+
+        console.log("totalreferralearnings :",totalReferralEarnings);
+
         const emailUpdated = req.session.emailUpdated || false;
         req.session.emailUpdated = null;
 
@@ -170,7 +177,8 @@ const userProfile = async (req, res) => {
             },
             totalOrders,
             totalWalletHistory,
-            limit
+            limit,
+            totalReferralEarnings,
         });
     } catch (error) {
         console.log('Error retrieving profile data', error);

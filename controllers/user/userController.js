@@ -8,6 +8,11 @@ const nodemailer = require("nodemailer");
 const env = require("dotenv").config();
 const bcrypt = require('bcrypt');
 const Wishlist = require('../../models/wishlistSchema')
+const Wallet = require('../../models/walletSchema')
+
+function generateReferralCode() {
+  return 'REF' + Math.random().toString(36).substring(2, 8).toUpperCase();  // Random code
+}
 
 const pageNotFound = async (req,res)=>{
   try{
@@ -276,7 +281,7 @@ async function sendVerificationEmail(email, otp) {
 
 const signup = async (req, res) => {
   try {
-      const { name,phone,email, password, cPassword } = req.body;
+      const { name,phone,email, password, cPassword,referralCode } = req.body;
 
       
       // Check if user with this email already exists
@@ -297,9 +302,9 @@ const signup = async (req, res) => {
 
       // Save OTP and user data in session for verification
       req.session.userOtp = otp;
-      req.session.userData = { name,phone,email, password };
+      req.session.userData = { name,phone,email, password, referralCode };
 
-      console.log("OTP Sent:", otp);
+      //console.log("OTP Sent:", otp);
 
       // Redirect to OTP verification page or render it
       res.render("verify-otp");
@@ -329,6 +334,8 @@ const signup = async (req, res) => {
     } 
 
 
+
+
   const verifyOtp = async (req,res)=>{
     try {
 
@@ -344,8 +351,59 @@ const signup = async (req, res) => {
             name : user.name,
             email : user.email,
             phone : user.phone,
-            password : passwordHash
+            password : passwordHash,
+            referralCode: generateReferralCode(),  
+            referredBy: user.referredBy || null
           })
+
+          await saveUserData.save();
+          //---------------------------------------------------------------------------------------------
+
+          //console.log("Referral Code from user:", user.referralCode);
+
+          if (user.referralCode) {
+            const referrer = await User.findOne({ referralCode: user.referralCode });
+            //console.log("referrer :",referrer);
+            
+
+            if (referrer) {
+                // Credit Rs. 20 to the new user
+                saveUserData.wallet += 20;
+
+                // Credit Rs. 50 to the referrer
+                referrer.wallet += 50;
+
+                // Create wallet transactions for both users
+                const walletTransactionForNewUser = new Wallet({
+                    userId: saveUserData._id,
+                    amount: 20,
+                    status: 'Added',
+                    description: 'Referral Bonus'
+                });
+
+                const walletTransactionForReferrer = new Wallet({
+                    userId: referrer._id,
+                    amount: 50,
+                    status: 'Added',
+                    description: 'Referral Bonus'
+                });
+
+                // Save wallet transactions
+                await walletTransactionForNewUser.save();
+                await walletTransactionForReferrer.save();
+
+                // Update the walletHistory for both users
+                saveUserData.walletHistory.push(walletTransactionForNewUser._id);
+                referrer.walletHistory.push(walletTransactionForReferrer._id);
+
+                // Save both users
+                await referrer.save();
+            }
+        }
+
+
+
+          //---------------------------------------------------------------------------------------------------
 
           await saveUserData.save();
 
