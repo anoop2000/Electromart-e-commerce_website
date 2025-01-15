@@ -22,6 +22,8 @@ const ordersList = async (req, res) => {
             return res.redirect('/login');
         }
 
+        const user = await User.findById(userId).populate('walletHistory');
+
         const walletHistory = await Wallet.find({ userId }).sort({ date: -1 });
         const totalWalletHistory = await Wallet.countDocuments({ userId });
         const limit = 8; // Keep consistent with profileController
@@ -57,6 +59,11 @@ const ordersList = async (req, res) => {
             ) || null
         }));
 
+        // Calculate total referral earnings
+    const totalReferralEarnings = user.walletHistory
+    .filter(transaction => transaction.description === 'Referral Bonus')
+    .reduce((sum, transaction) => sum + transaction.amount, 0);
+
         // Render with consistent parameters
         res.render('userProfile', {
             orders: enrichedOrders,
@@ -68,7 +75,8 @@ const ordersList = async (req, res) => {
             limit,
             userAddress: userAddresses,
             walletHistory,
-            totalWalletHistory
+            totalWalletHistory,
+            totalReferralEarnings
         });
 
     } catch (error) {
